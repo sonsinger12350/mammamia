@@ -1,0 +1,71 @@
+:root {
+	--color-primary: #013660;
+	--color-white: #fff;
+}
+
+footer .widget .widget-title {
+	text-transform: uppercase;
+	height: 80px;
+	color: var(--color-white);
+	margin-bottom: 0;
+	font-size: 26px;
+}
+
+/* Footer Contact Info */
+.widget_astra_child_custom_widget_footer_contact_info .item span {
+	line-height: 1.2;
+	color: var(--color-white);
+}
+
+.widget_astra_child_custom_widget_footer_contact_info .item span a {
+	color: var(--color-white);
+}
+/* End Footer Contact Info */
+
+/* Footer Socials */
+.widget_astra_child_custom_widget_footer_socials .footer-logo {
+	text-align: center;
+	margin-bottom: 17px;
+}
+
+.widget_astra_child_custom_widget_footer_socials .footer-logo img {
+	width: 110px;
+	height: auto;
+}
+
+.widget_astra_child_custom_widget_footer_socials .footer-socials {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 16px;
+}
+
+.widget_astra_child_custom_widget_footer_socials .footer-socials .item {
+	display: block;
+}
+
+.widget_astra_child_custom_widget_footer_socials .footer-socials .item img {
+	width: 50px;
+    height: 50px;
+    object-fit: contain;
+	justify-content: center;
+}
+/* End Footer Socials */
+
+/* Footer Menu */
+.widget_astra_child_custom_widget_footer_menu .footer-menu {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+.widget_astra_child_custom_widget_footer_menu .footer-menu a {
+	display: block;
+	color: var(--color-white);
+}
+/* End Footer Menu */
+@media (max-width: 576px) {
+	footer .widget .widget-title {
+		height: auto;
+		margin-bottom: 16px;
+	}
+}

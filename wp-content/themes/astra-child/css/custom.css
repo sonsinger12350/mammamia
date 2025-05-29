@@ -1,0 +1,40 @@
+#masthead {
+	position: fixed;
+	width: 100%;
+}
+
+.elementor-element:has(.custom-header-slide) {
+	padding: 0px;
+}
+
+.elementor-element:has(.custom-header-slide) .e-con-inner {
+	padding: 0px;
+}
+
+.elementor-element .custom-header-slide .swiper .swiper-slide .swiper-slide-inner img {
+	width: 100%;
+	height: 800px;
+	object-fit: cover;
+}
+
+.elementor-element .custom-header-slide .swiper .elementor-swiper-button {
+	top: unset;
+	bottom: 5%;
+	transform: unset;
+	border: 1px solid;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.elementor-element .custom-header-slide .swiper .elementor-swiper-button-prev {
+	left: unset;
+	right: 150px;
+}
+
+.elementor-element .custom-header-slide .swiper .elementor-swiper-button-next {
+	right: 60px;
+}
