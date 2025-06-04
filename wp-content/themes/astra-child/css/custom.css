@@ -1,6 +1,27 @@
+@font-face {
+	font-family: 'UTM-Horizon';
+	src: url('/wp-content/themes/astra-child/assets/font/utm-horizon/UTM-Horizon.ttf') format('opentype');
+	font-weight: normal;
+	font-style: normal;
+}
+
+.title-font * {
+	font-family: 'UTM-Horizon', sans-serif !important;
+}
+
 #masthead {
 	position: fixed;
 	width: 100%;
+	background-color: var(--color-blue);
+}
+
+#masthead.active,
+#masthead.active .ast-primary-header-bar {
+	background-color: #132E2DBA;
+}
+
+#content {
+	margin-top: 95px;
 }
 
 .elementor-element:has(.custom-header-slide) {
@@ -46,6 +67,12 @@
 	
 }
 
+@media (max-width: 921px) {
+	#content {
+		margin-top: 91px;
+	}
+}
+
 @media (max-width: 767px) {
 	.elementor-element .custom-header-slide .swiper .swiper-slide .swiper-slide-inner img {
 		height: 500px;
@@ -68,6 +95,12 @@
 
 	.elementor-element .custom-header-slide .swiper .elementor-swiper-button-next {
 		right: 30px;
+	}
+}
+
+@media (max-width: 544px) {
+	#content {
+		margin-top: 57px;
 	}
 }
 

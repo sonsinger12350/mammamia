@@ -3,12 +3,14 @@
 require_once get_stylesheet_directory() . '/widgets/footer-contact-info.php';
 require_once get_stylesheet_directory() . '/widgets/footer-socials.php';
 require_once get_stylesheet_directory() . '/widgets/footer-menu.php';
+require_once get_stylesheet_directory() . '/widgets/header-menu.php';
 
 // Đăng ký các widget
 function astra_child_register_custom_widgets() {
 	register_widget('Astra_Child_Custom_Widget_Footer_Contact_Info');
 	register_widget('Astra_Child_Custom_Widget_Footer_Socials');
 	register_widget('Astra_Child_Custom_Widget_Footer_Menu');
+	register_widget('Astra_Child_Custom_Widget_Header_Menu');
 }
 add_action('widgets_init', 'astra_child_register_custom_widgets');
 

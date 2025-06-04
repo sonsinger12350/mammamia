@@ -49,7 +49,7 @@ class Custom_Elementor_Widget_Projects extends \Elementor\Widget_Base {
                             . '<span class="item-date">' . get_the_date('d M Y', $post) . '</span>'
                             . '<h3 class="item-title">' . get_the_title($post) . '</h3>'
                             . '<div class="item-content">' . get_the_excerpt($post) . '</div>'
-                            . '<a href="' . get_the_permalink($post) . '" class="button-primary">Xem tiếp</a>'
+                            . '<a href="' . get_the_permalink($post) . '" class="button-primary">Xem thêm</a>'
                         . '</div>'
                         . '<div class="item-image">' . get_the_post_thumbnail($post, 'full')
                         .     '<a href="' . get_the_post_thumbnail_url($post, 'full') . '" class="zoom-image" data-fancybox>'
