@@ -8,11 +8,11 @@ jQuery(function($) {
 		}
 	});
 
-	$('.projects-list').owlCarousel({
+	$('.projects-slide .list').owlCarousel({
 		loop: true,
 		margin: 10,
 		nav: true,
-		autoplay: true,
+		autoplay: false,
 		autoplayTimeout: 5000,
 		autoplayHoverPause: true,
 		navText:[
@@ -55,4 +55,33 @@ jQuery(function($) {
 			$('.header-menu-mobile .mobile-menu-toggle .toggle-icon[data-action="open"]').addClass('active');
 		}
 	});
+
+	$('body').on('click', '.projects-list-widget .pagination .page-number, .projects-list-widget .pagination .next-page', function(e) {
+		e.preventDefault();
+	
+		let page = $(this).data('page');
+		let container = $('.projects-list-widget');
+	
+		if (!page) return;
+
+		$.ajax({
+			url: woocommerce_params.ajax_url,
+			type: 'POST',
+			data: {
+				action: 'load_projects_page',
+				page: page,
+			},
+			beforeSend: function() {
+				container.find('.pagination').html('<i class="fa fa-spinner fa-pulse" aria-hidden="true"></i>');
+			},
+			success: function(response) {
+				container.html(response);
+
+				$('html, body').animate({
+					scrollTop: container.offset().top - 200
+				}, 500);
+			}
+		});
+	});
+	
 });

@@ -5,23 +5,23 @@ use Elementor\Repeater;
 
 class Custom_Elementor_Widget_Partners extends \Elementor\Widget_Base {
 
-    public function get_name() {
-        return 'custom_widget_partners';
-    }
+	public function get_name() {
+		return 'custom_widget_partners';
+	}
 
-    public function get_title() {
-        return __('Custom Widget Partners', 'astra-child');
-    }
+	public function get_title() {
+		return __('Custom Widget Partners', 'astra-child');
+	}
 
-    public function get_icon() {
-        return 'eicon-code'; // Icon cho widget
-    }
+	public function get_icon() {
+		return 'eicon-code';
+	}
 
-    public function get_categories() {
-        return ['widget-custom']; // Danh mục widget
-    }
+	public function get_categories() {
+		return ['widget-custom'];
+	}
 
-    protected function register_controls() {
+	protected function register_controls() {
 
 		$this->start_controls_section(
 			'section_items',
@@ -111,7 +111,7 @@ class Custom_Elementor_Widget_Partners extends \Elementor\Widget_Base {
 		$this->end_controls_section();
 	}
 
-    protected function render() {
+	protected function render() {
 		$settings = $this->get_settings_for_display();
 		$output = '';
 
@@ -131,5 +131,5 @@ class Custom_Elementor_Widget_Partners extends \Elementor\Widget_Base {
 		}
 
 		echo $output;
-    }
+	}
 }

@@ -1,12 +1,12 @@
 <?php
-class Custom_Elementor_Widget_Projects extends \Elementor\Widget_Base {
+class Custom_Elementor_Widget_Projects_Slide extends \Elementor\Widget_Base {
 
 	public function get_name() {
-		return 'custom_widget_projects';
+		return 'custom_widget_projects_slide';
 	}
 
 	public function get_title() {
-		return __('Custom Widget Projects', 'astra-child');
+		return __('Custom Widget Projects Slide', 'astra-child');
 	}
 
 	public function get_icon() {
@@ -40,16 +40,16 @@ class Custom_Elementor_Widget_Projects extends \Elementor\Widget_Base {
 		
 		if (empty($query->posts)) return null;
 
-		$output = '<div class="projects-slide">';
+		$output = '<div class="projects-slide-header projects-slide">';
 		$output .= '<div class="list owl-carousel owl-theme">';
 
 		foreach ($query->posts as $post) {
 			$output .= '<div class="item">'
 						. '<div class="item-body">'
-							. '<span class="item-date">' . get_the_date('d M Y', $post) . '</span>'
-							. '<h3 class="item-title">' . get_the_title($post) . '</h3>'
-							. '<div class="item-content">' . get_the_excerpt($post) . '</div>'
-							. '<a href="' . get_the_permalink($post) . '" class="button-primary">Xem thêm</a>'
+							. '<div class="content">'
+								. '<h3 class="item-title">' . get_the_title($post) . '</h3>'
+								. '<div class="item-content">' . get_the_excerpt($post) . '</div>'
+							. '</div>'
 						. '</div>'
 						. '<div class="item-image">' . get_the_post_thumbnail($post, 'full')
 						.     '<a href="' . get_the_post_thumbnail_url($post, 'full') . '" class="zoom-image" data-fancybox>'
