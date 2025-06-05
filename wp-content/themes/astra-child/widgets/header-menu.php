@@ -28,11 +28,12 @@ class Astra_Child_Custom_Widget_Header_Menu extends WP_Widget
 
 		echo '<div class="header-menu-desktop">';
 			echo '<form class="search-form" action="/" method="get">';
-				echo '<input type="text" name="s" placeholder="' . esc_attr__( 'Tìm kiếm...', 'astra-child' ) . '"required
+				echo '<input type="text" name="s" placeholder="' . esc_attr__( 'Tìm kiếm...', 'astra-child' ) . '" required
 						oninvalid="this.setCustomValidity(\'Vui lòng nội dung tìm kiếm\')"
 						oninput="this.setCustomValidity(\'\')"
 				>';
-				echo '<img class="search-icon" src="' . get_stylesheet_directory_uri() . '/assets/icon/zoom.svg" alt="zoom">';
+				echo '<img class="search-icon" src="' . get_stylesheet_directory_uri() . '/assets/icon/search.svg" alt="zoom">';
+				echo '<a href="/wishlist" class="wishlist-icon"><img src="' . get_stylesheet_directory_uri() . '/assets/icon/heart.svg" alt="heart"><span class="wishlist-count">1</span></a>';
 			echo '</form>';
 			echo '<div class="menu-list">';
 
@@ -61,12 +62,13 @@ class Astra_Child_Custom_Widget_Header_Menu extends WP_Widget
 			foreach ( $menu as $menu_item ) {
 				echo '<a href="' . esc_url( $menu_item->url ) . '">' . esc_html( $menu_item->title ) . '</a>';
 			}
+			echo '<a href="/wishlist" class="wishlist-link">' . esc_attr__( 'Sản phẩm yêu thích', 'astra-child' ) . '</a>';
 			echo '<form class="search-form" action="/" method="get">';
-					echo '<input type="text" name="s" required
+					echo '<input type="text" name="s" placeholder="' . esc_attr__( 'Tìm kiếm...', 'astra-child' ) . '" required
 							oninvalid="this.setCustomValidity(\'Vui lòng nội dung tìm kiếm\')"
 							oninput="this.setCustomValidity(\'\')"
 					>';
-				echo '<button type="submit" class="btn-search"><img class="search-icon" src="' . get_stylesheet_directory_uri() . '/assets/icon/zoom.svg" alt="zoom"></button>';
+				echo '<button type="submit" class="btn-search"><img class="search-icon" src="' . get_stylesheet_directory_uri() . '/assets/icon/search.svg" alt="zoom"></button>';
 			echo '</form>';
 			echo '</div>';
 		echo '</div>';

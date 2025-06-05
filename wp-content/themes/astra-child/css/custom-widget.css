@@ -254,6 +254,31 @@ footer .widget .widget-title {
     height: 25px;
 	cursor: pointer;
 }
+
+.header-menu-desktop .search-form .wishlist-icon {
+	position: relative;
+}
+
+.header-menu-desktop .search-form .wishlist-icon img {
+	width: 25px;
+    height: 25px;
+}
+
+.header-menu-desktop .search-form .wishlist-icon .wishlist-count {
+	position: absolute;
+    right: -5px;
+    top: 0px;
+    background-color: #dca956;
+    color: var(--color-blue);
+    border-radius: 50%;
+    width: 12px;
+    height: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 /* End Header Menu */
 
 /* Header Menu Mobile */
@@ -309,16 +334,19 @@ footer .widget .widget-title {
 
 .header-menu-mobile .menu-list .search-form  .btn-search {
 	position: absolute;
-	right: 8px;
-    top: 9px;
-    padding: 10px;
+    right: 8px;
+    top: 10px;
+    padding: 7px;
     background: #afafaf;
-    border-top-left-radius: 0px;
-    border-bottom-left-radius: 0px;
+    border-radius: 0;
 }
 
 .header-menu-mobile .menu-list .search-form  .btn-search img {
-	width: 20px;
+	width: 25px;
+}
+
+.header-menu-mobile .wishlist-link {
+	text-transform: uppercase;
 }
 /* End Header Menu Mobile */
 
