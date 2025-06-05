@@ -599,23 +599,6 @@ footer .widget .widget-title {
 	align-items: center;
 }
 
-@media (max-width: 1199px) {
-	.header-menu-desktop .menu-list a {
-		padding: 16px 10px;
-		font-size: 15px;
-	}
-}
-
-@media (max-width: 991px) {
-	.header-menu-desktop {
-		display: none;
-	}
-
-	.header-menu-mobile {
-		display: block;
-	}
-}
-
 /* End Header Menu */
 
 /* Header Menu Mobile */
@@ -684,6 +667,24 @@ footer .widget .widget-title {
 
 .header-menu-mobile .wishlist-link {
 	text-transform: uppercase;
+}
+
+
+@media (max-width: 1199px) {
+	.header-menu-desktop .menu-list a {
+		padding: 16px 10px;
+		font-size: 15px;
+	}
+}
+
+@media (max-width: 991px) {
+	.header-menu-desktop {
+		display: none;
+	}
+
+	.header-menu-mobile {
+		display: block;
+	}
 }
 /* End Header Menu Mobile */
 
