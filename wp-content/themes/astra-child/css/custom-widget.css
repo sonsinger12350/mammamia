@@ -88,6 +88,12 @@ footer .widget .widget-title {
 	display: block;
 	color: var(--color-white);
 }
+
+@media (max-width: 544px) {
+	.widget_astra_child_custom_widget_footer_menu {
+		justify-content: start;
+	}
+}
 /* End Footer Menu */
 
 /* Projects Widget */
@@ -716,6 +722,7 @@ footer .widget .widget-title {
 	text-transform: uppercase;
 	font-weight: 500;
 	font-size: 18px;
+	text-decoration: none !important;
 }
 /* End Breadcrumb Widget */
 
@@ -787,6 +794,12 @@ footer .widget .widget-title {
 
 .projects-list-widget .pagination .page-number.current {
 	font-weight: bold;
+}
+
+.projects-list-widget .pagination .next-page {
+	background-color: unset;
+	padding: 0px 10px;
+	color: #000;
 }
 
 @media (max-width: 991px) {

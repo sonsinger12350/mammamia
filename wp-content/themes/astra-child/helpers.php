@@ -48,7 +48,7 @@ function get_projects_list_html($paged = 1) {
 		// Next page button
 		if ($paged < $total_pages) {
 			$next_page = $paged + 1;
-			$output .= '<button data-page="' . $next_page . '" class="next-page button-primary">Tiếp theo</button>';
+			$output .= '<button data-page="' . $next_page . '" class="next-page"><i class="fa fa-angle-double-right" aria-hidden="true"></i></button>';
 		}
 
 		$output .= '</div>';

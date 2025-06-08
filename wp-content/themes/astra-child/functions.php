@@ -147,4 +147,16 @@ add_filter( 'wpseo_breadcrumb_separator', function($sep) {
 	return '/';
 } );
 
+add_filter('wpseo_breadcrumb_links', function($links) {
+    $site_name = get_bloginfo('name');
+
+    if (isset($links[0]['text']) && $links[0]['text'] === 'Trang chủ') {
+        $links[0]['text'] = $site_name;
+    }
+
+    return $links;
+}
+);
+
+
 ?>
