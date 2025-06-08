@@ -20,9 +20,16 @@ class Astra_Child_Custom_Widget_Header_Menu extends WP_Widget
 
 	public function widget($args, $instance)
 	{
+		global $wp;
+
+		$queried_object_id = get_queried_object_id();
+		$current_url = home_url(add_query_arg([], $wp->request));
 		$locations = get_nav_menu_locations();
 		if (empty($locations['primary'])) return null;
+
 		$menu = wp_get_nav_menu_items($locations['primary']);
+		$count_wishlist = '';
+		// $count_wishlist = '<span class="wishlist-count">1</span>';
 
 		echo $args['before_widget'];
 
@@ -33,12 +40,17 @@ class Astra_Child_Custom_Widget_Header_Menu extends WP_Widget
 						oninput="this.setCustomValidity(\'\')"
 				>';
 				echo '<img class="search-icon" src="' . get_stylesheet_directory_uri() . '/assets/icon/search.svg" alt="zoom">';
-				echo '<a href="/wishlist" class="wishlist-icon"><img src="' . get_stylesheet_directory_uri() . '/assets/icon/heart.svg" alt="heart"><span class="wishlist-count">1</span></a>';
+				echo '<a href="/wishlist" class="wishlist-icon"><img src="' . get_stylesheet_directory_uri() . '/assets/icon/heart.svg" alt="heart">' . $count_wishlist . '</a>';
 			echo '</form>';
 			echo '<div class="menu-list">';
 
 			foreach ( $menu as $menu_item ) {
-				echo '<a href="' . esc_url( $menu_item->url ) . '">' . esc_html( $menu_item->title ) . '</a>';
+				if (isset($menu_item->object_id) && intval($menu_item->object_id) === intval($queried_object_id)) {
+					$is_active = 'active';
+				} else {
+					$is_active = (trailingslashit($menu_item->url) === trailingslashit($current_url)) ? 'active' : '';
+				}
+				echo '<a href="' . esc_url( $menu_item->url ) . '" text="'.$menu_item->object_id.'"  id="'.$queried_object_id.'" class="' . $is_active . '">' . esc_html( $menu_item->title ) . '</a>';
 			}
 
 			echo '</div>';
@@ -60,7 +72,8 @@ class Astra_Child_Custom_Widget_Header_Menu extends WP_Widget
 			';
 
 			foreach ( $menu as $menu_item ) {
-				echo '<a href="' . esc_url( $menu_item->url ) . '">' . esc_html( $menu_item->title ) . '</a>';
+				$is_active = (trailingslashit($menu_item->url) === trailingslashit($current_url)) ? 'active' : '';
+				echo '<a href="' . esc_url( $menu_item->url ) . '" class="' . $is_active . '">' . esc_html( $menu_item->title ) . '</a>';
 			}
 			echo '<a href="/wishlist" class="wishlist-link">' . esc_attr__( 'Sản phẩm yêu thích', 'astra-child' ) . '</a>';
 			echo '<form class="search-form" action="/" method="get">';

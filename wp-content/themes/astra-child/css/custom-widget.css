@@ -1,6 +1,7 @@
 :root {
 	--color-blue: #062b29;
 	--color-white: #fff;
+	--color-orange: #d78c43;
 }
 
 .button-primary {
@@ -72,11 +73,17 @@ footer .widget .widget-title {
 /* End Footer Socials */
 
 /* Footer Menu */
+.widget_astra_child_custom_widget_footer_menu {
+	display: flex;
+	justify-content: center;
+}
+
 .widget_astra_child_custom_widget_footer_menu .footer-menu {
 	display: flex;
 	flex-direction: column;
 	gap: 6px;
 }
+
 .widget_astra_child_custom_widget_footer_menu .footer-menu a {
 	display: block;
 	color: var(--color-white);
@@ -418,6 +425,16 @@ footer .widget .widget-title {
 }
 
 @media (max-width: 450px) {
+	.projects-slide .list .item-body {
+		padding: 16px;
+		min-width: 180px;
+	}
+
+	.projects-slide .list .item-body .button-primary {
+		padding: 6px;
+		font-size: 12px;
+	}
+
 	.projects-slide.projects-slide-header .list .item-image img {
 		height: 300px;
 	}
@@ -545,6 +562,10 @@ footer .widget .widget-title {
 	padding: 16px;
 	color: var(--ast-global-color-4);
 	text-decoration: none;
+}
+
+.header-menu-desktop .menu-list a.active {
+	color: var(--color-orange);
 }
 
 .header-menu-desktop .search-form {
