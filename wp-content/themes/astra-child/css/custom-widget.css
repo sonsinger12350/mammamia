@@ -23,6 +23,11 @@
 	transition: all .3s;
 }
 
+.button-primary:hover,
+.button-primary:focus {
+	color: #fff;
+}
+
 footer .widget .widget-title {
 	text-transform: uppercase;
 	height: 80px;
@@ -762,6 +767,7 @@ footer .widget .widget-title {
 	font-family: 'UTM-HORIZON';
 	font-size: 56px;
 	line-height: 1.2;
+	text-transform: uppercase;
 }
 
 .projects-list-widget .item .item-body .content .item-content {
