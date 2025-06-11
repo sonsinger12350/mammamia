@@ -60,14 +60,6 @@
 	right: 60px;
 }
 
-.gtranslate_wrapper .glink {
-	color: #fff;
-}
-
-.gtranslate_wrapper .glink.gt-current-lang {
-	color: var(--color-orange);
-}
-
 @media (max-width: 1199px) {
 	.elementor-element .custom-header-slide .swiper .swiper-slide .swiper-slide-inner img {
 		height: 500px;
