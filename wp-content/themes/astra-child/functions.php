@@ -127,11 +127,12 @@ add_action('elementor/elements/categories_registered', function($elements_manage
 add_action('elementor/widgets/register', function($widgets_manager) {
 	if (defined('ELEMENTOR_PATH') && class_exists('Elementor\Widget_Base')) {
 		$widgets = [
-			'/widgets/home/projects.php'        => 'Custom_Elementor_Widget_Projects',
-			'/widgets/home/partners.php'        => 'Custom_Elementor_Widget_Partners',
-			'/widgets/projects/slide.php'       => 'Custom_Elementor_Widget_Projects_Slide',
-			'/widgets/projects/list.php'        => 'Custom_Elementor_Widget_Projects_List',
-			'/widgets/breadcrumb.php'           => 'Custom_Elementor_Widget_Breadcrumb',
+			'/widgets/home/projects.php'        				=> 'Custom_Elementor_Widget_Projects',
+			'/widgets/home/partners.php'        				=> 'Custom_Elementor_Widget_Partners',
+			'/widgets/projects/slide.php'       				=> 'Custom_Elementor_Widget_Projects_Slide',
+			'/widgets/projects/list.php'        				=> 'Custom_Elementor_Widget_Projects_List',
+			'/widgets/breadcrumb.php'           				=> 'Custom_Elementor_Widget_Breadcrumb',
+			'/widgets/products/list-product-category.php'       => 'Custom_Elementor_Widget_Product_List_By_Category',
 		];
 
 		foreach ($widgets as $path => $class) {
@@ -155,8 +156,5 @@ add_filter('wpseo_breadcrumb_links', function($links) {
     }
 
     return $links;
-}
-);
-
-
+});
 ?>

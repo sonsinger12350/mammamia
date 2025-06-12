@@ -83,5 +83,12 @@ jQuery(function($) {
 			}
 		});
 	});
-	
+
+	$('body').on('click', '.product-list-by-category .btn-collapse', function(e) {
+		let btn = $(this);
+		let item = btn.closest('.item-body').find('.list-product');
+
+		btn.toggleClass('active');
+		item.toggleClass('active');
+	});
 });
