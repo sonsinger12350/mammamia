@@ -1,6 +1,6 @@
 .elementor-550 .elementor-element.elementor-element-a186b8f{--display:flex;--padding-top:0px;--padding-bottom:0px;--padding-left:0px;--padding-right:0px;}.elementor-550 .elementor-element.elementor-element-7c6f7f4{--display:flex;}.elementor-widget-breadcrumbs{font-family:var( --e-global-typography-secondary-font-family ), Sans-serif;font-weight:var( --e-global-typography-secondary-font-weight );}.elementor-550 .elementor-element.elementor-element-edf2431{font-family:"Montserrat", Sans-serif;font-size:20px;font-weight:600;text-transform:uppercase;color:var( --e-global-color-f30612b );}.elementor-550 .elementor-element.elementor-element-edf2431 a{color:var( --e-global-color-f30612b );}@media(min-width:768px){.elementor-550 .elementor-element.elementor-element-a186b8f{--content-width:100%;}}/* Start Custom Fonts CSS */@font-face {
 	font-family: 'Montserrat';
 	font-display: auto;
-	src: url('https://mammamia.test/wp-content/uploads/2025/06/Montserrat-VariableFont_wght.ttf') format('truetype');
+	src: url('/wp-content/uploads/2025/06/Montserrat-VariableFont_wght.ttf') format('truetype');
 }
 /* End Custom Fonts CSS */

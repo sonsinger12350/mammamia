@@ -7,6 +7,6 @@
 /* Start Custom Fonts CSS */@font-face {
 	font-family: 'Montserrat';
 	font-display: auto;
-	src: url('https://mammamia.test/wp-content/uploads/2025/06/Montserrat-VariableFont_wght.ttf') format('truetype');
+	src: url('/wp-content/uploads/2025/06/Montserrat-VariableFont_wght.ttf') format('truetype');
 }
 /* End Custom Fonts CSS */
