@@ -58,23 +58,49 @@ function get_projects_list_html($paged = 1) {
 	return ob_get_clean();
 }
 
-function get_product_list_by_category($cat) {
+function getProductListByConditions($conditions) {
+	if (empty($conditions['category'])) return null;
+
 	$args = [
 		'post_type'      => 'product',
 		'posts_per_page' => 12,
 		'post_status'    => 'publish',
 		'tax_query'      => [
+			'relation' => 'AND',
 			[
 				'taxonomy' => 'product_cat',
 				'field'    => 'term_id',
-				'terms'    => $cat,
+				'terms'    => $conditions['category']->term_id,
 			],
+		],
+		'meta_query'     => [
+			'relation' => 'AND',
 		],
 	];
 
-	$query = new WP_Query($args);
+	foreach ($conditions as $k => $v) {
+		if ($k == 'category') continue;
 
-	if (!$query->have_posts()) return '<div>Không có dự án nào.</div>';
+		if (!empty($v)) {
+			if ($k == 'brand') {
+				$args['tax_query'][] = [
+					'taxonomy' => 'product_brand',
+					'field'    => 'term_id',
+					'terms'    => $v,
+				];
+			}
+			else {
+				$args['meta_query'][] = [
+					'key'     => $k,
+					'value'   => $v,
+					'compare' => '=',
+				];
+			}
+		}
+	}
+
+	$query = new WP_Query($args);
+	if (!$query->have_posts()) return '<p align="center">Sản phẩm đang cập nhật.</p>';
 
 	ob_start();
 	$output = '';
@@ -89,13 +115,99 @@ function get_product_list_by_category($cat) {
 					. '</a>'
 				. '</div>';
 	}
+
 	$output .= '</div>';
 
 	$output .= '<div class="button-footer">';
-	if (count($query->posts) > 4) $output .= '<button type="button" class="button-primary btn-collapse"><span class="open">Xem thêm</span><span class="close">Thu gọn</span> <i class="fa fa-angle-down" aria-hidden="true"></i></button>';
-	$output .= '<a href="' . get_term_link($cat, 'product_cat') . '" class="button-primary btn-view-all">Truy cập danh mục <i class="fa fa-angle-double-right" aria-hidden="true"></i></a>';
-	$output .= '</div>';
+
+	if (count($query->posts) > 4) {
+		$output .= '
+			<button type="button" class="button-primary btn-collapse">
+				<span class="open">Xem thêm</span><span class="close">Thu gọn</span> <i class="fa fa-angle-down" aria-hidden="true"></i>
+			</button>
+		';
+	}
+	
+	$output .= '
+		<a href="' . get_term_link($conditions['category'], 'product_cat') . '" class="btn-view-all">
+			Truy cập danh mục ' . $conditions['category']->name . ' <i class="fa fa-angle-double-right" aria-hidden="true"></i>
+		</a>
+		</div>
+	';
 
 	echo $output;
 	return ob_get_clean();
+}
+
+function getAllBrandByCat($cat) {
+	if (empty($cat->taxonomy) || $cat->taxonomy != 'product_cat') return null;
+	global $wpdb;
+
+	$listCat = get_term_children($cat->term_id, $cat->taxonomy);
+	$listCat[] = $cat->term_id;
+	$listCat = implode(',', $listCat);
+
+	$wpdb->query("SET SESSION group_concat_max_len = 500000");
+	$sql = " SELECT GROUP_CONCAT(DISTINCT tr1.term_taxonomy_id)
+		FROM {$wpdb->term_relationships} tr1
+		JOIN (
+			SELECT DISTINCT object_id
+			FROM {$wpdb->term_relationships}
+			WHERE term_taxonomy_id IN ($listCat)
+		) AS filtered_objects ON tr1.object_id = filtered_objects.object_id
+		WHERE tr1.term_taxonomy_id NOT IN ($listCat)
+	";
+
+	$taxonomy = $wpdb->get_var($sql);
+	if (empty($taxonomy)) return null;
+
+	$sql = "SELECT t.term_id, tt.taxonomy, t.name
+		FROM {$wpdb->term_taxonomy} AS tt
+		JOIN {$wpdb->terms} AS t ON tt.term_id = t.term_id
+		WHERE tt.taxonomy = 'product_brand'
+		AND t.term_id IN ($taxonomy)
+	";
+	$result = $wpdb->get_results($sql);
+
+	foreach ($result as $item) {
+		$data[$item->term_id] = $item->name;
+	}
+
+	return $data;
+}
+
+function getAllCustomFieldValueByCat($cat, $customField) {
+	if (empty($cat->taxonomy) || $cat->taxonomy != 'product_cat' || empty($customField)) return null;
+
+	global $wpdb;
+
+	$listCat = get_term_children($cat->term_id, $cat->taxonomy);
+	$listCat[] = $cat->term_id;
+	$listCat = implode(',', array_map('intval', $listCat));
+
+	$wpdb->query("SET SESSION group_concat_max_len = 500000");
+	$sql = "
+		SELECT GROUP_CONCAT(DISTINCT p.ID)
+		FROM {$wpdb->posts} p
+		INNER JOIN {$wpdb->term_relationships} tr ON p.ID = tr.object_id
+		INNER JOIN {$wpdb->term_taxonomy} tt ON tr.term_taxonomy_id = tt.term_taxonomy_id
+		WHERE tt.taxonomy = 'product_cat'
+		AND tt.term_id IN ($listCat)
+		AND p.post_type = 'product'
+		AND p.post_status = 'publish'
+	";
+
+	$product_ids = $wpdb->get_var($sql);
+	if (empty($product_ids)) return null;
+
+	$sql = "
+		SELECT DISTINCT meta_value
+		FROM {$wpdb->postmeta}
+		WHERE post_id IN ($product_ids)
+		AND meta_key = '$customField'
+		AND meta_value IS NOT NULL
+		AND meta_value != ''
+	";
+
+	return $wpdb->get_col($sql);
 }

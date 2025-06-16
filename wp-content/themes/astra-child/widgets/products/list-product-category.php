@@ -31,13 +31,11 @@ class Custom_Elementor_Widget_Product_List_By_Category extends \Elementor\Widget
 
 	protected function render() {
 		if (!is_tax('product_cat')) return false;
-		$current_category = get_queried_object(); // Trả về đối tượng của taxonomy hiện tại
-		$current_cat_id = $current_category->term_id;
 
-		// Lấy danh sách category con
+		$currentCat = get_queried_object();
 		$child_categories = get_terms([
 			'taxonomy'   => 'product_cat',
-			'parent'     => $current_cat_id,
+			'parent'     => $currentCat->term_id,
 			'hide_empty' => true,
 		]);
 
@@ -45,7 +43,6 @@ class Custom_Elementor_Widget_Product_List_By_Category extends \Elementor\Widget
 
 		if (!empty($child_categories) && !is_wp_error($child_categories)) {
 			foreach ($child_categories as $category) {
-				$link = get_term_link($category);
 				$content .= '
 					<div class="item">
 						<div class="item-header">
@@ -54,15 +51,26 @@ class Custom_Elementor_Widget_Product_List_By_Category extends \Elementor\Widget
 						</div>
 						<hr>
 						<div class="item-body">
-							'. get_product_list_by_category($category->term_id) .'
+							'. getProductListByConditions(['category' => $category]) .'
 						</div>
 					</div>
 				';
 			}
-			
 		}
 		else {
-			$content .= '<p align="center">' . esc_html__('Nội dung đang cập nhật.', 'astra-child') . '</p>';
+			$category = $category = get_term($currentCat->term_id, 'product_cat');
+			$content .= '
+				<div class="item">
+					<div class="item-header">
+						<h3 class="item-title">' . esc_html($category->name) . '</h3>
+						<p class="item-description">' . esc_html($category->description) . '</p>
+					</div>
+					<hr>
+					<div class="item-body">
+						'. getProductListByConditions(['category' => $category]) .'
+					</div>
+				</div>
+			';
 		}
 
 		$content .= '</div>';

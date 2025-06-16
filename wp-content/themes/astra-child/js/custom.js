@@ -1,4 +1,12 @@
 jQuery(function($) {
+	function scrollToElement(element, distance = 200) {
+		$('html, body').animate({
+			scrollTop: element.offset().top - distance
+		}, 500);
+	}
+
+	let loadingIcon = '<i class="fa fa-spinner fa-pulse" aria-hidden="true"></i>';
+
 	$(window).on('scroll', function () {
 		if ($(this).scrollTop() > 100) {
 			$('#masthead').addClass('active');
@@ -72,23 +80,68 @@ jQuery(function($) {
 				page: page,
 			},
 			beforeSend: function() {
-				container.find('.pagination').html('<i class="fa fa-spinner fa-pulse" aria-hidden="true"></i>');
+				container.find('.pagination').html(loadingIcon);
 			},
 			success: function(response) {
 				container.html(response);
-
-				$('html, body').animate({
-					scrollTop: container.offset().top - 200
-				}, 500);
+				scrollToElement(container);
 			}
 		});
 	});
 
 	$('body').on('click', '.product-list-by-category .btn-collapse', function(e) {
-		let btn = $(this);
-		let item = btn.closest('.item-body').find('.list-product');
+		$(this).toggleClass('active');
+		$(this).closest('.item-body').find('.list-product').toggleClass('active');
+		$(this).closest('.item-body').find('.btn-view-all').toggleClass('active');
+	});
 
-		btn.toggleClass('active');
-		item.toggleClass('active');
+	$('.custom-filter-product').on('submit', function(e) {
+		let btn = $(this).find('button[type="submit"]');
+		let btnHtml = btn.html();
+		let form = $(this).serialize();
+
+		$.ajax({
+			url: woocommerce_params.ajax_url,
+			type: 'POST',
+			data: {
+				action: 'filter_products',
+				form: form,
+			},
+			beforeSend: function() {
+				btn.html(loadingIcon);
+				btn.prop('disabled', true);
+			},
+			success: function(response) {
+				btn.html(btnHtml);
+				btn.prop('disabled', false);
+				$('.product-list-by-category').html(response);
+				scrollToElement($('.product-list-by-category'));
+			}
+		});
+
+		return false;
+	});
+
+	$('body').on('click', '#collapse-content', function() {
+		let show = 'Xem thêm';
+		let hide = 'Thu gọn';
+
+		$('.content-collapse').toggleClass('active');
+
+		if ($('.content-collapse').hasClass('active')) {
+			$(this).html(hide);
+		}
+		else {
+			$(this).html(show);
+		}
+	});
+
+	$('body').on('click', '.custom-table-content .elementor-toc__top-level', function(e) {
+		e.preventDefault();
+		let target = $(this).attr('href');
+
+		scrollToElement($(target), 150);
+
+		return false;
 	});
 });

@@ -1,6 +1,6 @@
 <?php
 require_once get_stylesheet_directory() . '/helpers.php';
-require_once get_stylesheet_directory() . '/widgets/ajax.php';
+require_once get_stylesheet_directory() . '/ajax.php';
 
 // Widgets: [path => class]
 $custom_widgets = [
@@ -133,6 +133,7 @@ add_action('elementor/widgets/register', function($widgets_manager) {
 			'/widgets/projects/list.php'        				=> 'Custom_Elementor_Widget_Projects_List',
 			'/widgets/breadcrumb.php'           				=> 'Custom_Elementor_Widget_Breadcrumb',
 			'/widgets/products/list-product-category.php'       => 'Custom_Elementor_Widget_Product_List_By_Category',
+			'/widgets/products/filter-product.php'       		=> 'Custom_Elementor_Widget_Filter_Product',
 		];
 
 		foreach ($widgets as $path => $class) {
