@@ -28,8 +28,8 @@ class Astra_Child_Custom_Widget_Header_Menu extends WP_Widget
 		if (empty($locations['primary'])) return null;
 
 		$menu = wp_get_nav_menu_items($locations['primary']);
-		$count_wishlist = '';
-		// $count_wishlist = '<span class="wishlist-count">1</span>';
+		$count_wishlist = get_user_wishlist_count();
+		$count_wishlist = $count_wishlist > 0 ? '<span class="wishlist-count">' . $count_wishlist . '</span>' : '';
 
 		echo $args['before_widget'];
 

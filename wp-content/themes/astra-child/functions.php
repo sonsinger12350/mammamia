@@ -131,9 +131,11 @@ add_action('elementor/widgets/register', function($widgets_manager) {
 			'/widgets/home/partners.php'        				=> 'Custom_Elementor_Widget_Partners',
 			'/widgets/projects/slide.php'       				=> 'Custom_Elementor_Widget_Projects_Slide',
 			'/widgets/projects/list.php'        				=> 'Custom_Elementor_Widget_Projects_List',
-			'/widgets/breadcrumb.php'           				=> 'Custom_Elementor_Widget_Breadcrumb',
 			'/widgets/products/list-product-category.php'       => 'Custom_Elementor_Widget_Product_List_By_Category',
 			'/widgets/products/filter-product.php'       		=> 'Custom_Elementor_Widget_Filter_Product',
+			'/widgets/products/product-content.php'       		=> 'Custom_Elementor_Widget_Product_Content',
+			'/widgets/products/product-content-tab.php'       	=> 'Custom_Elementor_Widget_Product_Content_Tab',
+			'/widgets/products/product-image-slide.php'       	=> 'Custom_Elementor_Widget_Product_Image_Slide',
 		];
 
 		foreach ($widgets as $path => $class) {
@@ -158,4 +160,62 @@ add_filter('wpseo_breadcrumb_links', function($links) {
 
     return $links;
 });
+
+add_filter('wpseo_breadcrumb_links', 'custom_woocommerce_breadcrumb_for_product');
+
+function custom_woocommerce_breadcrumb_for_product($links) {
+    if (is_singular('product')) {
+        global $post;
+
+        // get primary category
+        $term = null;
+
+        if (class_exists('WPSEO_Primary_Term')) {
+            $primary_term = new WPSEO_Primary_Term('product_cat', $post->ID);
+            $term_id = $primary_term->get_primary_term();
+            $term = get_term($term_id, 'product_cat');
+        }
+
+        // get first term if primary term is not set
+        if (!$term || is_wp_error($term)) {
+            $terms = get_the_terms($post->ID, 'product_cat');
+            if ($terms && !is_wp_error($terms)) {
+                $term = reset($terms);
+            }
+        }
+
+        if ($term) {
+            $term_ancestors = get_ancestors($term->term_id, 'product_cat');
+
+            $breadcrumbs = [];
+            foreach (array_reverse($term_ancestors) as $ancestor_id) {
+                $ancestor = get_term($ancestor_id, 'product_cat');
+                $breadcrumbs[] = [
+                    'text' => $ancestor->name,
+                    'url' => get_term_link($ancestor),
+                ];
+            }
+
+            // Add current term to breadcrumbs
+            $breadcrumbs[] = [
+                'text' => $term->name,
+                'url' => get_term_link($term),
+            ];
+
+            // Remove "Cửa hàng" or "Shop" link
+            foreach ($links as $i => $link) {
+                if ($link['text'] === 'Cửa hàng' || $link['text'] === 'Shop') {
+                    unset($links[$i]);
+                }
+            }
+
+            // Insert breadcrumbs after the first link
+            array_splice($links, 1, 0, $breadcrumbs);
+        }
+    }
+
+    return $links;
+}
+
+
 ?>

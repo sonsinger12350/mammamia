@@ -107,13 +107,15 @@ function getProductListByConditions($conditions) {
 	$output .= '<div class="list-product ' . (count($query->posts) > 4 ? 'collapse' : '') . '">';
 
 	foreach ($query->posts as $post) {
-		$output .= '<div class="product">'
-					. '<button class="add-favorite" value="'. $post->ID .'"><i class="fa fa-heart-o" aria-hidden="true"></i></button>'
-					. '<a class="product-content" href="' . get_permalink($post) . '">'
-						. '<div class="product-image">' . get_the_post_thumbnail($post, 'post-thumbnail') . '</div>'
-						. '<p class="product-title">' . get_the_title($post) . '</p>'
-					. '</a>'
-				. '</div>';
+		$output .= '
+			<div class="product">
+				' . do_shortcode('[yith_wcwl_add_to_wishlist product_id="' . $post->ID . '"]') . '
+				<a class="product-content" href="' . get_permalink($post) . '">
+					<div class="product-image">' . get_the_post_thumbnail($post, 'post-thumbnail') . '</div>
+					<p class="product-title">' . get_the_title($post) . '</p>
+				</a>
+			</div>
+		';
 	}
 
 	$output .= '</div>';
@@ -168,6 +170,7 @@ function getAllBrandByCat($cat) {
 		AND t.term_id IN ($taxonomy)
 	";
 	$result = $wpdb->get_results($sql);
+	$data = [];
 
 	foreach ($result as $item) {
 		$data[$item->term_id] = $item->name;
@@ -210,4 +213,94 @@ function getAllCustomFieldValueByCat($cat, $customField) {
 	";
 
 	return $wpdb->get_col($sql);
+}
+
+function get_product_color( $product ) {
+    $attribute_name = 'pa_mau-sac';
+    $colors = [];
+
+    if ( ! $product || ! $product->is_type( 'variable' ) ) return $colors;
+
+    $children_ids = $product->get_children();
+
+    foreach ( $children_ids as $child_id ) {
+        $variation = wc_get_product( $child_id );
+
+        if ( ! $variation || ! $variation->exists() ) continue;
+
+        $attributes = $variation->get_attributes();
+
+        if ( isset( $attributes[ $attribute_name ] ) ) {
+            $color_slug = $attributes[ $attribute_name ];
+            $term = get_term_by( 'slug', $color_slug, $attribute_name );
+
+            if ( ! $term ) continue;
+
+            $image_id  = $variation->get_image_id();
+            $image_url = $image_id ? wp_get_attachment_url( $image_id ) : null;
+			$color_code  = get_term_meta( $term->term_id, 'product_attribute_color', true );
+
+            // Tránh trùng màu (chỉ lấy 1 ảnh đầu tiên mỗi màu)
+            if ( ! isset( $colors[ $color_slug ] ) ) {
+                $colors[ $color_slug ] = [
+                    'slug'  => $color_slug,
+                    'name'  => $term->name,
+                    'color' => $color_code,
+                    'image' => $image_url,
+                ];
+            }
+        }
+    }
+
+    return array_values( $colors ); // trả về mảng tuần tự
+}
+
+function get_all_acf_fields( $product_id ) {
+    $acf_fields = [];
+    $raw_fields = get_fields( $product_id );
+
+    if ( is_array( $raw_fields ) ) {
+        foreach ( $raw_fields as $key => $value ) {
+			if ($key == 'warranty_policy') {
+				$newValue = [];
+
+				if (!empty($value)) {
+					foreach ($value as $item) {
+						$newValue[] = $item['label'];
+					}
+				}
+
+				$acf_fields[$key] = [
+					'label' => get_field_object( $key, $product_id )['label'] ?? $key,
+					'value' => $newValue,
+				];
+			}
+			else {
+				$acf_fields[$key] = [
+					'label' => get_field_object( $key, $product_id )['label'] ?? $key,
+					'value' => $value,
+				];
+			}
+            
+        }
+    }
+
+    return $acf_fields;
+}
+
+function get_user_wishlist_count() {
+	global $wpdb;
+
+	$user_id = get_current_user_id();
+	$table = $wpdb->prefix . 'yith_wcwl';
+
+	if ($wpdb->get_var("SHOW TABLES LIKE '$table'") != $table) return 0;
+
+	$wishlist_count = $wpdb->get_var(
+		$wpdb->prepare(
+			"SELECT COUNT(*) FROM $table WHERE user_id = %d",
+			$user_id
+		)
+	);
+	return $wishlist_count;
 }
