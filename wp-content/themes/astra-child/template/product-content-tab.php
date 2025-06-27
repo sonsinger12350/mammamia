@@ -34,7 +34,7 @@
 			<?php if (!empty($custom_field['design_file']['value'])): ?>
 				<div class="list-file">
 					<?php foreach ($custom_field['design_file']['value'] as $k => $v): ?>
-						<a href="<?= $v ?>" class="file">
+						<a href="<?= $v ?>" class="file" download>
 							<div class="left">
 								<img src="<?= get_stylesheet_directory_uri() . '/assets/icon/folder.svg' ?>">
 							</div>
