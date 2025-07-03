@@ -243,6 +243,7 @@ function get_product_color( $product ) {
             // Tránh trùng màu (chỉ lấy 1 ảnh đầu tiên mỗi màu)
             if ( ! isset( $colors[ $color_slug ] ) ) {
                 $colors[ $color_slug ] = [
+                    'sku'  => $variation->get_sku(),
                     'slug'  => $color_slug,
                     'name'  => $term->name,
                     'color' => $color_code,

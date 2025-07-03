@@ -145,6 +145,22 @@
 	margin-left: auto;
 }
 
+.toast-success {
+	background: #28a745 !important;
+}
+
+.toast-info {
+	background: #3366fb!important;
+}
+
+.toast-warning {
+	background: var(--color-orange) !important;
+}
+
+.toast-error {
+	background: #b70707 !important;
+}
+
 @media (max-width: 1400px) {
     #content .product-categories-row .product-category img {
         height: 200px;
@@ -176,6 +192,16 @@
 @media (max-width: 921px) {
 	#content {
 		margin-top: 91px;
+	}
+}
+
+@media screen and (max-width: 782px) {
+    html {
+        margin-top: 0px !important;
+    }
+
+	#page {
+		margin-top: 46px;
 	}
 }
 

@@ -1147,6 +1147,44 @@ footer .widget .widget-title {
     margin-bottom: 8px;
 }
 
+.custom-product-content .body .block-content .product-brand,
+.custom-product-content .body .block-content .product-sku {
+	font-size: 16px;
+	color: var(--color-blue);
+	text-transform: uppercase;
+	font-weight: 600;
+    margin-bottom: 0px;
+}
+
+.custom-product-content .body .block-content .short-description {
+	margin-top: 24px;
+}
+
+.custom-product-content .body .block-content .product-features {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 16px;
+}
+
+.custom-product-content .body .block-content .product-features .item {
+	width: 30%;
+}
+
+.custom-product-content .body .block-content .product-features .item img {
+	width: 100%;
+    height: 100px;
+    object-fit: contain;
+}
+
+.custom-product-content .body .block-content .product-features .item p {
+	text-transform: uppercase;
+    margin-bottom: 0px;
+    text-align: center;
+    margin-top: 8px;
+    font-weight: 500;
+    color: var(--color-blue);
+}
+
 .custom-product-content .body .block-content .custom-field,
 .custom-product-content .body .block-content .custom-field td {
 	border: 0px;
@@ -1156,25 +1194,6 @@ footer .widget .widget-title {
 .custom-product-content .body .block-content .custom-field td {
 	padding: 4px 0px;
 	padding-right: 24px;
-}
-
-.custom-product-content .body .block-content .warranty-policy {
-	margin: 0;
-	list-style-type: none;
-	display: flex	;
-	flex-direction: column;
-	gap: 8px;
-}
-
-.custom-product-content .body .block-content .warranty-policy li span {
-	background-color: var(--color-blue);
-    color: #fff;
-    display: inline-flex;
-    width: 18px;
-    height: 18px;
-    justify-content: center;
-    align-items: center;
-    margin-right: 12px;
 }
 
 .custom-product-content .body .block-content .list-color {
@@ -1315,6 +1334,14 @@ footer .widget .widget-title {
 	.custom-product-content .body .block-content .block-title {
 		font-size: 18px;
 	}
+
+	.custom-product-content .body .block-content .product-features .item {
+		width: 29%;
+	}
+
+	.custom-product-content .body .block-content .product-features .item img {
+		height: 70px;
+	}
 }
 /* End Custom Product Content */
 
@@ -1381,7 +1408,7 @@ footer .widget .widget-title {
 	align-items: start;
 }
 
-.custom-product-content-tab .tabs-content #tab-detail table,
+.custom-product-content-tab .tabs-content #tab-detail .left,
 .custom-product-content-tab .tabs-content #tab-detail .technical-image {
 	width: 45%;
 }
@@ -1399,6 +1426,37 @@ footer .widget .widget-title {
 
 .custom-product-content-tab .tabs-content #tab-detail table tr:last-child td {
 	border: 0px;
+}
+
+.custom-product-content-tab .tabs-content #tab-detail .block-title {
+	margin-bottom: 8px;
+	color: #fff;
+	font-size: 24px;
+	text-transform: uppercase;
+	font-weight: 600;
+}
+
+.custom-product-content-tab .tabs-content #tab-detail .warranty-policy {
+	margin: 0;
+	list-style-type: none;
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.custom-product-content-tab .tabs-content #tab-detail .warranty-policy li {
+    color: #fff;
+}
+
+.custom-product-content-tab .tabs-content #tab-detail .warranty-policy li span {
+	background-color: var(--color-orange);
+    color: #fff;
+    display: inline-flex;
+    width: 18px;
+    height: 18px;
+    justify-content: center;
+    align-items: center;
+    margin-right: 12px;
 }
 
 .custom-product-content-tab .tabs-content #tab-detail .technical-image img {
@@ -1464,7 +1522,7 @@ footer .widget .widget-title {
 		row-gap: 16px;
 	}
 
-	.custom-product-content-tab .tabs-content #tab-detail table,
+	.custom-product-content-tab .tabs-content #tab-detail .left,
 	.custom-product-content-tab .tabs-content #tab-detail .technical-image {
 		width: 100%;
 	}

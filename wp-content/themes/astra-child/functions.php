@@ -109,6 +109,22 @@ function custom_enqueue_styles() {
 		'2.11.0',
 		true
 	);
+
+	// Toastify
+	wp_enqueue_style(
+		'toastify',
+		'https://cdnjs.cloudflare.com/ajax/libs/toastify-js/1.12.0/toastify.min.css',
+		array(),
+		'1.12.0'
+	);
+
+	wp_enqueue_script(
+		'toastify',
+		'https://cdnjs.cloudflare.com/ajax/libs/toastify-js/1.12.0/toastify.min.js',
+		array('jquery'),
+		'1.12.0',
+		true
+	);
 }
 add_action( 'wp_enqueue_scripts', 'custom_enqueue_styles' );
 
@@ -217,5 +233,143 @@ function custom_woocommerce_breadcrumb_for_product($links) {
     return $links;
 }
 
+// Thêm metabox vào trang chỉnh sửa sản phẩm
+add_action('add_meta_boxes', function () {
+    add_meta_box(
+        'custom_product_features',
+        'Danh sách tính năng',
+        'render_custom_product_features',
+        'product',
+        'normal',
+        'default'
+    );
+});
+
+// Hiển thị giao diện metabox
+function render_custom_product_features($post) {
+    $values = get_post_meta($post->ID, '_custom_product_features', true);
+    wp_nonce_field('save_custom_product_features', 'custom_product_features_nonce');
+    ?>
+    <style>
+        #custom-repeatable-fields {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        #custom-repeatable-fields .repeatable-item {
+            position: relative;
+            width: 200px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: center;
+        }
+
+        #custom-repeatable-fields .repeatable-item .custom-image-preview {
+            width: 100%;
+            height: 100px;
+            object-fit: contain;
+            display: block;
+            margin: 0 auto;
+            margin-bottom: 4px;
+        }
+
+        #custom-repeatable-fields .repeatable-item .remove-item {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            text-decoration: none;
+            color: #b32d2e;
+        }
+
+        #custom-repeatable-fields .repeatable-item .select-image {
+            margin-bottom: 8px;
+        }
+
+        #custom-repeatable-fields .repeatable-item input {
+            width: 100%
+        }
+    </style>
+    <div id="custom-repeatable-fields">
+        <?php if (!empty($values) && is_array($values)) : ?>
+            <?php foreach ($values as $index => $item): ?>
+                <div class="repeatable-item">
+                    <input class="custom-image-url" type="hidden" name="custom_product_features[<?= $index; ?>][image]" value="<?php echo esc_attr($item['image']); ?>" />
+                    <img class="custom-image-preview" src="<?= !empty($item['image']) ? esc_url($item['image']) : '/wp-content/themes/astra-child/assets/images/no-image.jpg' ?>" style="" />
+                    <button class="button select-image">Chọn ảnh</button>
+                    <input type="text" name="custom_product_features[<?php echo $index; ?>][feature]" value="<?php echo esc_attr($item['feature']); ?>" placeholder="Tính năng" />
+                    <a href="javascript:void(0)" class="remove-item"><span class="dashicons dashicons-remove"></span></a>
+                </div>
+            <?php endforeach; ?>
+        <?php endif; ?>
+    </div>
+    <button class="button" id="add-new-item">Thêm phần mới</button>
+
+    <script>
+    jQuery(function($){
+        let product_features_index = $('#custom-repeatable-fields .repeatable-item').length || 0;
+
+        $('#add-new-item').on('click', function(e){
+            e.preventDefault();
+            const html = `
+                <div class="repeatable-item">
+                    <input class="custom-image-url" type="hidden" name="custom_product_features[${product_features_index}][image]" value="" />
+                    <img class="custom-image-preview" src="/wp-content/themes/astra-child/assets/images/no-image.jpg"/>
+                    <button class="button select-image">Chọn ảnh</button>
+                    <input type="text" name="custom_product_features[${product_features_index}][feature]" value="" placeholder="Tính năng" />
+                    <a href="javascript:void(0)" class="remove-item"><span class="dashicons dashicons-remove"></span></a>
+                </div>`;
+            $('#custom-repeatable-fields').append(html);
+            product_features_index++;
+        });
+
+        $(document).on('click', '.remove-item', function(e){
+            e.preventDefault();
+            $(this).closest('.repeatable-item').remove();
+        });
+
+        $(document).on('click', '.select-image', function(e){
+            e.preventDefault();
+            const button = $(this);
+            const frame = wp.media({
+                title: 'Chọn ảnh',
+                multiple: false,
+                library: { type: 'image' },
+                button: { text: 'Chọn ảnh' }
+            });
+
+            frame.on('select', function(){
+                const attachment = frame.state().get('selection').first().toJSON();
+                button.siblings('.custom-image-preview').attr('src', attachment.url);
+                button.siblings('.custom-image-url').val(attachment.url);
+            });
+
+            frame.open();
+        });
+    });
+    </script>
+    <?php
+}
+
+// Lưu dữ liệu khi cập nhật sản phẩm
+add_action('save_post_product', function($post_id){
+    if (!isset($_POST['custom_product_features_nonce']) || !wp_verify_nonce($_POST['custom_product_features_nonce'], 'save_custom_product_features'))
+        return;
+
+    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE)
+        return;
+
+    if (!current_user_can('edit_post', $post_id))
+        return;
+
+    if (isset($_POST['custom_product_features']) && is_array($_POST['custom_product_features'])) {
+        $data = array_values(array_filter($_POST['custom_product_features'], function($item){
+            return !empty($item['image']) || !empty($item['feature']);
+        }));
+        update_post_meta($post_id, '_custom_product_features', $data);
+    } else {
+        delete_post_meta($post_id, '_custom_product_features');
+    }
+});
 
 ?>

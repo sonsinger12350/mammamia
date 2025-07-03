@@ -1,3 +1,14 @@
+function showNotification(message, type = 'success') {
+	Toastify({
+		text: message,
+		offset: {
+			x: 50,
+			y: 10
+		},
+		className: `toast-${type}`,
+	}).showToast();
+}
+
 jQuery(function($) {
 	function scrollToElement(element, distance = 200) {
 		$('html, body').animate({
@@ -180,6 +191,7 @@ jQuery(function($) {
 		$(this).addClass('active');
 		itemColor.addClass('active');
 		$('.attribute-color').html(itemColor.attr('data-name'));
+		$('.product-sku').html(itemColor.attr('data-sku'));
 
 		slideProductImage.trigger('to.owl.carousel', [slideIndex, 300]);
 	});

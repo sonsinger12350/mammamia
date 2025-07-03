@@ -40,7 +40,7 @@ class Astra_Child_Custom_Widget_Header_Menu extends WP_Widget
 						oninput="this.setCustomValidity(\'\')"
 				>';
 				echo '<img class="search-icon" src="' . get_stylesheet_directory_uri() . '/assets/icon/search.svg" alt="zoom">';
-				echo '<a href="/wishlist" class="wishlist-icon"><img src="' . get_stylesheet_directory_uri() . '/assets/icon/heart.svg" alt="heart">' . $count_wishlist . '</a>';
+				echo '<a href="/san-pham-yeu-thich" class="wishlist-icon"><img src="' . get_stylesheet_directory_uri() . '/assets/icon/heart.svg" alt="heart">' . $count_wishlist . '</a>';
 			echo '</form>';
 			echo '<div class="menu-list">';
 
@@ -75,7 +75,7 @@ class Astra_Child_Custom_Widget_Header_Menu extends WP_Widget
 				$is_active = (trailingslashit($menu_item->url) === trailingslashit($current_url)) ? 'active' : '';
 				echo '<a href="' . esc_url( $menu_item->url ) . '" class="' . $is_active . '">' . esc_html( $menu_item->title ) . '</a>';
 			}
-			echo '<a href="/wishlist" class="wishlist-link">' . esc_attr__( 'Sản phẩm yêu thích', 'astra-child' ) . '</a>';
+			echo '<a href="/san-pham-yeu-thich" class="wishlist-link">' . esc_attr__( 'Sản phẩm yêu thích', 'astra-child' ) . '</a>';
 			echo '<form class="search-form" action="/" method="get">';
 					echo '<input type="text" name="s" placeholder="' . esc_attr__( 'Tìm kiếm...', 'astra-child' ) . '" required
 							oninvalid="this.setCustomValidity(\'Vui lòng nội dung tìm kiếm\')"
