@@ -231,4 +231,57 @@ jQuery(function($) {
 			}
 		}
 	});
+
+	// Mobile submenu toggle functionality
+	$('.mobile-menu-item.has-submenu > a').on('click', function(e) {
+		e.preventDefault();
+
+		let $menuItem = $(this).parent();
+		let $submenu = $menuItem.find('.mobile-submenu').first();
+
+		// Close other open submenus at the same level
+		$menuItem.siblings('.mobile-menu-item.has-submenu.active').removeClass('active');
+
+		// Toggle current submenu
+		$menuItem.toggleClass('active');
+
+		// Close all submenus in deeper levels
+		$submenu.find('.mobile-menu-item.has-submenu').removeClass('active');
+	});
+
+	// Desktop submenu hover functionality (optional enhancement)
+	$('.header-menu-desktop .menu-item.has-submenu').hover(
+		function() {
+			// Mouse enter
+			$(this).addClass('hover');
+		},
+		function() {
+			// Mouse leave
+			$(this).removeClass('hover');
+		}
+	);
+	
+	// Close desktop submenus when clicking outside
+	$(document).on('click', function(e) {
+		if (!$(e.target).closest('.header-menu-desktop .menu-item').length) {
+			$('.header-menu-desktop .menu-item').removeClass('hover');
+		}
+	});
+	
+	// Handle keyboard navigation for accessibility
+	$('.menu-item a, .mobile-menu-item a').on('keydown', function(e) {
+		let $menuItem = $(this).parent();
+		let $submenu = $menuItem.find('.submenu, .mobile-submenu').first();
+
+		if (e.key === 'Enter' || e.key === ' ') {
+			if ($menuItem.hasClass('has-submenu')) {
+				e.preventDefault();
+				$menuItem.toggleClass('active hover');
+			}
+		}
+
+		if (e.key === 'Escape') {
+			$menuItem.removeClass('active hover');
+		}
+	});
 });

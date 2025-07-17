@@ -9,10 +9,19 @@
 	font-family: 'UTM-Horizon', sans-serif !important;
 }
 
+html {
+	margin-top: 0px !important;
+}
+
 #masthead {
 	position: fixed;
 	width: 100%;
 	background-color: var(--color-blue);
+	top: 0px;
+}
+
+.logged-in #masthead {
+	margin-top: 32px;
 }
 
 #masthead.active,
@@ -161,6 +170,10 @@
 	background: #b70707 !important;
 }
 
+#breadcrumbs a {
+	text-decoration: none !important;
+}
+
 @media (max-width: 1400px) {
     #content .product-categories-row .product-category img {
         height: 200px;
@@ -196,11 +209,11 @@
 }
 
 @media screen and (max-width: 782px) {
-    html {
-        margin-top: 0px !important;
-    }
+	.logged-in #page {
+		margin-top: 46px;
+	}
 
-	#page {
+	.logged-in #masthead {
 		margin-top: 46px;
 	}
 }
