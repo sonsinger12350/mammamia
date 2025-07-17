@@ -106,7 +106,7 @@ if ( ! defined( 'YITH_WCWL' ) ) {
 						</td>
 						<td class="product-remove">
 							<div>
-								<a href="<?php echo esc_url( $item->get_remove_url() ); ?>" class="remove remove_from_wishlist" title="<?php echo esc_html( apply_filters( 'yith_wcwl_remove_product_wishlist_message_title', __( 'Remove this product', 'yith-woocommerce-wishlist' ) ) ); ?>">&times;</a>
+								<a href="<?php echo esc_url( $item->get_remove_url() ); ?>" class="remove remove_from_wishlist" title="<?php echo esc_html( apply_filters( 'yith_wcwl_remove_product_wishlist_message_title', __( 'Xóa sản phẩm khỏi danh sách yêu thích', 'yith-woocommerce-wishlist' ) ) ); ?>">&times;</a>
 							</div>
 						</td>
 					</tr>
@@ -116,7 +116,7 @@ if ( ! defined( 'YITH_WCWL' ) ) {
 		else :
 			?>
 			<tr>
-				<td colspan="<?php echo esc_attr( $column_count ); ?>" class="wishlist-empty"><?php echo esc_html( apply_filters( 'yith_wcwl_no_product_to_remove_message', __( 'No products added to the wishlist', 'yith-woocommerce-wishlist' ), $wishlist ) ); ?></td>
+				<td colspan="<?php echo esc_attr( $column_count ); ?>" class="wishlist-empty"><?php echo esc_html( apply_filters( 'yith_wcwl_no_product_to_remove_message', __( 'Không có sản phẩm nào trong danh sách yêu thích', 'yith-woocommerce-wishlist' ), $wishlist ) ); ?></td>
 			</tr>
 			<?php
 		endif;
