@@ -166,7 +166,7 @@ class Astra_Child_Custom_Widget_Header_Menu extends WP_Widget
 		echo $args['before_widget'];
 
 		?>
-
+	
 		<div class="header-menu-desktop">
 			<form class="search-form" action="/" method="get">
 				<input type="text" name="s" placeholder="<?php echo esc_attr__('Tìm kiếm...', 'astra-child'); ?>" required
@@ -198,7 +198,9 @@ class Astra_Child_Custom_Widget_Header_Menu extends WP_Widget
 				<?php foreach ($menu_tree as $menu_item): ?>
 					<?php echo $this->render_mobile_menu_item($menu_item, $current_url); ?>
 				<?php endforeach; ?>
-				<a href="/san-pham-yeu-thich" class="wishlist-link"><?php echo esc_attr__('Sản phẩm yêu thích', 'astra-child'); ?></a>
+				<div class="mobile-menu-item">
+					<a href="/san-pham-yeu-thich" class="wishlist-link <?= trailingslashit($current_url) == trailingslashit(home_url("san-pham-yeu-thich")) ? 'active' : '' ?>"><?php echo esc_attr__('Sản phẩm yêu thích', 'astra-child'); ?></a>
+				</div>
 				<form class="search-form" action="/" method="get">
 					<input type="text" name="s" placeholder="<?php echo esc_attr__('Tìm kiếm...', 'astra-child'); ?>" required
 							oninvalid="this.setCustomValidity('Vui lòng nội dung tìm kiếm')"

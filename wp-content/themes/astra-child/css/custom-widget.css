@@ -768,7 +768,7 @@ footer .widget .widget-title {
 }
 
 .header-menu-mobile .menu-list .mobile-menu-item a {
-	padding: 16px;
+	padding: 2px 16px;
 	color: var(--ast-global-color-3);
 	text-decoration: none;
 	font-family: var(--content-font);
