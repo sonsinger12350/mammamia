@@ -102,14 +102,14 @@ class Custom_Elementor_Widget_Product_Content_Tab extends \Elementor\Widget_Base
 									$onclick = '';
 
 									if ($download == 2) {
-										$onclick = 'onclick="showNotification(\'Đăng nhập để tải file '.strtoupper($k).'\', \'error\')"';
+										$onclick = 'onclick="showCustomModal(\'#modal-login\')"';
 
 										if (is_user_logged_in()) {
 											$onclick = '';
 											$download = 1;
 										}
 									} elseif ($download == 3) {
-										$onclick = 'onclick=""';
+										$onclick = 'onclick="showCustomModal(\'#modal-contact-download\')"';
 									}
 								?>
 									<a href="<?= $download == 1 ? $v : 'javascript:void(0)' ?>" class="file download-level-<?= $download ?>" <?= $onclick ?> download>

@@ -38,6 +38,22 @@ add_action( 'elementor/editor/after_enqueue_styles', 'custom_enqueue_editor_styl
 function custom_enqueue_styles() {
 	wp_enqueue_script('jquery');
 
+    // Bootstrap
+    wp_enqueue_style(
+		'bootstrap',
+		'https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.7/css/bootstrap.min.css',
+		array(),
+		'5.3.7'
+	);
+
+	wp_enqueue_script(
+		'bootstrap',
+		'https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.7/js/bootstrap.bundle.min.js',
+		array(),
+		'5.3.7',
+		true
+	);
+
 	wp_enqueue_style(
 		'custom-style',
 		get_stylesheet_directory_uri() . '/css/custom.css',

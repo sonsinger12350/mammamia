@@ -9,12 +9,27 @@ function showNotification(message, type = 'success') {
 	}).showToast();
 }
 
+function showCustomModal(element) {
+	jQuery(element).modal('show');
+}
+
+function scrollToElement(element, distance = 200) {
+	$('html, body').animate({
+		scrollTop: element.offset().top - distance
+	}, 500);
+}
+
+function validateEmail(email) {
+	if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{1,15}$/g.test(email)) return 0;
+	if (email.trim() === "") return 0;
+	return 1;
+}
+
 jQuery(function($) {
-	function scrollToElement(element, distance = 200) {
-		$('html, body').animate({
-			scrollTop: element.offset().top - distance
-		}, 500);
-	}
+	let dropdownElementList = [].slice.call(document.querySelectorAll('.dropdown-toggle'))
+	let dropdownList = dropdownElementList.map(function (dropdownToggleEl) {
+	return new bootstrap.Dropdown(dropdownToggleEl)
+	})
 
 	let loadingIcon = '<i class="fa fa-spinner fa-pulse" aria-hidden="true"></i>';
 
@@ -283,5 +298,83 @@ jQuery(function($) {
 		if (e.key === 'Escape') {
 			$menuItem.removeClass('active hover');
 		}
+	});
+
+	$('body').on('submit', '.form-login-register form', function(e) {
+		let form = $(this);
+		let btn = form.find('button[type="submit"]');
+		let btnHtml = btn.html();
+		let formData = form.serialize();
+		let error = false;
+		let action = form.attr('name');
+		let nonce = form.attr('data-nonce');
+		let email = form.find('input[name="email"]').val();
+
+		e.preventDefault();
+		
+		form.find('input[required]').each(function() {
+			if ($(this).val() == '') {
+				$(this).addClass('is-invalid');
+				error = true;
+			}
+		});
+
+		if (error) {
+			showNotification('Vui lòng điền đầy đủ thông tin', 'error');
+			return false;
+		}
+
+		if (validateEmail(email) == 0) {
+			form.find('input[name="email"]').addClass('is-invalid');
+			showNotification('Email không hợp lệ', 'error');
+			return false;
+		}
+
+		if (action == 'register_user') {
+			let password = form.find('input[name="password"]').val();
+			let confirmPassword = form.find('input[name="confirm_password"]').val();
+
+			if (password != confirmPassword) {
+				form.find('input[name="confirm_password"]').addClass('is-invalid');
+				showNotification('Mật khẩu không khớp', 'error');
+				return false;
+			}
+		}
+
+		$.ajax({
+			url: woocommerce_params.ajax_url,
+			type: 'POST',
+			data: {
+				action,
+				nonce: nonce,
+				form: formData,
+			},
+			beforeSend: function() {
+				btn.html(loadingIcon);
+				btn.prop('disabled', true);
+			},
+			success: function(response) {
+				btn.html(btnHtml);
+				btn.prop('disabled', false);
+
+				if (response.success) {
+					showNotification(response.data.message, 'success');
+
+					setTimeout(function() {
+						location.reload();
+					}, 1000);
+				}
+				else {
+					showNotification(response.data.message, 'error');
+				}
+			}
+		});
+
+		return false;
+	});
+
+	$('body').on('input', '.form-login-register input', function() {
+		if ($(this).val() != '') $(this).removeClass('is-invalid');
+		else $(this).addClass('is-invalid');
 	});
 });

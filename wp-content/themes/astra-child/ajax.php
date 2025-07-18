@@ -76,3 +76,54 @@ function filter_products() {
 	echo $content;
 	wp_die();
 }
+
+add_action('wp_ajax_login_user', 'login_user');
+add_action('wp_ajax_nopriv_login_user', 'login_user');
+
+function login_user() {
+	if (empty($_POST['form'])) return null;
+
+	$params = [];
+	parse_str($_POST['form'], $params);
+
+	$user = wp_signon([
+		'user_login'    => $params['email'],
+		'user_password' => $params['password'],
+	]);
+
+	if (is_wp_error($user)) {
+		wp_send_json_error([
+			'message' => wp_strip_all_tags($user->get_error_message()),
+		]);
+	}
+
+	wp_send_json_success([
+		'message' => 'Đăng nhập thành công',
+	]);
+}
+
+add_action('wp_ajax_register_user', 'register_user');
+add_action('wp_ajax_nopriv_register_user', 'register_user');
+
+function register_user() {
+	if (empty($_POST['form'])) return null;
+
+	$params = [];
+	parse_str($_POST['form'], $params);
+
+	$user = wp_create_user($params['email'], $params['password'], $params['email']);
+
+	if (is_wp_error($user)) wp_send_json_error([
+		'message' => wp_strip_all_tags($user->get_error_message()),
+	]);
+
+	$user = wp_signon([
+		'user_login'    => $params['email'],
+		'user_password' => $params['password'],
+	]);
+
+	wp_send_json_success([
+		'message' => 'Đăng ký thành công',
+	]);
+}
+

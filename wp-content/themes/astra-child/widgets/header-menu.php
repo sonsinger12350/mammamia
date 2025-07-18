@@ -39,86 +39,52 @@ class Astra_Child_Custom_Widget_Header_Menu extends WP_Widget
 	 */
 	private function render_menu_item($menu_item, $current_url, $queried_object_id, $level = 0) {
 		// Check if current item is active
-		if (isset($menu_item->object_id) && intval($menu_item->object_id) === intval($queried_object_id)) {
-			$is_active = 'active';
-		} else {
-			$is_active = (trailingslashit($menu_item->url) === trailingslashit($current_url)) ? 'active' : '';
-		}
-
-		// Check if any child is active
-		$has_active_child = false;
-		if (!empty($menu_item->children)) {
-			foreach ($menu_item->children as $child) {
-				if (isset($child->object_id) && intval($child->object_id) === intval($queried_object_id)) {
-					$has_active_child = true;
-					break;
-				}
-				if (trailingslashit($child->url) === trailingslashit($current_url)) {
-					$has_active_child = true;
-					break;
-				}
-			}
-		}
-
+		$is_current = isset($menu_item->object_id) && intval($menu_item->object_id) === intval($queried_object_id);
+		if (!$is_current) $is_current = trailingslashit($menu_item->url) === trailingslashit($current_url);
+	
 		$menu_class = 'menu-item';
-		if ($is_active || $has_active_child) {
-			$menu_class .= ' active';
-		}
-		if (!empty($menu_item->children)) {
-			$menu_class .= ' has-submenu';
-		}
-		if ($level > 0) {
-			$menu_class .= ' submenu-item';
-		}
-
-		$output = '<div class="' . $menu_class . '">';
-		$output .= '<a href="' . esc_url($menu_item->url) . '" class="' . $is_active . '">';
+		if ($is_current) $menu_class .= ' active';
+		if (!empty($menu_item->children)) $menu_class .= ' has-submenu';
+		if ($level > 0) $menu_class .= ' submenu-item';
+	
+		$output = '<div class="' . esc_attr($menu_class) . '">';
+		$output .= '<a href="' . esc_url($menu_item->url) . '" class="' . ($is_current ? 'active' : '') . '">';
 		$output .= esc_html($menu_item->title);
-		if (!empty($menu_item->children)) {
-			$output .= '<span class="submenu-toggle"><i class="fa fa-chevron-down"></i></span>';
-		}
-		$output .= '</a>';
+		if (!empty($menu_item->children)) $output .= '<span class="submenu-toggle"><i class="fa fa-chevron-down"></i></span>';
 
-		// Render submenu if exists
+		$output .= '</a>';
+	
+		// Chỉ render submenu nếu có
 		if (!empty($menu_item->children)) {
-			$submenu_class = 'submenu';
-			if ($is_active || $has_active_child) {
-				$submenu_class .= ' active';
-			}
-			$output .= '<div class="' . $submenu_class . '">';
+			$output .= '<div class="submenu">';
+
 			foreach ($menu_item->children as $child) {
 				$output .= $this->render_menu_item($child, $current_url, $queried_object_id, $level + 1);
 			}
+
 			$output .= '</div>';
 		}
-
+	
 		$output .= '</div>';
 		return $output;
 	}
+	
 
 	/**
 	 * Render mobile menu item with submenu support
 	 */
 	private function render_mobile_menu_item($menu_item, $current_url, $level = 0) {
 		$is_active = (trailingslashit($menu_item->url) === trailingslashit($current_url)) ? 'active' : '';
-		
+
 		$menu_class = 'mobile-menu-item';
-		if ($is_active) {
-			$menu_class .= ' active';
-		}
-		if (!empty($menu_item->children)) {
-			$menu_class .= ' has-submenu';
-		}
-		if ($level > 0) {
-			$menu_class .= ' submenu-item';
-		}
+		if ($is_active) $menu_class .= ' active';
+		if (!empty($menu_item->children)) $menu_class .= ' has-submenu';
+		if ($level > 0) $menu_class .= ' submenu-item';
 
 		$output = '<div class="' . $menu_class . '">';
 		$output .= '<a href="' . esc_url($menu_item->url) . '" class="' . $is_active . '">';
 		$output .= esc_html($menu_item->title);
-		if (!empty($menu_item->children)) {
-			$output .= '<span class="mobile-submenu-toggle"><i class="fa fa-chevron-right"></i></span>';
-		}
+		if (!empty($menu_item->children)) $output .= '<span class="mobile-submenu-toggle"><i class="fa fa-chevron-right"></i></span>';
 		$output .= '</a>';
 
 		// Render mobile submenu if exists
@@ -153,7 +119,7 @@ class Astra_Child_Custom_Widget_Header_Menu extends WP_Widget
 		else {
 			if (class_exists('YITH_WCWL_Wishlist_Factory')) {
 				$wishlist = YITH_WCWL_Wishlist_Factory::get_current_wishlist();
-			
+
 				if ($wishlist && is_a($wishlist, 'YITH_WCWL_Wishlist')) {
 					$items = $wishlist->get_items();
 					$count_wishlist = is_array($items) ? count($items) : 0;
@@ -173,8 +139,21 @@ class Astra_Child_Custom_Widget_Header_Menu extends WP_Widget
 						oninvalid="this.setCustomValidity('Vui lòng nội dung tìm kiếm')"
 						oninput="this.setCustomValidity('')"
 				>
-				<img class="search-icon" src="<?php echo get_stylesheet_directory_uri(); ?>/assets/icon/search.svg" alt="zoom">
-				<a href="/san-pham-yeu-thich" class="wishlist-icon"><i class="fa fa-heart-o" aria-hidden="true"></i><?php echo $count_wishlist; ?></a>
+				<img class="search-icon menu-icon" src="<?php echo get_stylesheet_directory_uri(); ?>/assets/icon/search.svg" alt="zoom">
+				<a href="/san-pham-yeu-thich" class="wishlist-icon menu-icon"><i class="fa fa-heart-o" aria-hidden="true"></i><?php echo $count_wishlist; ?></a>
+				<?php if (is_user_logged_in()): ?>
+					<div class="dropdown">
+						<a href="javascript:void(0)" class="menu-icon" id="dropdownUserAction" data-bs-toggle="dropdown" aria-expanded="false">
+							<i class="fa fa-user-circle-o" aria-hidden="true"></i>
+						</a>
+
+						<ul class="dropdown-menu" aria-labelledby="dropdownUserAction">
+							<li><a class="dropdown-item" href="<?php echo wp_logout_url(home_url()); ?>">Đăng xuất</a></li>
+						</ul>
+					</div>
+				<?php else: ?>
+					<a href="javascript:void(0)" onclick="showCustomModal('#modal-login')" class="menu-icon"><i class="fa fa-sign-in" aria-hidden="true"></i></a>
+				<?php endif; ?>
 			</form>
 			<div class="menu-list">
 				<?php foreach ($menu_tree as $menu_item): ?>
@@ -210,7 +189,6 @@ class Astra_Child_Custom_Widget_Header_Menu extends WP_Widget
 				</form>
 			</div>
 		</div>
-
 		<?php
 		echo $args['after_widget'];
 	}

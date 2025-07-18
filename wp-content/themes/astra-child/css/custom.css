@@ -20,7 +20,7 @@ html {
 	top: 0px;
 }
 
-.logged-in #masthead {
+.admin-bar #masthead {
 	margin-top: 32px;
 }
 
@@ -30,7 +30,7 @@ html {
 }
 
 #content {
-	margin-top: 105px;
+	margin-top: 104px;
 }
 
 #content .ast-container {
@@ -174,6 +174,220 @@ html {
 	text-decoration: none !important;
 }
 
+/* Wishlist */
+.wishlist_table.mobile {
+	padding-left: 0px;
+}
+
+.wishlist_table.mobile li {
+	display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.wishlist_table.mobile li {
+	display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.wishlist_table.mobile li .item-wrapper {
+	display: flex;
+	align-items: center;
+}
+
+.wishlist_table.mobile li .item-wrapper .item-details {
+	vertical-align: unset;
+}
+
+.wishlist_table.mobile li .item-details h3 {
+	margin: 0;
+}
+
+.wishlist_table.mobile li .item-details h3 a {
+	color: var(--color-blue);
+}
+
+.wishlist_table.mobile li .additional-info-wrapper .product-remove i {
+	color: #cc0013;
+}
+/* End Wishlist */
+
+/* Modal Download */
+.custom-modal .modal-body {
+	padding: 64px;
+	text-align: center;
+}
+
+.custom-modal .modal-body .modal-title {
+	font-size: 36px;
+	font-weight: 600;
+	text-transform: uppercase;
+	color: var(--color-blue);
+	margin-bottom: 16px;
+}
+
+.custom-modal .modal-body .modal-description {
+	font-size: 18px;
+	font-weight: 400;
+	color: var(--color-blue);
+}
+
+.custom-modal .btn-close,
+.custom-modal .btn-close:hover {
+	background: transparent var(--bs-btn-close-bg) center/1em auto no-repeat;
+}
+
+#modal-contact-download .modal-body img {
+	display: block;
+	margin: 0 auto;
+}
+
+#modal-contact-download .modal-body a {
+	color: var(--color-blue);
+	text-decoration: none;
+	margin-top: 8px;
+    display: block;
+	font-weight: 600;
+}
+
+#modal-login .modal-body .modal-description {
+	margin-bottom: 32px;
+}
+
+#modal-login .modal-body .form-login-register {
+	display: flex;
+	flex-direction: row;
+}
+
+#modal-login .modal-body .form-login-register form {
+	padding: 0 32px;
+	width: 49%;
+	text-align: left;
+}
+
+#modal-login .modal-body .form-login-register form.form-login {
+	border-right: 1px solid #000;
+}
+
+#modal-login .modal-body .form-login-register form .form-title {
+	font-size: 20px;
+	font-weight: 600;
+	text-transform: uppercase;
+	color: var(--color-blue);
+	margin-bottom: 16px;
+}
+
+#modal-login .modal-body .form-login-register form .btn {
+	border-radius: 20px;
+	color: var(--color-blue);
+	border: 1px solid var(--color-blue);
+	line-height: 1.2;
+    text-transform: uppercase;
+}
+
+#modal-login .modal-body .form-login-register form .btn:hover,
+#modal-login .modal-body .form-login-register form .btn:focus,
+#modal-login .modal-body .form-login-register form .btn:active {
+	background-color: var(--color-blue);
+	color: #fff;
+}
+
+#modal-login .modal-body .form-login-register form .form-group label {
+	font-size: 16px;
+    font-weight: 400;
+    color: var(--color-blue);
+    margin-bottom: 4px;
+    text-transform: uppercase;
+}
+
+#modal-login .modal-body .form-login-register form .form-group input {
+	padding: 8px 16px;
+    height: 35px;
+}
+
+#modal-login .modal-body .form-login-register form .form-forgot a {
+    text-decoration: underline;
+}
+
+@media (max-width: 991px) {
+	.custom-modal .modal-body {
+		padding: 24px;
+	}
+
+	.custom-modal .modal-body .modal-title {
+		font-size: 24px;
+	}
+
+	.custom-modal .modal-body .modal-description {
+		font-size: 16px;
+	}
+
+	#modal-login .modal-dialog {
+		max-width: 80%;
+	}
+}
+
+@media (max-width: 767px) {
+	#modal-login .modal-dialog {
+		max-width: 90%;
+	}
+
+	#modal-login .modal-body .form-login-register form {
+		padding: 0 16px;
+	}
+}
+
+@media (max-width: 576px) {
+	.custom-modal .modal-body {
+		padding: 18px;
+	}
+
+	.custom-modal .modal-body .modal-title {
+		font-size: 20px;
+	}
+
+	.custom-modal .modal-body .modal-description {
+		font-size: 14px;
+	}
+
+	#modal-contact-download .modal-body img {
+		width: 150px;
+	}
+
+	#modal-login .modal-dialog {
+		max-width: 100%;
+	}
+
+	#modal-login .modal-body .modal-description {
+		margin-bottom: 16px;
+	}
+
+	#modal-login .modal-body .form-login-register {
+		flex-direction: column;
+		gap: 24px;
+	}
+
+	#modal-login .modal-body .form-login-register form {
+		width: 100%;
+	}
+
+	#modal-login .modal-body .form-login-register form.form-login {
+		border-right: none;
+		border-bottom: 1px solid #000;
+		padding-bottom: 16px;
+	}
+}
+
+@media (max-width: 380px) {
+	#modal-login .modal-body .form-login-register form {
+		padding-left: 0px;
+		padding-right: 0px;
+	}
+}
+
+/* End Modal */
+
 @media (max-width: 1400px) {
     #content .product-categories-row .product-category img {
         height: 200px;
@@ -209,11 +423,11 @@ html {
 }
 
 @media screen and (max-width: 782px) {
-	.logged-in #page {
+	.admin-bar #page {
 		margin-top: 46px;
 	}
 
-	.logged-in #masthead {
+	.admin-bar #masthead {
 		margin-top: 46px;
 	}
 }
