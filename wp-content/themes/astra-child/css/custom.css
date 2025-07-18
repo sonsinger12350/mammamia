@@ -251,6 +251,10 @@ html {
 	font-weight: 600;
 }
 
+#modal-contact-download .modal-body [data-bs-dismiss="modal"] {
+	cursor: pointer;
+}
+
 #modal-login .modal-body .modal-description {
 	margin-bottom: 32px;
 }

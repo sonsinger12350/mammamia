@@ -97,8 +97,9 @@ class Custom_Elementor_Widget_Product_Content_Tab extends \Elementor\Widget_Base
 						<?php if (!empty($custom_field['design_file']['value'])): ?>
 							<div class="list-file">
 								<?php 
+									$download_design_file = json_decode(get_option('website_config_download_design_file', ''), true);
 									foreach ($custom_field['design_file']['value'] as $k => $v):
-									$download = !empty($custom_field['download_design_file']['value'][$k]) ? $custom_field['download_design_file']['value'][$k] : 1;
+									$download = !empty($download_design_file[$k]) ? $download_design_file[$k] : 1;
 									$onclick = '';
 
 									if ($download == 2) {
@@ -108,7 +109,8 @@ class Custom_Elementor_Widget_Product_Content_Tab extends \Elementor\Widget_Base
 											$onclick = '';
 											$download = 1;
 										}
-									} elseif ($download == 3) {
+									}
+									elseif ($download == 3) {
 										$onclick = 'onclick="showCustomModal(\'#modal-contact-download\')"';
 									}
 								?>

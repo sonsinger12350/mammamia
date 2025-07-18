@@ -49,6 +49,7 @@ class WebsiteConfig {
         register_setting('website_config_options', 'website_config_phone');
         register_setting('website_config_options', 'website_config_email');
 		register_setting('website_config_options', 'website_config_zalo');
+		register_setting('website_config_options', 'website_config_download_design_file');
     }
     
     /**
@@ -60,13 +61,27 @@ class WebsiteConfig {
             update_option('website_config_phone', sanitize_text_field($_POST['website_config_phone']));
             update_option('website_config_email', sanitize_email($_POST['website_config_email']));
 			update_option('website_config_zalo', sanitize_text_field($_POST['website_config_zalo']));
+			update_option('website_config_download_design_file', json_encode($_POST['website_config_download_design_file']));
             echo '<div class="notice notice-success"><p>Cấu hình đã được lưu thành công!</p></div>';
         }
+
+        $download_options = [
+            1 => "Không cần đăng nhập",
+            2 => "Bắt buộc đăng nhập",
+            3 => "Liên hệ trực tiếp",
+        ];
+
+        $download_file_type = [
+            '3d' => "3D",
+            'spec' => "Spec",
+            'instructions' => "Instructions",
+        ];
         
         // Get current values
         $phone = get_option('website_config_phone', '');
         $email = get_option('website_config_email', '');
 		$zalo = get_option('website_config_zalo', '');
+		$download_design_file = json_decode(get_option('website_config_download_design_file', ''), true);
         ?>
         <div class="wrap">
             <h1>Cấu hình website</h1>
@@ -116,6 +131,23 @@ class WebsiteConfig {
                             <p class="description">Nhập liên kết Zalo của bạn.</p>
                         </td>
                     </tr>
+                    <tr>
+                        <th scope="row">
+                            <label for="website_config_download_design_file">Cấu hình tải file thiết kế</label>
+                        </th>
+                        <td>
+                            <?php foreach ($download_file_type as $file_type => $file_name): ?>
+                                <div class="form-group" style="margin-bottom: 10px;">
+                                    <label style="min-width: 100px; display: inline-block;" for="website_config_download_design_file"><?php echo esc_html($file_name); ?></label>
+                                    <select name="website_config_download_design_file[<?php echo esc_attr($file_type); ?>]" id="website_config_download_design_file">
+                                        <?php foreach ($download_options as $key => $value): ?>
+                                            <option value="<?php echo esc_attr($key); ?>" <?php selected($download_design_file[$file_type], $key); ?>><?php echo esc_html($value); ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                            <?php endforeach; ?>
+                        </td>
+                    </tr>
                 </table>
                 
                 <?php submit_button('Save Settings'); ?>
@@ -130,19 +162,6 @@ class WebsiteConfig {
     public function enqueue_scripts() {
         // Add any frontend scripts if needed
     }
-}
-
-// Helper functions for theme use
-function get_website_phone() {
-    return get_option('website_config_phone', '');
-}
-
-function get_website_email() {
-    return get_option('website_config_email', '');
-}
-
-function get_website_zalo() {
-    return get_option('website_config_zalo', '');
 }
 
 // Initialize the plugin

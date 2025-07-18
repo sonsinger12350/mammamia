@@ -46,7 +46,7 @@
 
 <!-- Modal Contact Download -->
 <?php
-	$zalo = get_website_zalo();
+	$zalo = get_option('website_config_zalo', '');
 	$size = 200;
 	$qr_url = "https://api.qrserver.com/v1/create-qr-code/?data=".urlencode($zalo)."&size=200x200";
 ?>
