@@ -141,7 +141,7 @@ class WebsiteConfig {
                                     <label style="min-width: 100px; display: inline-block;" for="website_config_download_design_file"><?php echo esc_html($file_name); ?></label>
                                     <select name="website_config_download_design_file[<?php echo esc_attr($file_type); ?>]" id="website_config_download_design_file">
                                         <?php foreach ($download_options as $key => $value): ?>
-                                            <option value="<?php echo esc_attr($key); ?>" <?php selected($download_design_file[$file_type], $key); ?>><?php echo esc_html($value); ?></option>
+                                            <option value="<?php echo esc_attr($key); ?>" <?php !empty($download_design_file[$file_type]) && selected($download_design_file[$file_type], $key); ?>><?php echo esc_html($value); ?></option>
                                         <?php endforeach; ?>
                                     </select>
                                 </div>
