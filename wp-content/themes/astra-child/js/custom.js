@@ -14,7 +14,7 @@ function showCustomModal(element) {
 }
 
 function scrollToElement(element, distance = 200) {
-	$('html, body').animate({
+	jQuery('html, body').animate({
 		scrollTop: element.offset().top - distance
 	}, 500);
 }
@@ -376,5 +376,23 @@ jQuery(function($) {
 	$('body').on('input', '.form-login-register input', function() {
 		if ($(this).val() != '') $(this).removeClass('is-invalid');
 		else $(this).addClass('is-invalid');
+	});
+
+	$('body').on('click', '.footer-button .btn-scroll-top', function() {
+		scrollToElement($('html, body'));
+	});
+
+	// Show button scroll top when scroll down 30% height of page
+	$(document).scroll(function() {
+		if ($(document).scrollTop() > $(document).height() * 0.3) {
+			$('.footer-button .btn-scroll-top').show();
+		}
+		else {
+			$('.footer-button .btn-scroll-top').hide();
+		}
+	});
+
+	$('body').on('click', '.footer-contact-form .show-footer-contact-form', function() {
+		$('.footer-contact-form').toggleClass('active');
 	});
 });
