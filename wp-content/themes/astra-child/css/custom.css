@@ -480,6 +480,7 @@ a {
 	transition: width .3s, opacity .5s;
 	overflow: hidden;
 	opacity: 0;
+	box-shadow: -13px 0.5rem 1rem rgb(0 0 0 / 48%);
 }
 
 .footer-button a.btn-contact-phone:hover span {
@@ -581,6 +582,12 @@ a {
 	.footer-button a svg, .footer-button a svg image {
 		width: 20px;
 		height: 15px;
+	}
+
+	.footer-button a.btn-contact-phone span {
+		height: 60px;
+		right: 32px;
+		font-size: 20px;
 	}
 
 	.footer-button a.btn-scroll-top {
