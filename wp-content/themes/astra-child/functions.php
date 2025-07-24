@@ -54,28 +54,6 @@ function custom_enqueue_styles() {
 		true
 	);
 
-	wp_enqueue_style(
-		'custom-style',
-		get_stylesheet_directory_uri() . '/css/custom.css',
-		array(),
-		filemtime( get_stylesheet_directory() . '/css/custom.css' )
-	);
-
-	wp_enqueue_script(
-		'custom-script',
-		get_stylesheet_directory_uri() . '/js/custom.js',
-		array(),
-		filemtime( get_stylesheet_directory() . '/js/custom.js' ),
-		true
-	);
-
-	wp_enqueue_style(
-		'astra-child-custom-widget-css',
-		get_stylesheet_directory_uri() . '/css/custom-widget.css',
-		array(),
-		filemtime( get_stylesheet_directory() . '/css/custom-widget.css' )
-	);
-
 	wp_enqueue_style('font-awesome');
 
 	// Owl Carousel
@@ -141,6 +119,36 @@ function custom_enqueue_styles() {
 		'1.12.0',
 		true
 	);
+
+    wp_enqueue_style(
+		'custom-style',
+		get_stylesheet_directory_uri() . '/css/custom.css',
+		array(),
+		filemtime( get_stylesheet_directory() . '/css/custom.css' )
+	);
+
+	wp_enqueue_script(
+		'custom-script',
+		get_stylesheet_directory_uri() . '/js/custom.js',
+		array(),
+		filemtime( get_stylesheet_directory() . '/js/custom.js' ),
+		true
+	);
+
+	wp_enqueue_style(
+		'astra-child-custom-widget-css',
+		get_stylesheet_directory_uri() . '/css/custom-widget.css',
+		array(),
+		filemtime( get_stylesheet_directory() . '/css/custom-widget.css' )
+	);
+
+    wp_enqueue_style(
+		'animation',
+		get_stylesheet_directory_uri() . '/css/animation.css',
+		array(),
+		filemtime( get_stylesheet_directory() . '/css/animation.css' )
+	);
+    
 }
 add_action( 'wp_enqueue_scripts', 'custom_enqueue_styles' );
 

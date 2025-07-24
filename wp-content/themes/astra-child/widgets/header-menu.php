@@ -114,7 +114,7 @@ class Astra_Child_Custom_Widget_Header_Menu extends WP_Widget
 		$count_wishlist = 0;
 
 		if (is_user_logged_in()) {
-			$count_wishlist = get_user_wishlist_count();
+			$count_wishlist = yith_wcwl_count_all_products();
 		} 
 		else {
 			if (class_exists('YITH_WCWL_Wishlist_Factory')) {

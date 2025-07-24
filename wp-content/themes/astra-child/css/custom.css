@@ -407,7 +407,7 @@ a {
 	gap: 24px;
 	position: fixed;
 	bottom: 10%;
-	right: 6%;
+	right: 10px;
 	z-index: 1;
 }
 
@@ -435,6 +435,7 @@ a {
 
 .footer-button a.btn-contact-phone {
 	color: #b90404;
+	position: relative;
 }
 
 .footer-button a.btn-contact-phone::before,
@@ -454,8 +455,36 @@ a {
 }
 
 .footer-button a.btn-contact-phone i {
-	transform: rotate(260deg);
 	font-size: 50px;
+	-webkit-animation: calltrap_spin 3s infinite linear;
+    -moz-animation: calltrap_spin 3s infinite linear;
+    -o-animation: calltrap_spin 3s infinite linear;
+    animation: calltrap_spin 3s infinite linear;
+}
+
+.footer-button a.btn-contact-phone span {
+	position: absolute;
+	bottom: 0;
+	right: 40px;
+    content: '';
+    border-top-left-radius: 40px;
+    border-bottom-left-radius: 40px;
+	width: 0px;
+	height: 80px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background-color: #fff;
+	font-size: 24px;
+	font-weight: 600;
+	transition: width .3s, opacity .5s;
+	overflow: hidden;
+	opacity: 0;
+}
+
+.footer-button a.btn-contact-phone:hover span {
+	width: 200px;
+	opacity: 1;
 }
 
 .footer-button a svg,
@@ -469,13 +498,10 @@ a {
 	bottom: 0;
 	right: 0;
 	z-index: 1;
-	background-color: #fff;
+	background-color: transparent;
 	max-height: 39px;
+	max-width: 200px;
 	transition: all .3s;
-}
-
-.footer-contact-form.active {
-	max-height: 100%;
 }
 
 .footer-contact-form .show-footer-contact-form {
@@ -487,7 +513,7 @@ a {
     text-align: center;
     transition: all .3s;
 	border: 0;
-	background-color: var(--e-global-color-f30612b);
+	background-color: #d78c43ab;
 	text-transform: uppercase;
 	width: 100%;
     display: flex;
@@ -496,15 +522,25 @@ a {
 	transition: all .3s;
 }
 
-.footer-contact-form.active .show-footer-contact-form i {
-	transform: rotate(180deg);
+.footer-contact-form.active .show-footer-contact-form:hover,
+.footer-contact-form.active .show-footer-contact-form:focus,
+.footer-contact-form.active .show-footer-contact-form:active {
+	background-color: var(--e-global-color-f30612b);
+	color: #fff;
 }
 
 .footer-contact-form .show-footer-contact-form:hover,
 .footer-contact-form .show-footer-contact-form:focus,
 .footer-contact-form .show-footer-contact-form:active {
-	background-color: var(--e-global-color-f30612b);
-	color: #fff;
+	background-color: #d78c43ab;
+}
+
+.footer-contact-form.active {
+	background-color: #fff;
+}
+
+.footer-contact-form.active .show-footer-contact-form i {
+	transform: rotate(180deg);
 }
 
 .footer-contact-form .contact-form-content {

@@ -288,20 +288,3 @@ function get_all_acf_fields( $product_id ) {
 
     return $acf_fields;
 }
-
-function get_user_wishlist_count() {
-	global $wpdb;
-
-	$user_id = get_current_user_id();
-	$table = $wpdb->prefix . 'yith_wcwl';
-
-	if ($wpdb->get_var("SHOW TABLES LIKE '$table'") != $table) return 0;
-
-	$wishlist_count = $wpdb->get_var(
-		$wpdb->prepare(
-			"SELECT COUNT(*) FROM $table WHERE user_id = %d",
-			$user_id
-		)
-	);
-	return $wishlist_count;
-}

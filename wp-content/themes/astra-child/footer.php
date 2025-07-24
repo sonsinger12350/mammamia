@@ -47,6 +47,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		</a>
 		<?php if($phone): ?>
 			<a class="btn-contact-phone" href="tel:<?php echo $phone; ?>">
+				<span><?php echo $phone; ?></span>
 				<i class="fa fa-phone" aria-hidden="true"></i>
 			</a>
 		<?php endif; ?>

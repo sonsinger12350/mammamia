@@ -393,6 +393,37 @@ jQuery(function($) {
 	});
 
 	$('body').on('click', '.footer-contact-form .show-footer-contact-form', function() {
-		$('.footer-contact-form').toggleClass('active');
+		let element = $('.footer-contact-form');
+		element.toggleClass('active');
+
+		if (element.hasClass('active')) {
+			element.css('max-width', '100%');
+
+			setTimeout(function() {
+				element.css('max-height', '100%');
+			}, 400);
+		}
+		else {
+			element.css('max-height', '39px');
+
+			setTimeout(function() {
+				element.css('max-width', '200px');
+			}, 400);
+		}
+	});
+
+	$('.product [data-product-id]').off('click').on('click', function() {
+		setTimeout(function () {
+			$.ajax({
+				url: yith_wcwl_l10n.ajax_url,
+				type: 'POST',
+				data: {
+					action: 'yith_wcwl_update_wishlist_count'
+				},
+				success: function(response) {
+					$('.wishlist-icon .wishlist-count').text(response.count);
+				}
+			});
+		}, 1000);
 	});
 });
