@@ -1,0 +1,51 @@
+This is a placeholder for the sample Excel template file.
+
+To create a proper Excel template, please create an Excel file with the following columns:
+
+REQUIRED COLUMNS:
+Column A: SKU (required) - Unique product identifier
+Column C: Name (required) - Product name
+
+STANDARD COLUMNS:
+Column B: Parent SKU - Leave empty for main products, fill for variants
+Column D: Description - Product description
+Column E: Short Description - Short product description
+Column F: Price - Product price
+Column G: Regular Price - Regular price (for sale products)
+Column H: Sale Price - Sale price
+Column I: Stock - Stock quantity
+Column J: Stock Status - Stock status (instock, outofstock, onbackorder)
+Column K: Category - Product category (comma-separated for multiple)
+Column L: Image URL - Google Drive image link
+Column M: Gallery Images - Comma-separated Google Drive image links
+Column N: Status - Product status (publish, draft, private)
+Column O: Featured - Featured product (yes/no)
+Column P: Virtual - Virtual product (yes/no)
+Column Q: Downloadable - Downloadable product (yes/no)
+Column R: Weight - Product weight
+Column S: Length - Product length
+Column T: Width - Product width
+Column U: Height - Product height
+Column V: Purchase Note - Purchase note
+Column W: Menu Order - Menu order
+Column X: Reviews Allowed - Allow reviews (yes/no)
+Column Y: Sold Individually - Sold individually (yes/no)
+Column Z: Backorders - Backorders (no, notify, yes)
+Column AA: Tax Status - Tax status (taxable, shipping, none)
+Column AB: Tax Class - Tax class
+Column AC: Catalog Visibility - Catalog visibility (visible, catalog, search, hidden)
+
+ADDITIONAL COLUMNS:
+Any additional columns will be treated as ACF (Advanced Custom Fields) if the ACF plugin is active.
+
+Example data using the centralized column mapping system:
+SKU,Parent SKU,Name,Description,Price,Regular Price,Stock,Category,Image URL,Gallery Images,Status
+PROD001,,Sample Product,This is a sample product,100,120,50,Electronics,https://drive.google.com/file/d/123456/view,https://drive.google.com/file/d/789012/view,publish
+PROD001-VAR1,PROD001,Red Variant,Red color variant,110,130,25,Electronics,https://drive.google.com/file/d/345678/view,,publish
+PROD001-VAR2,PROD001,Blue Variant,Blue color variant,110,130,25,Electronics,https://drive.google.com/file/d/901234/view,,publish
+
+The plugin uses a centralized column mapping system where:
+- Column names are defined in one place (column-mappings.php)
+- All functions use the same mapping functions
+- Easy to modify column names globally
+- Consistent handling across the entire plugin 
