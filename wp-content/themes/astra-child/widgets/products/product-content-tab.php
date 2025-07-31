@@ -34,17 +34,17 @@ class Custom_Elementor_Widget_Product_Content_Tab extends \Elementor\Widget_Base
 		$product = wc_get_product( $product_id );
 		if (empty($product)) return null;
 
-		$product_color = get_product_color($product);
-		$attributes = [];
-		$custom_field = get_all_acf_fields($product_id);
+		
+		$custom_data = get_all_custom_field_values($product_id);
+		$design_file = get_field('design_file', $product_id);
+		$download_design_file = json_decode(get_option('website_config_download_design_file', ''), true);
+		$technical_image = get_field('technical_image', $product_id);
 
-		$show_field = ['size', 'water_capacity', 'material', 'faucet_included'];
-		if (!empty($product_color)) $attributes['color'] = ['label' => 'Màu sắc', 'value' => $product_color[0]['name']];
-
-		foreach ($custom_field as $k => $v) {
-			if (in_array($k, $show_field)) {
-				$attributes[$k] = $v;
-			}
+		if (!empty($technical_image)) {
+			$technical_image = [
+				'label' => $technical_image['filename'],
+				'value' => $technical_image['url'],
+			];
 		}
 
 		?>
@@ -67,7 +67,7 @@ class Custom_Elementor_Widget_Product_Content_Tab extends \Elementor\Widget_Base
 						<div class="left">
 							<table>
 								<tbody>
-									<?php foreach ($attributes as $k => $v): ?>
+									<?php foreach ($custom_data['custom_field'] as $k => $v): ?>
 										<tr>
 											<td><b><?php echo esc_html( $v['label'] ); ?>:</b></td>
 											<td class="attribute-<?= $k ?>"><?php echo esc_html( is_array($v['value']) ? implode(', ', $v['value']) : $v['value'] ); ?></td>
@@ -75,44 +75,45 @@ class Custom_Elementor_Widget_Product_Content_Tab extends \Elementor\Widget_Base
 									<?php endforeach; ?>
 								</tbody>
 							</table>
-							<div class="block-content">
-								<p class="block-title"><?php echo esc_html( $custom_field['warranty_policy']['label'] ); ?></p>
-								<?php if (!empty($custom_field['warranty_policy']['value'])): ?>
+							<?php if (!empty($custom_data['custom_taxonomies']['chinh-sach-bao-hanh']['value'])): ?>
+								<div class="block-content">
+									<p class="block-title"><?php echo esc_html( $custom_data['custom_taxonomies']['chinh-sach-bao-hanh']['label'] ); ?></p>
 									<ul class="warranty-policy">
-										<?php foreach ($custom_field['warranty_policy']['value'] as $v): ?>
-											<li><span><i class="fa fa-angle-right" aria-hidden="true"></i></span> <?php echo esc_html( $v ); ?></li>
+										<?php foreach ($custom_data['custom_taxonomies']['chinh-sach-bao-hanh']['value'] as $v): ?>
+											<li><span><i class="fa fa-angle-right" aria-hidden="true"></i></span> <?php echo esc_html( $v['label'] ); ?></li>
 										<?php endforeach; ?>
 									</ul>
-								<?php endif; ?>
-							</div>
+								</div>
+							<?php endif; ?>
 						</div>
 						
-						<?php if (!empty($custom_field['technical_image']['value'])): ?>
+						<?php if (!empty($technical_image)): ?>
 							<div class="technical-image">
-								<img src="<?= $custom_field['technical_image']['value']['url'] ?>" alt="<?= $custom_field['technical_image']['value']['name'] ?>">
+								<img src="<?= $technical_image['value'] ?>" alt="<?= $technical_image['label'] ?>">
 							</div>
 						<?php endif; ?>
 					</div>
 					<div class="tab-content" id="tab-file">
-						<?php if (!empty($custom_field['design_file']['value'])): ?>
+						<?php if (!empty($design_file)): ?>
 							<div class="list-file">
-								<?php 
-									$download_design_file = json_decode(get_option('website_config_download_design_file', ''), true);
-									foreach ($custom_field['design_file']['value'] as $k => $v):
-									$download = !empty($download_design_file[$k]) ? $download_design_file[$k] : 1;
-									$onclick = '';
+								<?php
+									foreach ($design_file as $k => $v):
+										if(empty($v)) continue;
 
-									if ($download == 2) {
-										$onclick = 'onclick="showCustomModal(\'#modal-login\')"';
+										$download = !empty($download_design_file[$k]) ? $download_design_file[$k] : 1;
+										$onclick = '';
 
-										if (is_user_logged_in()) {
-											$onclick = '';
-											$download = 1;
+										if ($download == 2) {
+											$onclick = 'onclick="showCustomModal(\'#modal-login\')"';
+
+											if (is_user_logged_in()) {
+												$onclick = '';
+												$download = 1;
+											}
 										}
-									}
-									elseif ($download == 3) {
-										$onclick = 'onclick="showCustomModal(\'#modal-contact-download\')"';
-									}
+										elseif ($download == 3) {
+											$onclick = 'onclick="showCustomModal(\'#modal-contact-download\')"';
+										}
 								?>
 									<a href="<?= $download == 1 ? $v : 'javascript:void(0)' ?>" class="file download-level-<?= $download ?>" <?= $onclick ?> download>
 										<div class="left">

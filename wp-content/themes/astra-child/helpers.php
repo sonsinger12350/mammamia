@@ -215,45 +215,83 @@ function getAllCustomFieldValueByCat($cat, $customField) {
 	return $wpdb->get_col($sql);
 }
 
-function get_product_color( $product ) {
-    $attribute_name = 'pa_mau-sac';
-    $colors = [];
+// Modifi this function to get all attribute of product
+function get_all_attributes_with_images($product) {
+    $data = [];
 
-    if ( ! $product || ! $product->is_type( 'variable' ) ) return $colors;
+    if (!$product || !$product->is_type('variable')) return $data;
 
     $children_ids = $product->get_children();
+    $default_image_url = get_stylesheet_directory_uri() . '/assets/images/no-image.jpg';
 
-    foreach ( $children_ids as $child_id ) {
-        $variation = wc_get_product( $child_id );
-
-        if ( ! $variation || ! $variation->exists() ) continue;
+    foreach ($children_ids as $child_id) {
+        $variation = wc_get_product($child_id);
+        if (!$variation || !$variation->exists()) continue;
 
         $attributes = $variation->get_attributes();
+        $color_slug = $attributes['pa_mau-sac'] ?? null;
+        $size_slug  = $attributes['pa_kich-thuoc'] ?? null;
 
-        if ( isset( $attributes[ $attribute_name ] ) ) {
-            $color_slug = $attributes[ $attribute_name ];
-            $term = get_term_by( 'slug', $color_slug, $attribute_name );
+        if (!$color_slug) continue;
 
-            if ( ! $term ) continue;
+        // --- Lấy thông tin màu sắc ---
+        $color_term = get_term_by('slug', $color_slug, 'pa_mau-sac');
+        if (!$color_term) continue;
 
-            $image_id  = $variation->get_image_id();
-            $image_url = $image_id ? wp_get_attachment_url( $image_id ) : null;
-			$color_code  = get_term_meta( $term->term_id, 'product_attribute_color', true );
+        $color_code = get_term_meta($color_term->term_id, 'product_attribute_color', true);
 
-            // Tránh trùng màu (chỉ lấy 1 ảnh đầu tiên mỗi màu)
-            if ( ! isset( $colors[ $color_slug ] ) ) {
-                $colors[ $color_slug ] = [
-                    'sku'  => $variation->get_sku(),
-                    'slug'  => $color_slug,
-                    'name'  => $term->name,
-                    'color' => $color_code,
-                    'image' => $image_url,
+        // Khởi tạo nếu chưa có màu
+        if (!isset($data[$color_slug])) {
+            $data[$color_slug] = [
+                'slug'  => $color_slug,
+                'name'  => $color_term->name,
+                'color' => $color_code,
+            ];
+        }
+
+        // --- Lấy ảnh từ biến thể ---
+        $image_id = $variation->get_image_id();
+        $image_url = $image_id ? wp_get_attachment_url($image_id) : null;
+
+        $gallery = get_post_meta($child_id, 'woo_variation_gallery_images', true);
+        if (is_string($gallery)) $gallery = maybe_unserialize($gallery);
+        if (!is_array($gallery)) $gallery = [];
+
+        $gallery_urls = array_map('wp_get_attachment_url', $gallery);
+        $gallery_urls = array_filter($gallery_urls);
+
+        // Đẩy ảnh đại diện lên đầu nếu có
+        if ($image_url) array_unshift($gallery_urls, $image_url);
+
+        // Nếu không có ảnh nào thì thêm ảnh mặc định
+        if (empty($gallery_urls)) $gallery_urls[] = $default_image_url;
+
+        // Có kích thước → ảnh gắn vào từng size
+        if ($size_slug) {
+            $size_term = get_term_by('slug', $size_slug, 'pa_kich-thuoc');
+            if (!$size_term) continue;
+
+            if (!isset($data[$color_slug]['size'])) $data[$color_slug]['size'] = [];
+
+            if (!isset($data[$color_slug]['size'][$size_slug])) {
+                $data[$color_slug]['size'][$size_slug] = [
+                    'slug'   => $size_slug,
+                    'name'   => $size_term->name,
+                    'images' => [],
                 ];
             }
+
+            $data[$color_slug]['size'][$size_slug]['images'] = $gallery_urls;
+        } else {
+            // Không có kích thước → ảnh gắn vào màu
+            if (!isset($data[$color_slug]['images'])) $data[$color_slug]['images'] = [];
+
+            $data[$color_slug]['images'] = array_merge($data[$color_slug]['images'], $gallery_urls);
+            $data[$color_slug]['images'] = array_unique($data[$color_slug]['images']);
         }
     }
 
-    return array_values( $colors ); // trả về mảng tuần tự
+    return $data;
 }
 
 function get_all_acf_fields( $product_id ) {
@@ -262,29 +300,53 @@ function get_all_acf_fields( $product_id ) {
 
     if ( is_array( $raw_fields ) ) {
         foreach ( $raw_fields as $key => $value ) {
-			if ($key == 'warranty_policy') {
-				$newValue = [];
-
-				if (!empty($value)) {
-					foreach ($value as $item) {
-						$newValue[] = $item['label'];
-					}
-				}
-
-				$acf_fields[$key] = [
-					'label' => get_field_object( $key, $product_id )['label'] ?? $key,
-					'value' => $newValue,
-				];
-			}
-			else {
-				$acf_fields[$key] = [
-					'label' => get_field_object( $key, $product_id )['label'] ?? $key,
-					'value' => $value,
-				];
-			}
-            
+			$acf_fields[$key] = [
+				'label' => get_field_object( $key, $product_id )['label'] ?? $key,
+				'value' => $value,
+			];
         }
     }
 
     return $acf_fields;
+}
+
+function get_all_custom_field_values( $product_id ) {
+	if (empty($product_id)) return null;
+
+	$data = [];
+
+	require_once WEBSITE_CONFIG_PLUGIN_PATH . 'website-config.php';
+	require_once WEBSITE_CONFIG_PLUGIN_PATH . 'column-mappings.php';
+
+	$website_config = new WebsiteConfig();
+
+	foreach ($website_config->custom_taxonomies_mappings as $k => $v) {
+		$list_terms = [];
+		$terms = get_the_terms($product_id, $k);
+		$data['custom_taxonomies'][$k] = [
+			'label' => mamma_mia_get_column_key($v, false),
+			'value' => [],
+		];
+
+		if (!empty($terms)) {
+			foreach ($terms as $term) {
+				$list_terms[] = [
+					'label' => $term->name,
+					'link' => get_term_link($term),
+				];
+			}
+
+			$data['custom_taxonomies'][$k]['value'] = $list_terms;
+		}
+	}
+
+	$custom_field = get_all_acf_fields($product_id);
+
+	foreach ($custom_field as $k => $v) {
+		if (in_array($k, $website_config->acf_fields) && !empty($v['value'])) {
+			$data['custom_field'][$k] = $v;
+		}
+	}
+
+	return $data;
 }

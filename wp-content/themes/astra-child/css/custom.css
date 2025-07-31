@@ -20,7 +20,6 @@ a {
 #masthead {
 	position: fixed;
 	width: 100%;
-	background-color: var(--color-blue);
 	top: 0px;
 }
 
@@ -28,13 +27,13 @@ a {
 	margin-top: 32px;
 }
 
-#masthead.active,
-#masthead.active .ast-primary-header-bar {
+#masthead,
+#masthead .ast-primary-header-bar {
 	background-color: #132E2DBA;
 }
 
-#content {
-	margin-top: 104px;
+.admin-bar #content {
+	margin-top: 32px;
 }
 
 #content .ast-container {
@@ -67,6 +66,7 @@ a {
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	z-index: 2;
 }
 
 .elementor-element .custom-header-slide .swiper .elementor-swiper-button-prev {
@@ -615,18 +615,6 @@ a {
 	}
 }
 
-@media (max-width: 991px) {
-	#content {
-		margin-top: 95px;
-	}
-}
-
-@media (max-width: 921px) {
-	#content {
-		margin-top: 91px;
-	}
-}
-
 @media (max-width: 782px) {
 	.admin-bar #page {
 		margin-top: 46px;
@@ -634,6 +622,10 @@ a {
 
 	.admin-bar #masthead {
 		margin-top: 46px;
+	}
+
+	.admin-bar #content {
+		margin-top: 0px;
 	}
 }
 
