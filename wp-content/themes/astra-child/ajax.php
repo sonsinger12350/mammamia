@@ -31,7 +31,7 @@ function filter_products() {
 			$paramsProduct = [
 				'category' 		=> $category,
 				'brand'   	 	=> $params['brand'],
-				'collection'    => $params['collection'],
+				'bo-suu-tap'    => $params['bo-suu-tap'],
 				'price_type'    => $params['price_type'],
 				'set_up'    	=> $params['set_up'],
 			];

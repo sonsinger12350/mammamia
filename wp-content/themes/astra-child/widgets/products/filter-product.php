@@ -32,22 +32,23 @@ class Custom_Elementor_Widget_Filter_Product extends \Elementor\Widget_Base {
 	protected function render() {
 		if (!is_tax('product_cat')) return false;
 		$currentCat = get_queried_object();
+
 		$selectField = [
 			'brand' => [
 				'title' => 'Thương hiệu',
 				'options' => getAllBrandByCat($currentCat),
 			],
-			'collection' => [
+			'bo-suu-tap' => [
 				'title' => 'Bộ sưu tập',
-				'options' => getAllCustomFieldValueByCat($currentCat, 'collection'),
+				'options' => getTaxonomyTermsByCat($currentCat, 'bo-suu-tap'),
 			],
 			'price_type' => [
 				'title' => 'Giá',
-				'options' => getAllCustomFieldValueByCat($currentCat, 'price_type'),
+				'options' => getTaxonomyTermsByCat($currentCat, 'price_type'),
 			],
 			'set_up' => [
 				'title' => 'Lắp đặt',
-				'options' => getAllCustomFieldValueByCat($currentCat, 'set_up'),
+				'options' => getTaxonomyTermsByCat($currentCat, 'set_up'),
 			],
 		];
 
@@ -63,10 +64,12 @@ class Custom_Elementor_Widget_Filter_Product extends \Elementor\Widget_Base {
 						<select id="' . $field . '" name="' . $field . '">
 							<option value="">' . esc_html('Tất cả') . '</option>
 					';
-							foreach ($data['options'] as $key => $value) {
-								if ($field == 'brand') $content .= '<option value="' . esc_attr($key) . '">' . esc_html($value) . '</option>';
-								else $content .= '<option value="' . esc_attr($value) . '">' . esc_html($value) . '</option>';
-							}
+					if (!empty($data['options'])) {
+						foreach ($data['options'] as $key => $value) {
+							if ($field == 'brand') $content .= '<option value="' . esc_attr($key) . '">' . esc_html($value) . '</option>';
+							else $content .= '<option value="' . esc_attr($value) . '">' . esc_html($value) . '</option>';
+						}
+					}
 
 				$content .= '
 						</select>

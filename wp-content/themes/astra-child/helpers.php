@@ -78,24 +78,36 @@ function getProductListByConditions($conditions) {
 		],
 	];
 
-	foreach ($conditions as $k => $v) {
-		if ($k == 'category') continue;
+	// Các field là taxonomy
+	$taxonomy_map = [
+		'brand'      => 'product_brand',
+		'bo-suu-tap' => 'bo-suu-tap',
+		'set_up'     => 'set_up',
+	];
 
-		if (!empty($v)) {
-			if ($k == 'brand') {
-				$args['tax_query'][] = [
-					'taxonomy' => 'product_brand',
-					'field'    => 'term_id',
-					'terms'    => $v,
-				];
-			}
-			else {
-				$args['meta_query'][] = [
-					'key'     => $k,
-					'value'   => $v,
-					'compare' => '=',
-				];
-			}
+	// Các field là custom field (meta_key)
+	$meta_fields = [
+		'price_type',
+	];
+
+	foreach ($conditions as $key => $value) {
+		if ($key === 'category' || empty($value)) continue;
+
+		// Nếu là taxonomy
+		if (isset($taxonomy_map[$key])) {
+			$args['tax_query'][] = [
+				'taxonomy' => $taxonomy_map[$key],
+				'field'    => 'slug',
+				'terms'    => (array) $value,
+			];
+		}
+		// Nếu là meta field
+		elseif (in_array($key, $meta_fields)) {
+			$args['meta_query'][] = [
+				'key'     => $key,
+				'value'   => $value,
+				'compare' => '=',
+			];
 		}
 	}
 
@@ -179,41 +191,53 @@ function getAllBrandByCat($cat) {
 	return $data;
 }
 
-function getAllCustomFieldValueByCat($cat, $customField) {
-	if (empty($cat->taxonomy) || $cat->taxonomy != 'product_cat' || empty($customField)) return null;
+function getTaxonomyTermsByCat($catObj, $taxonomy) {
+	if (!$catObj || !isset($catObj->term_id)) return [];
 
-	global $wpdb;
+	if ($taxonomy == 'price_type') {
+		return [
+			'Luxury',
+			'Premium',
+		];
+	}
 
-	$listCat = get_term_children($cat->term_id, $cat->taxonomy);
-	$listCat[] = $cat->term_id;
-	$listCat = implode(',', array_map('intval', $listCat));
+	$cat_id = $catObj->term_id;
 
-	$wpdb->query("SET SESSION group_concat_max_len = 500000");
-	$sql = "
-		SELECT GROUP_CONCAT(DISTINCT p.ID)
-		FROM {$wpdb->posts} p
-		INNER JOIN {$wpdb->term_relationships} tr ON p.ID = tr.object_id
-		INNER JOIN {$wpdb->term_taxonomy} tt ON tr.term_taxonomy_id = tt.term_taxonomy_id
-		WHERE tt.taxonomy = 'product_cat'
-		AND tt.term_id IN ($listCat)
-		AND p.post_type = 'product'
-		AND p.post_status = 'publish'
-	";
+	// Lấy tất cả sản phẩm thuộc category hiện tại
+	$args = [
+		'post_type' => 'product',
+		'posts_per_page' => -1,
+		'tax_query' => [
+			[
+				'taxonomy' => 'product_cat',
+				'field' => 'term_id',
+				'terms' => $cat_id,
+			]
+		],
+		'fields' => 'ids',
+	];
 
-	$product_ids = $wpdb->get_var($sql);
-	if (empty($product_ids)) return null;
+	$product_ids = get_posts($args);
+	if (empty($product_ids)) return [];
 
-	$sql = "
-		SELECT DISTINCT meta_value
-		FROM {$wpdb->postmeta}
-		WHERE post_id IN ($product_ids)
-		AND meta_key = '$customField'
-		AND meta_value IS NOT NULL
-		AND meta_value != ''
-	";
+	$terms = [];
 
-	return $wpdb->get_col($sql);
+	// Lặp qua sản phẩm để lấy taxonomy terms tương ứng
+	foreach ($product_ids as $product_id) {
+		$product_terms = get_the_terms($product_id, $taxonomy);
+		if ($product_terms && !is_wp_error($product_terms)) {
+			foreach ($product_terms as $term) {
+				$terms[$term->term_id] = $term->name;
+			}
+		}
+	}
+
+	// Sắp xếp theo tên
+	asort($terms);
+
+	return $terms;
 }
+
 
 // Modifi this function to get all attribute of product
 function get_all_attributes_with_images($product) {
