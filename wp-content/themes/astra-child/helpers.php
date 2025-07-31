@@ -266,28 +266,31 @@ function get_all_attributes_with_images($product) {
         // Nếu không có ảnh nào thì thêm ảnh mặc định
         if (empty($gallery_urls)) $gallery_urls[] = $default_image_url;
 
-        // Có kích thước → ảnh gắn vào từng size
+        $sku = $variation->get_sku();
+
+        // Có kích thước → ảnh + sku gắn vào từng size
         if ($size_slug) {
             $size_term = get_term_by('slug', $size_slug, 'pa_kich-thuoc');
             if (!$size_term) continue;
 
             if (!isset($data[$color_slug]['size'])) $data[$color_slug]['size'] = [];
 
-            if (!isset($data[$color_slug]['size'][$size_slug])) {
-                $data[$color_slug]['size'][$size_slug] = [
-                    'slug'   => $size_slug,
-                    'name'   => $size_term->name,
-                    'images' => [],
-                ];
-            }
-
-            $data[$color_slug]['size'][$size_slug]['images'] = $gallery_urls;
-        } else {
-            // Không có kích thước → ảnh gắn vào màu
+            $data[$color_slug]['size'][$size_slug] = [
+                'slug'   => $size_slug,
+                'name'   => $size_term->name,
+                'images' => $gallery_urls,
+                'sku'    => $sku,
+            ];
+        }
+		else {
+            // Không có kích thước → ảnh + sku gắn vào màu
             if (!isset($data[$color_slug]['images'])) $data[$color_slug]['images'] = [];
 
             $data[$color_slug]['images'] = array_merge($data[$color_slug]['images'], $gallery_urls);
             $data[$color_slug]['images'] = array_unique($data[$color_slug]['images']);
+
+            // Chỉ gán SKU nếu chưa có (tránh ghi đè nếu có nhiều biến thể cùng màu)
+            if (!isset($data[$color_slug]['sku']) && $sku) $data[$color_slug]['sku'] = $sku;
         }
     }
 

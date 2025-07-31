@@ -38,26 +38,32 @@ class Custom_Elementor_Widget_Product_Content extends \Elementor\Widget_Base {
 		$image_url = $image_id ? wp_get_attachment_url( $image_id ) : null;
 
 		$attributes = get_all_attributes_with_images($product);
-
 		$default_color = !empty($attributes) ? key($attributes) : '';
 		$default_size = '';
 		$default_images = [];
+		$sku = $product->get_sku();
 
 		if (!empty($default_color)) {
-			$default_size = !empty($attributes[$default_color]['size']) ? key($attributes[$default_color]['size']) : '';
-
-			if (!empty($default_size)) {
-				$default_images = $attributes[$default_color]['size'][$default_size]['images'];
+			// Nếu có size
+			if (!empty($attributes[$default_color]['size'])) {
+				$default_size = key($attributes[$default_color]['size']);
+				$default_images = $attributes[$default_color]['size'][$default_size]['images'] ?? [];
+		
+				// Lấy SKU của biến thể theo màu + size
+				$sku = $attributes[$default_color]['size'][$default_size]['sku'] ?? $sku;
 			}
 			else {
-				$default_images = $attributes[$default_color]['images'];
+				$default_images = $attributes[$default_color]['images'] ?? [];
+		
+				// Lấy SKU của biến thể theo màu (không có size)
+				$sku = $attributes[$default_color]['sku'] ?? $sku;
 			}
 		}
 
 		$brands = get_the_terms($product->get_id(), 'product_brand');
 		$brand_names = (!empty($brands) && !is_wp_error($brands)) ? wp_list_pluck($brands, 'name') : [];
 		$features = get_post_meta($product_id, '_custom_product_features', true);
-		$sku = $product->get_sku();
+		
 
 		?>
 			<div class="custom-product-content">
@@ -93,7 +99,7 @@ class Custom_Elementor_Widget_Product_Content extends \Elementor\Widget_Base {
 						<div class="block-content">
 							<h1 class="product-name"><?php echo esc_html( $product->get_name() ); ?></h1>
 							<p class="product-brand">Thương hiệu: <?= implode(',', $brand_names) ?></p>
-							<p class="product-sku">Mã SP: <?= $sku ?></p>
+							<p class="product-sku">Mã SP: <span><?= $sku ?></span></p>
 							<p class="short-description"><?= $product->get_short_description(); ?></p>
 						</div>
 						<?php if (!empty($features)): ?>

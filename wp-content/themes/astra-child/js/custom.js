@@ -213,19 +213,19 @@ jQuery(function($) {
 
 	$('body').on('click', '.custom-product-content .product-content .list-color span', function () {
 		let color = $(this).attr('data-color');
-	
+
 		$('.custom-product-content .product-content .list-color span').removeClass('active');
 		$(this).addClass('active');
-	
+
 		let gallery = [];
-	
+
 		if (Object.keys(product_attributes).length > 0 && product_attributes[color]) {
 			let list_size = product_attributes[color]['size'];
-	
-			// Kiểm tra nếu có kích thước
+
+			// Nếu có size
 			if (list_size && Object.keys(list_size).length > 0) {
 				let list_size_html = '';
-	
+
 				Object.keys(list_size).forEach(function (key) {
 					list_size_html += `
 						<div class="item">
@@ -234,35 +234,44 @@ jQuery(function($) {
 						</div>
 					`;
 				});
-	
+
 				$('.custom-product-content .product-content .list-size').html(list_size_html).show();
-				$('.custom-product-content .product-content .list-size .item input[type="radio"]').first().click();
-			} else {
-				// Nếu không có kích thước → lấy ảnh từ color
+
+				// Click size đầu tiên và cập nhật SKU trong sự kiện 'change'
+				$('.custom-product-content .product-content .list-size .item input[type="radio"]').first().trigger('click');
+			}
+			else {
+				// Không có size → lấy ảnh & sku từ color
 				gallery = product_attributes[color]['images'] ?? [];
+				let sku = product_attributes[color]['sku'] ?? '';
+
 				$('.custom-product-content .product-content .list-size').hide();
 				renderGallery(gallery);
+				$('.product-sku span').text(sku);
 			}
 		}
-	
+
 		$('.attribute-color').html($(this).attr('data-name'));
 	});
-	
+
 	$('body').on('change', '.custom-product-content .product-content .list-size .item input[type="radio"]', function () {
 		let size = $('input[name="size"]:checked').val();
 		let color = $('.custom-product-content .product-content .list-color span.active').attr('data-color');
-	
+
 		if (!color || !size) {
 			console.error("Missing color or size");
 			return false;
 		}
-	
+
 		if (Object.keys(product_attributes).length > 0) {
 			let gallery = product_attributes[color]['size'][size]['images'] ?? [];
+			let sku = product_attributes[color]['size'][size]['sku'] ?? '';
+
 			renderGallery(gallery);
+			$('.product-sku span').text(sku);
 		}
 	});
-	
+
 	// Hàm hiển thị ảnh gallery
 	function renderGallery(gallery) {
 		let gallery_html = '<div class="owl-carousel owl-theme">';
