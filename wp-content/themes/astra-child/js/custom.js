@@ -513,4 +513,48 @@ jQuery(function($) {
 			});
 		}, 1000);
 	}
+
+	// Table of Contents functionality
+	$('body').on('click', '.custom-product-content-tab .btn-table-content', function(e) {
+		e.preventDefault();
+		let $button = $(this);
+		let $tableContent = $button.siblings('.table-content-list');
+		let $icon = $button.find('img');
+		
+		// Toggle table of contents
+		$tableContent.toggleClass('active');
+		
+		// Rotate icon
+		if ($tableContent.hasClass('active')) {
+			$icon.css('transform', 'rotate(180deg)');
+		} else {
+			$icon.css('transform', 'rotate(0deg)');
+		}
+	});
+
+	// Smooth scrolling for table of contents links
+	$('body').on('click', '.custom-product-content-tab .toc-link', function(e) {
+		e.preventDefault();
+		let targetId = $(this).attr('href');
+		let $target = $(targetId);
+		
+		if ($target.length) {
+			// Close table of contents on mobile
+			if (window.innerWidth <= 767) {
+				$('.custom-product-content-tab .table-content-list').removeClass('active');
+				$('.custom-product-content-tab .btn-table-content img').css('transform', 'rotate(0deg)');
+			}
+			
+			// Smooth scroll to target
+			$('html, body').animate({
+				scrollTop: $target.offset().top - 200
+			}, 800);
+			
+			// Add highlight effect to target heading
+			$target.addClass('toc-highlight');
+			setTimeout(function() {
+				$target.removeClass('toc-highlight');
+			}, 2000);
+		}
+	});
 });

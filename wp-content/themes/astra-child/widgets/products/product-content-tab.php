@@ -47,6 +47,13 @@ class Custom_Elementor_Widget_Product_Content_Tab extends \Elementor\Widget_Base
 			];
 		}
 
+		// Generate table of contents from product description
+		$description = $product->get_description();
+		$table_of_contents = $this->generate_table_of_contents($description);
+		
+		// Add IDs to headings in description for table of contents linking
+		$description_with_ids = $this->add_ids_to_headings($description);
+
 		?>
 			<div class="custom-product-content-tab">
 				<div class="tabs-title">
@@ -56,11 +63,22 @@ class Custom_Elementor_Widget_Product_Content_Tab extends \Elementor\Widget_Base
 				</div>
 				<div class="tabs-content">
 					<div class="tab-content active" id="tab-description">
+						<?php if (!empty($table_of_contents)): ?>
+							<div class="table-content mb-4">
+								<button type="button" class="btn-table-content">Mục lục <img src="<?= get_stylesheet_directory_uri() . '/assets/icon/angle-down.svg' ?>" alt="angle-down"></button>
+								<div class="table-content-list">
+									<ul>
+										<?php foreach ($table_of_contents as $item): ?>
+											<li class="toc-item toc-level-<?= $item['level'] ?>">
+												<a href="#<?= $item['id'] ?>" class="toc-link"><?= $item['text'] ?></a>
+											</li>
+										<?php endforeach; ?>
+									</ul>
+								</div>
+							</div>
+						<?php endif; ?>
 						<div class="description">
-							<?= $product->get_description() ?>
-						</div>
-						<div class="table-content">
-							<button type="button" class="btn-table-content">Mục lục <img src="<?= get_stylesheet_directory_uri() . '/assets/icon/angle-down.svg' ?>" alt="angle-down"></button>
+							<?= $description_with_ids ?>
 						</div>
 					</div>
 					<div class="tab-content" id="tab-detail">
@@ -131,5 +149,57 @@ class Custom_Elementor_Widget_Product_Content_Tab extends \Elementor\Widget_Base
 				</div>
 			</div>
 		<?php
+	}
+
+	private function generate_table_of_contents($html) {
+		$toc = [];
+		$id_counter = 0;
+
+		// Use regex to find headings
+		preg_match_all('/<h([1-6])([^>]*)>(.*?)<\/h[1-6]>/', $html, $matches, PREG_SET_ORDER);
+
+		foreach ($matches as $match) {
+			$tag = $match[1];
+			$attributes = $match[2];
+			$text = strip_tags($match[3]); // Remove any HTML tags from the heading text
+			$id = 'toc-' . $id_counter++;
+
+			// Determine level (h1 = 0, h2 = 1, etc.)
+			$level = $tag - 1;
+			if ($level < 0) $level = 0;
+
+			$toc[] = [
+				'level' => $level,
+				'text' => $text,
+				'id' => $id,
+			];
+		}
+
+		return $toc;
+	}
+
+	private function add_ids_to_headings($html) {
+		$id_counter = 0;
+		
+		// Use regex to find and replace heading tags with IDs
+		$html_with_ids = preg_replace_callback(
+			'/<h([1-6])([^>]*)>(.*?)<\/h[1-6]>/',
+			function($matches) use (&$id_counter) {
+				$tag = $matches[1];
+				$attributes = $matches[2];
+				$content = $matches[3];
+				$id = 'toc-' . $id_counter++;
+				
+				// Check if ID already exists
+				if (strpos($attributes, 'id=') !== false) {
+					return $matches[0]; // Keep existing heading as is
+				}
+				
+				return "<h{$tag}{$attributes} id=\"{$id}\">{$content}</h{$tag}>";
+			},
+			$html
+		);
+		
+		return $html_with_ids;
 	}
 }
