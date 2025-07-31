@@ -483,10 +483,10 @@ jQuery(function($) {
 			}, 400);
 		}
 		else {
-			element.css('max-height', window.screen.width <= 1400 ? '32px' : '39px');
+			element.css('max-height', '32px');
 
 			setTimeout(function() {
-				element.css('max-width', window.screen.width <= 1199 ? '120px' : '10%');
+				element.css('max-width', '120px');
 			}, 400);
 		}
 	});
