@@ -268,7 +268,7 @@ footer .widget .widget-title {
 
 .projects-slide.projects-slide-header .list .item-image img {
 	width: 100vw;
-	height: 700px;
+	height: 800px;
 }
 
 .projects-slide.projects-slide-header .list .owl-nav {
@@ -309,7 +309,7 @@ footer .widget .widget-title {
 
 @media (max-width: 1400px) {
 	.projects-slide.projects-slide-header .list .item-image img {
-		height: 600px;
+		height: 700px;
 	}
 }
 
@@ -333,7 +333,7 @@ footer .widget .widget-title {
 	}
 
 	.projects-slide.projects-slide-header .list .item-image img {
-		height: 500px;	
+		height: 600px;	
 	}
 }
 
@@ -379,7 +379,7 @@ footer .widget .widget-title {
 	}
 
 	.projects-slide.projects-slide-header .list .item-image img {
-		height: 400px;
+		height: 500px;
 	}
 
 	.projects-slide.projects-slide-header .list .item-body .content {
@@ -398,6 +398,16 @@ footer .widget .widget-title {
 
 	.projects-slide.projects-slide-header .list .item-body {
 		padding: 30px 20px;
+	}
+}
+
+@media (max-width: 591px) {
+	.projects-slide.projects-slide-header .list .item-content {
+		min-height: 45px;
+	}
+
+	.projects-slide.projects-slide-header .list .item-body {
+		padding: 20px 20px;
 	}
 }
 
@@ -448,7 +458,7 @@ footer .widget .widget-title {
 	}
 
 	.projects-slide.projects-slide-header .list .item-image img {
-		height: 300px;
+		height: 400px;
 	}
 }
 
@@ -459,7 +469,7 @@ footer .widget .widget-title {
 	}
 
 	.projects-slide.projects-slide-header .list .item-image img {
-		height: 250px;
+		height: 300px;
 	}
 
 	.projects-slide.projects-slide-header .list .item-title {
@@ -1055,9 +1065,13 @@ footer .widget .widget-title {
 
 .product-list-by-category .item .list-product .product .yith-add-to-wishlist-button-block {
 	position: absolute;
-    right: 15px;
+    right: 0px;
     top: 15px;
 	margin: 0;
+}
+
+.yith-wcwl-add-to-wishlist-button.yith-wcwl-add-to-wishlist-button--anchor {
+	gap: 0px;
 }
 
 .product-list-by-category .item .list-product .product .product-image img {
@@ -1117,7 +1131,11 @@ footer .widget .widget-title {
 
 @media (max-width: 1300px) {
 	.product-list-by-category .item .list-product {
-		column-gap: 56px;
+		column-gap: 10px;
+	}
+
+	.product-list-by-category .item .list-product .product {
+		width: 24%;
 	}
 }
 
@@ -1130,6 +1148,13 @@ footer .widget .widget-title {
 		height: 200px;
 	}
 }
+
+@media (max-width: 991px) {
+	.product-list-by-category .item .list-product .product {
+		width: 31%;
+	}
+}
+
 @media (max-width: 767px) {
 	.product-list-by-category .item .list-product {
 		width: 95%;
@@ -1481,13 +1506,50 @@ footer .widget .widget-title {
 	}
 
 	.custom-product-content .body .block-content .block-title {
-		font-size: 20px;
+		font-size: 18px;
 	}
+
+	.custom-product-content .body .product-content .product-name {
+		font-size: 26px;
+	}
+
+	.custom-product-content .body .block-content .short-description {
+		margin-top: 8px;
+	}
+
+	.custom-product-content .body .block-content .product-features {
+		gap: 8px;
+	}
+
+	.custom-product-content .body .block-content .product-features .item img {
+		height: 80px;
+	}
+
+	.custom-product-content .body .product-content hr {
+		margin: 12px 0;
+	}
+
+	.custom-product-content .product-slide-image .owl-carousel .owl-nav {
+        left: 5%;
+        width: 90%;
+    }
 }
 
 @media (max-width: 450px) {
+	.custom-product-content .product-slide-image .owl-carousel .item img {
+		height: 180px;
+	}
+
 	.custom-product-content .body .block-content .block-title {
 		font-size: 18px;
+	}
+
+	.custom-product-content .body .product-content .product-name {
+		font-size: 24px;
+	}
+
+	.custom-product-content .body .block-content .product-brand, .custom-product-content .body .block-content .product-sku {
+		font-size: 15px;
 	}
 
 	.custom-product-content .body .block-content .product-features .item {
@@ -1501,6 +1563,19 @@ footer .widget .widget-title {
 	.custom-product-content .product-slide-image .slide-dots .list .item img {
         width: 60px;
     }
+}
+@media (max-width: 380px) {
+	.custom-product-content .product-slide-image .owl-carousel .item img {
+		height: 150px;
+	}
+
+	.custom-product-content .body .product-content .product-name {
+		font-size: 22px;
+	}
+
+	.custom-product-content .body .block-content .product-brand, .custom-product-content .body .block-content .product-sku {
+		font-size: 14px;
+	}
 }
 /* End Custom Product Content */
 
