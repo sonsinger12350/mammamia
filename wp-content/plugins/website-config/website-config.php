@@ -77,6 +77,97 @@ class WebsiteConfig
 		// Add AJAX handlers for Excel import
 		add_action('wp_ajax_import_products_excel', array($this, 'handle_excel_import'));
 		add_action('wp_ajax_nopriv_import_products_excel', array($this, 'handle_excel_import'));
+
+		// Add AJAX handlers for import progress check
+		add_action('wp_ajax_check_import_progress', array($this, 'check_import_progress'));
+		add_action('wp_ajax_nopriv_check_import_progress', array($this, 'check_import_progress'));
+
+		// Add AJAX handlers for checking running imports
+		add_action('wp_ajax_check_running_imports', array($this, 'check_running_imports'));
+		add_action('wp_ajax_nopriv_check_running_imports', array($this, 'check_running_imports'));
+
+		// Hook for plugin activation
+		register_activation_hook(__FILE__, array($this, 'create_import_tables'));
+
+		// Add cron job hooks
+		add_action('mamma_mia_process_import_queue', array($this, 'process_import_queue'));
+		add_action('init', array($this, 'schedule_cron_jobs'));
+	}
+
+	/**
+	 * Create database tables for import queue
+	 */
+	public function create_import_tables()
+	{
+		global $wpdb;
+
+		$charset_collate = $wpdb->get_charset_collate();
+
+		// Import jobs table
+		$table_name = $wpdb->prefix . 'mamma_mia_import_jobs';
+		$sql = "CREATE TABLE $table_name (
+			id int(11) NOT NULL AUTO_INCREMENT,
+			job_id varchar(50) NOT NULL,
+			status enum('pending','processing','completed','failed') DEFAULT 'pending',
+			total_products int(11) DEFAULT 0,
+			processed_products int(11) DEFAULT 0,
+			created_products int(11) DEFAULT 0,
+			updated_products int(11) DEFAULT 0,
+			failed_products int(11) DEFAULT 0,
+			update_existing tinyint(1) DEFAULT 0,
+			created_at datetime DEFAULT CURRENT_TIMESTAMP,
+			updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+			error_message text,
+			PRIMARY KEY (id),
+			UNIQUE KEY job_id (job_id),
+			KEY status (status)
+		) $charset_collate;";
+
+		// Import queue table
+		$queue_table = $wpdb->prefix . 'mamma_mia_import_queue';
+		$sql2 = "CREATE TABLE $queue_table (
+			id int(11) NOT NULL AUTO_INCREMENT,
+			job_id varchar(50) NOT NULL,
+			product_type enum('main','variant') DEFAULT 'main',
+			product_data longtext NOT NULL,
+			status enum('pending','processing','completed','failed') DEFAULT 'pending',
+			error_message text,
+			created_at datetime DEFAULT CURRENT_TIMESTAMP,
+			updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+			PRIMARY KEY (id),
+			KEY job_id (job_id),
+			KEY status (status),
+			KEY product_type (product_type)
+		) $charset_collate;";
+
+		require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+		dbDelta($sql);
+		dbDelta($sql2);
+	}
+
+	/**
+	 * Schedule cron jobs
+	 */
+	public function schedule_cron_jobs()
+	{
+		if (!wp_next_scheduled('mamma_mia_process_import_queue')) {
+			wp_schedule_event(time(), 'mamma_mia_every_30_seconds', 'mamma_mia_process_import_queue');
+		}
+
+		// Add custom cron interval
+		add_filter('cron_schedules', array($this, 'add_cron_intervals'));
+	}
+
+	/**
+	 * Add custom cron intervals
+	 */
+	public function add_cron_intervals($schedules)
+	{
+		$schedules['mamma_mia_every_30_seconds'] = array(
+			'interval' => 30,
+			'display'  => esc_html__('Every 30 Seconds'),
+		);
+		return $schedules;
 	}
 
 	/**
@@ -113,9 +204,6 @@ class WebsiteConfig
 		register_setting('website_config_options', 'website_config_email');
 		register_setting('website_config_options', 'website_config_zalo');
 		register_setting('website_config_options', 'website_config_download_design_file');
-		register_setting('website_config_options', 'website_config_import_max_rows');
-		register_setting('website_config_options', 'website_config_import_max_images');
-		register_setting('website_config_options', 'website_config_import_timeout');
 	}
 
 	/**
@@ -129,9 +217,6 @@ class WebsiteConfig
 			update_option('website_config_email', sanitize_email($_POST['website_config_email']));
 			update_option('website_config_zalo', sanitize_text_field($_POST['website_config_zalo']));
 			update_option('website_config_download_design_file', json_encode($_POST['website_config_download_design_file']));
-			update_option('website_config_import_max_rows', intval($_POST['website_config_import_max_rows']));
-			update_option('website_config_import_max_images', intval($_POST['website_config_import_max_images']));
-			update_option('website_config_import_timeout', intval($_POST['website_config_import_timeout']));
 			echo '<div class="notice notice-success"><p>Cấu hình đã được lưu thành công!</p></div>';
 		}
 
@@ -153,9 +238,6 @@ class WebsiteConfig
 		$email = get_option('website_config_email', '');
 		$zalo = get_option('website_config_zalo', '');
 		$download_design_file = json_decode(get_option('website_config_download_design_file', ''), true);
-		$import_max_rows = get_option('website_config_import_max_rows', 1000);
-		$import_max_images = get_option('website_config_import_max_images', 3);
-		$import_timeout = get_option('website_config_import_timeout', 300);
 		?>
 			<div class="wrap">
 				<h1>Cấu hình website</h1>
@@ -222,51 +304,6 @@ class WebsiteConfig
 								<?php endforeach; ?>
 							</td>
 						</tr>
-						<tr>
-							<th scope="row">
-								<label for="website_config_import_max_rows">Số lượng sản phẩm tối đa mỗi lần import</label>
-							</th>
-							<td>
-								<input type="number"
-									id="website_config_import_max_rows"
-									name="website_config_import_max_rows"
-									value="<?php echo esc_attr($import_max_rows); ?>"
-									min="50"
-									max="2000"
-									class="small-text" />
-								<p class="description">Giới hạn số lượng sản phẩm để tránh timeout. Khuyến nghị: 500-1000 sản phẩm.</p>
-							</td>
-						</tr>
-						<tr>
-							<th scope="row">
-								<label for="website_config_import_max_images">Số lượng ảnh gallery tối đa mỗi sản phẩm</label>
-							</th>
-							<td>
-								<input type="number"
-									id="website_config_import_max_images"
-									name="website_config_import_max_images"
-									value="<?php echo esc_attr($import_max_images); ?>"
-									min="1"
-									max="10"
-									class="small-text" />
-								<p class="description">Giới hạn số lượng ảnh gallery để tăng tốc độ import. Khuyến nghị: 3-5 ảnh.</p>
-							</td>
-						</tr>
-						<tr>
-							<th scope="row">
-								<label for="website_config_import_timeout">Thời gian timeout import (giây)</label>
-							</th>
-							<td>
-								<input type="number"
-									id="website_config_import_timeout"
-									name="website_config_import_timeout"
-									value="<?php echo esc_attr($import_timeout); ?>"
-									min="60"
-									max="600"
-									class="small-text" />
-								<p class="description">Thời gian tối đa cho mỗi lần import. Khuyến nghị: 300 giây (5 phút).</p>
-							</td>
-						</tr>
 					</table>
 
 					<?php submit_button('Save Settings'); ?>
@@ -280,139 +317,115 @@ class WebsiteConfig
 	 */
 	public function import_page()
 	{
+		// Hardcode import settings (no longer show in admin)
+		$import_max_rows = 1000;
+		$import_max_images = 5;
+		$import_timeout = 300;
 		?>
 			<div class="wrap">
 				<h1>Import Products from Excel</h1>
-				<p>Upload an Excel file to import products with variants.</p>
+				<p>Upload an Excel file to import products with variants. The system will process your file in the background.</p>
 
-				<div class="card" style="max-width: 800px; margin-top: 20px;">
-					<h2>Upload Excel File</h2>
-					<form id="excel-import-form" enctype="multipart/form-data">
-						<table class="form-table">
-							<tr>
-								<th scope="row">
-									<label for="excel_file">Select Excel File</label>
-								</th>
-								<td>
-									<input type="file" id="excel_file" name="excel_file" accept=".xlsx,.xls" required />
-									<p class="description">Supported formats: .xlsx, .xls</p>
-								</td>
-							</tr>
-							<tr>
-								<th scope="row">
-									<label for="update_existing">Update Existing Products</label>
-								</th>
-								<td>
-									<input type="checkbox" id="update_existing" name="update_existing" value="1" />
-									<p class="description">Check this to update existing products instead of creating new ones</p>
-								</td>
-							</tr>
-						</table>
-
-						<p class="submit">
-							<button type="submit" class="button button-primary" id="import-submit">
-								<span class="dashicons dashicons-upload"></span> Import Products
+				<!-- Import Process Status with Enhanced UI -->
+				<div class="card import-status-card" style="max-width: 100%; margin-bottom: 20px;">
+					<h2><span class="dashicons dashicons-admin-tools"></span> Import Process Status</h2>
+					<div id="running-imports-container">
+						<div class="import-status-header">
+							<button type="button" id="check-running-imports" class="button button-secondary">
+								<span class="dashicons dashicons-update"></span> Check Active Imports
 							</button>
-							<span id="import-progress" style="display: none; margin-left: 10px;">
-								<span class="spinner is-active"></span> Importing...
-							</span>
-						</p>
+							<div class="status-indicators">
+								<span class="indicator-dot pending" title="Pending"></span>
+								<span class="indicator-dot processing" title="Processing"></span>
+								<span class="indicator-dot completed" title="Completed"></span>
+								<span class="indicator-dot failed" title="Failed"></span>
+							</div>
+						</div>
+						<div id="running-imports-status" class="import-status-display"></div>
+						<div id="global-import-progress" style="display: none;">
+							<div class="global-progress-container">
+								<h3>Current Import Progress</h3>
+								<div class="progress-wrapper">
+									<div class="progress-bar-bg">
+										<div class="progress-bar-fill" style="width: 0%"></div>
+									</div>
+									<div class="progress-text">0% Complete</div>
+								</div>
+								<div class="progress-details">
+									<div class="detail-item">
+										<span class="label">Processed:</span>
+										<span id="global-processed">0</span> / <span id="global-total">0</span>
+									</div>
+									<div class="detail-item">
+										<span class="label">Created:</span>
+										<span id="global-created">0</span>
+									</div>
+									<div class="detail-item">
+										<span class="label">Updated:</span>
+										<span id="global-updated">0</span>
+									</div>
+									<div class="detail-item">
+										<span class="label">Failed:</span>
+										<span id="global-failed">0</span>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Upload Excel File Section with Enhanced UI -->
+				<div class="card upload-card" style="max-width: 800px; margin-bottom: 20px;">
+					<h2><span class="dashicons dashicons-upload"></span> Upload Excel File</h2>
+					<form id="excel-import-form" enctype="multipart/form-data">
+						<div class="upload-area" id="upload-area">
+							<div class="upload-content">
+								<span class="dashicons dashicons-cloud-upload upload-icon"></span>
+								<h3>Drag & Drop your Excel file here</h3>
+								<p>or <span class="browse-link">browse to select a file</span></p>
+								<input type="file" id="excel_file" name="excel_file" accept=".xlsx,.xls" required style="display: none;" />
+								<div class="file-info" id="file-info" style="display: none;">
+									<span class="dashicons dashicons-media-spreadsheet"></span>
+									<span id="file-name"></span>
+									<span id="file-size"></span>
+								</div>
+							</div>
+						</div>
+						
+						<div class="import-options">
+							<label class="checkbox-wrapper">
+								<input type="checkbox" id="update_existing" name="update_existing" value="1" />
+								<span class="checkmark"></span>
+								<span class="option-text">Update existing products (instead of creating new ones)</span>
+							</label>
+						</div>
+
+						<div class="submit-wrapper">
+							<button type="submit" class="button button-primary button-hero" id="import-submit" disabled>
+								<span class="dashicons dashicons-database-import"></span> Start Import
+							</button>
+						</div>
 					</form>
 
-					<div id="import-results" style="margin-top: 20px;"></div>
+					<div id="import-results" class="import-results"></div>
+				</div>
+
+				<!-- Import Jobs History Section -->
+				<div class="card" style="max-width: 100%; margin-bottom: 20px;">
+					<h2><span class="dashicons dashicons-list-view"></span> Import History</h2>
+					<?php $this->display_import_jobs_status(); ?>
 				</div>
 			</div>
 
 			<script>
-				jQuery(document).ready(function($) {
-					$('#excel-import-form').on('submit', function(e) {
-						e.preventDefault();
-
-						var formData = new FormData(this);
-						formData.append('action', 'import_products_excel');
-						formData.append('nonce', '<?php echo wp_create_nonce('excel_import_nonce'); ?>');
-
-						$('#import-submit').prop('disabled', true);
-						$('#import-progress').show();
-						$('#import-results').html('');
-
-						// Show initial progress message
-						$('#import-progress').html(
-							'<span class="spinner is-active"></span> ' +
-							'<strong>Importing products...</strong><br>' +
-							'<small>This may take a few minutes. Please do not close this page.</small>'
-						);
-
-						$.ajax({
-							url: ajaxurl,
-							type: 'POST',
-							data: formData,
-							processData: false,
-							contentType: false,
-							timeout: 300000, // 5 minutes timeout
-							success: function(response) {
-								$('#import-submit').prop('disabled', false);
-								$('#import-progress').hide();
-
-								if (response.success) {
-									var result = response.data;
-									var message = '<div class="notice notice-success">' +
-										'<p><strong>Import completed successfully!</strong></p>' +
-										'<ul>' +
-										'<li>Products created: ' + result.created + '</li>' +
-										'<li>Products updated: ' + result.updated + '</li>' +
-										'<li>Variants created: ' + result.variants + '</li>' +
-										'<li>Errors: ' + result.errors + '</li>' +
-										'</ul>';
-
-									if (result.errors > 0) {
-										message += '<p><strong>Note:</strong> Some products may have failed to import due to missing images or files. Check the product list for any issues.</p>';
-									}
-
-									message += '</div>';
-
-									$('#import-results').html(message);
-								} else {
-									$('#import-results').html(
-										'<div class="notice notice-error">' +
-										'<p><strong>Import failed:</strong> ' + response.data + '</p>' +
-										'</div>'
-									);
-								}
-							},
-							error: function(xhr, status, error) {
-								$('#import-submit').prop('disabled', false);
-								$('#import-progress').hide();
-								
-								var errorMessage = 'An error occurred during the import process.';
-								if (status === 'timeout') {
-									errorMessage = 'Import timed out. The file may be too large or contain too many products. Try importing smaller batches.';
-								} else if (xhr.responseJSON && xhr.responseJSON.data) {
-									errorMessage = xhr.responseJSON.data;
-								}
-
-								$('#import-results').html(
-									'<div class="notice notice-error">' +
-									'<p><strong>Import failed:</strong> ' + errorMessage + '</p>' +
-									'<p><strong>Tips for faster import:</strong></p>' +
-									'<ul>' +
-									'<li>Reduce the number of products per import (max 50 recommended)</li>' +
-									'<li>Use smaller image files</li>' +
-									'<li>Limit gallery images to 3 per product</li>' +
-									'<li>Only include essential design files</li>' +
-									'</ul>' +
-									'</div>'
-								);
-							}
-						});
-					});
-				});
+				// Pass nonce to JavaScript
+				window.websiteConfigNonce = '<?php echo wp_create_nonce('excel_import_nonce'); ?>';
 			</script>
 		<?php
 	}
 
 	/**
-	 * Handle Excel import via AJAX with progress tracking
+	 * Handle Excel import via AJAX with queue system
 	 */
 	public function handle_excel_import()
 	{
@@ -438,25 +451,33 @@ class WebsiteConfig
 		// Include PhpSpreadsheet library
 		require_once ABSPATH . 'wp-admin/includes/file.php';
 
-		// Try to use PhpSpreadsheet if available, otherwise fallback to simple CSV
+		// Try to parse Excel data
 		if (class_exists('PhpOffice\PhpSpreadsheet\IOFactory')) {
-			$result = $this->import_with_phpspreadsheet($file, $update_existing);
+			$result = $this->parse_excel_to_queue($file, $update_existing);
 		} else {
-			$result = $this->import_with_simple_parser($file, $update_existing);
+			$result = $this->parse_csv_to_queue($file, $update_existing);
 		}
 
-		wp_send_json_success($result);
+		if ($result['success']) {
+			wp_send_json_success(array(
+				'job_id' => $result['job_id'],
+				'total_products' => $result['total_products'],
+				'message' => 'Import job created successfully. Processing will begin shortly.'
+			));
+		} else {
+			wp_send_json_error($result['message']);
+		}
 	}
 
 	/**
-	 * Import using PhpSpreadsheet library with memory optimization
+	 * Parse Excel data and add to queue
 	 */
-	private function import_with_phpspreadsheet($file, $update_existing)
+	private function parse_excel_to_queue($file, $update_existing)
 	{
 		try {
-			// Set memory limit for large files
+			// Set memory limit for parsing
 			ini_set('memory_limit', '512M');
-			ini_set('max_execution_time', 3000);
+			ini_set('max_execution_time', 60); // Only 60 seconds for parsing
 
 			$spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($file['tmp_name']);
 			$worksheet = $spreadsheet->getActiveSheet();
@@ -468,26 +489,24 @@ class WebsiteConfig
 			// Clear memory
 			$spreadsheet->disconnectWorksheets();
 			unset($spreadsheet);
-			return $this->process_excel_data($filtered_rows, $update_existing);
+			
+			return $this->add_data_to_queue($filtered_rows, $update_existing);
 		} catch (Exception $e) {
 			return array(
-				'created' => 0,
-				'updated' => 0,
-				'variants' => 0,
-				'errors' => 1,
-				'error_message' => $e->getMessage()
+				'success' => false,
+				'message' => 'Error parsing Excel file: ' . $e->getMessage()
 			);
 		}
 	}
 
 	/**
-	 * Import using simple CSV parser with memory optimization
+	 * Parse CSV data and add to queue
 	 */
-	private function import_with_simple_parser($file, $update_existing)
+	private function parse_csv_to_queue($file, $update_existing)
 	{
-		// Set memory limit
+		// Set memory limit for parsing
 		ini_set('memory_limit', '512M');
-		ini_set('max_execution_time', 300);
+		ini_set('max_execution_time', 60);
 
 		$csv_data = array();
 
@@ -503,41 +522,34 @@ class WebsiteConfig
 		fwrite($tmpFile, $content);
 		rewind($tmpFile);
 
-		// Read CSV data with row limit
+		// Read CSV data
 		$row_count = 0;
-		$max_rows = 1000; // Limit to 1000 rows for performance
-		
-		while (($data = fgetcsv($tmpFile, 1000, ",")) !== FALSE && $row_count < $max_rows) {
+		while (($data = fgetcsv($tmpFile, 1000, ",")) !== FALSE) {
 			$csv_data[] = $data;
 			$row_count++;
 		}
 
 		fclose($tmpFile);
 
-		return $this->process_excel_data($csv_data, $update_existing);
+		return $this->add_data_to_queue($csv_data, $update_existing);
 	}
 
 	/**
-	 * Process Excel data and create/update products with optimized performance
+	 * Add parsed data to import queue
 	 */
-	private function process_excel_data($rows, $update_existing)
+	private function add_data_to_queue($rows, $update_existing)
 	{
+		global $wpdb;
+
 		if (empty($rows) || count($rows) < 2) {
 			return array(
-				'created' => 0,
-				'updated' => 0,
-				'variants' => 0,
-				'errors' => 1,
-				'error_message' => 'No data found in Excel file'
+				'success' => false,
+				'message' => 'No data found in Excel file'
 			);
 		}
 
 		$headers = array_map('mb_strtolower', $rows[1]);
 		$data_rows = array_slice($rows, 1);
-		$created = 0;
-		$updated = 0;
-		$variants_count = 0;
-		$errors = 0;
 
 		$products = array();
 		$variants = array();
@@ -547,111 +559,269 @@ class WebsiteConfig
 			$row_data = array_combine($headers, $row);
 
 			if (!empty($row_data[mamma_mia_get_column_key('sku')])) {
-				if (!empty($row_data[mamma_mia_get_column_key('parent_sku')])) $variants[] = $row_data;
-				else $products[] = $row_data;
+				if (!empty($row_data[mamma_mia_get_column_key('parent_sku')])) {
+					$variants[] = $row_data;
+				} else {
+					$products[] = $row_data;
+				}
 			}
 		}
 
-		// Pre-load existing products to reduce database queries
-		$existing_products = $this->preload_existing_products($products, $update_existing);
+		$total_products = count($products) + count($variants);
 
-		// Process main products first
+		if ($total_products === 0) {
+			return array(
+				'success' => false,
+				'message' => 'No valid products found in the file'
+			);
+		}
+
+		// Create import job
+		$job_id = wp_generate_uuid4();
+		$jobs_table = $wpdb->prefix . 'mamma_mia_import_jobs';
+		$queue_table = $wpdb->prefix . 'mamma_mia_import_queue';
+
+		$job_inserted = $wpdb->insert(
+			$jobs_table,
+			array(
+				'job_id' => $job_id,
+				'status' => 'pending',
+				'total_products' => $total_products,
+				'update_existing' => $update_existing ? 1 : 0
+			),
+			array('%s', '%s', '%d', '%d')
+		);
+
+		if (!$job_inserted) {
+			return array(
+				'success' => false,
+				'message' => 'Failed to create import job',
+				'error' => $wpdb->last_error
+			);
+		}
+
+		// Add main products to queue first
 		foreach ($products as $product_data) {
-			$result = $this->create_or_update_product($product_data, $update_existing, $existing_products);
-
-			if ($result['success']) {
-				if ($result['action'] === 'created') $created++;
-				else $updated++;
-			}
-			else {
-				$errors++;
-			}
+			$wpdb->insert(
+				$queue_table,
+				array(
+					'job_id' => $job_id,
+					'product_type' => 'main',
+					'product_data' => wp_json_encode($product_data),
+					'status' => 'pending'
+				),
+				array('%s', '%s', '%s', '%s')
+			);
 		}
 
-		// Process variants
+		// Add variants to queue after main products
 		foreach ($variants as $variant_data) {
-			$result = $this->create_or_update_variant($variant_data, $update_existing);
-
-			if ($result['success']) $variants_count++;
-			else $errors++;
+			$wpdb->insert(
+				$queue_table,
+				array(
+					'job_id' => $job_id,
+					'product_type' => 'variant',
+					'product_data' => wp_json_encode($variant_data),
+					'status' => 'pending'
+				),
+				array('%s', '%s', '%s', '%s')
+			);
 		}
 
 		return array(
-			'created' => $created,
-			'updated' => $updated,
-			'variants' => $variants_count,
-			'errors' => $errors
+			'success' => true,
+			'job_id' => $job_id,
+			'total_products' => $total_products
 		);
 	}
 
 	/**
-	 * Pre-load existing products to reduce database queries
+	 * Check import progress via AJAX
 	 */
-	private function preload_existing_products($products, $update_existing)
+	public function check_import_progress()
 	{
-		if (!$update_existing) {
-			return array();
+		if (!isset($_POST['job_id']) || !wp_verify_nonce($_POST['nonce'], 'excel_import_nonce')) {
+			wp_send_json_error('Invalid request');
 		}
 
-		$skus = array();
-		foreach ($products as $product_data) {
-			$sku = sanitize_text_field($product_data[mamma_mia_get_column_key('sku')]);
-			if (!empty($sku)) {
-				$skus[] = $sku;
-			}
+		global $wpdb;
+		$job_id = sanitize_text_field($_POST['job_id']);
+		$jobs_table = $wpdb->prefix . 'mamma_mia_import_jobs';
+
+		$job = $wpdb->get_row($wpdb->prepare(
+			"SELECT * FROM $jobs_table WHERE job_id = %s",
+			$job_id
+		));
+
+		if (!$job) {
+			wp_send_json_error('Job not found');
 		}
 
-		if (empty($skus)) {
-			return array();
+		wp_send_json_success(array(
+			'status' => $job->status,
+			'total_products' => $job->total_products,
+			'processed_products' => $job->processed_products,
+			'created_products' => $job->created_products,
+			'updated_products' => $job->updated_products,
+			'failed_products' => $job->failed_products,
+			'error_message' => $job->error_message,
+			'progress_percentage' => $job->total_products > 0 ? round(($job->processed_products / $job->total_products) * 100, 2) : 0
+		));
+	}
+
+	/**
+	 * Check running imports via AJAX
+	 */
+	public function check_running_imports()
+	{
+		if (!wp_verify_nonce($_POST['nonce'], 'excel_import_nonce')) {
+			wp_send_json_error('Invalid request');
 		}
 
-		// Get all existing products by SKU in one query
-		$existing_products = array();
-		$args = array(
-			'post_type' => 'product',
-			'post_status' => 'any',
-			'meta_query' => array(
-				array(
-					'key' => '_sku',
-					'value' => $skus,
-					'compare' => 'IN'
-				)
-			),
-			'posts_per_page' => -1,
-			'fields' => 'ids'
+		global $wpdb;
+		$jobs_table = $wpdb->prefix . 'mamma_mia_import_jobs';
+
+		$running_jobs = $wpdb->get_results(
+			"SELECT * FROM $jobs_table WHERE status IN ('pending', 'processing') ORDER BY created_at DESC"
 		);
 
-		$product_ids = get_posts($args);
-		
-		foreach ($product_ids as $product_id) {
-			$product = wc_get_product($product_id);
-			if ($product) {
-				$sku = $product->get_sku();
-				$existing_products[$sku] = $product;
-			}
+		wp_send_json_success($running_jobs);
+	}
+
+	/**
+	 * Process import queue (called by cron)
+	 */
+	public function process_import_queue()
+	{
+		global $wpdb;
+
+		$jobs_table = $wpdb->prefix . 'mamma_mia_import_jobs';
+		$queue_table = $wpdb->prefix . 'mamma_mia_import_queue';
+
+		// Get the next pending job
+		$job = $wpdb->get_row(
+			"SELECT * FROM $jobs_table WHERE status IN ('pending', 'processing') ORDER BY created_at ASC LIMIT 1"
+		);
+
+		if (!$job) {
+			return; // No jobs to process
 		}
 
-		return $existing_products;
+		// Update job status to processing
+		$wpdb->update(
+			$jobs_table,
+			array('status' => 'processing'),
+			array('job_id' => $job->job_id),
+			array('%s'),
+			array('%s')
+		);
+
+		// Get next pending item from queue
+		$queue_item = $wpdb->get_row($wpdb->prepare(
+			"SELECT * FROM $queue_table WHERE job_id = %s AND status = 'pending' ORDER BY product_type ASC, id ASC LIMIT 1",
+			$job->job_id
+		));
+
+		if (!$queue_item) {
+			// No more items to process, mark job as completed
+			$wpdb->update(
+				$jobs_table,
+				array('status' => 'completed'),
+				array('job_id' => $job->job_id),
+				array('%s'),
+				array('%s')
+			);
+			return;
+		}
+
+		// Mark current item as processing
+		$wpdb->update(
+			$queue_table,
+			array('status' => 'processing'),
+			array('id' => $queue_item->id),
+			array('%s'),
+			array('%d')
+		);
+
+		// Process the item
+		$product_data = json_decode($queue_item->product_data, true);
+		$result = false;
+
+		try {
+			if ($queue_item->product_type === 'main') {
+				$result = $this->create_or_update_product($product_data, $job->update_existing);
+			} else {
+				$result = $this->create_or_update_variant($product_data, $job->update_existing);
+			}
+		} catch (Exception $e) {
+			$result = array(
+				'success' => false,
+				'message' => $e->getMessage()
+			);
+		}
+
+		// Update queue item status
+		if ($result && $result['success']) {
+			$wpdb->update(
+				$queue_table,
+				array('status' => 'completed'),
+				array('id' => $queue_item->id),
+				array('%s'),
+				array('%d')
+			);
+
+			// Update job counters
+			if ($queue_item->product_type === 'main') {
+				if (isset($result['action']) && $result['action'] === 'created') {
+					$wpdb->query($wpdb->prepare(
+						"UPDATE $jobs_table SET processed_products = processed_products + 1, created_products = created_products + 1 WHERE job_id = %s",
+						$job->job_id
+					));
+				} else {
+					$wpdb->query($wpdb->prepare(
+						"UPDATE $jobs_table SET processed_products = processed_products + 1, updated_products = updated_products + 1 WHERE job_id = %s",
+						$job->job_id
+					));
+				}
+			} else {
+				$wpdb->query($wpdb->prepare(
+					"UPDATE $jobs_table SET processed_products = processed_products + 1 WHERE job_id = %s",
+					$job->job_id
+				));
+			}
+		} else {
+			$error_message = $result['message'] ?? 'Unknown error';
+			$wpdb->update(
+				$queue_table,
+				array(
+					'status' => 'failed',
+					'error_message' => $error_message
+				),
+				array('id' => $queue_item->id),
+				array('%s', '%s'),
+				array('%d')
+			);
+
+			// Update job error counter
+			$wpdb->query($wpdb->prepare(
+				"UPDATE $jobs_table SET processed_products = processed_products + 1, failed_products = failed_products + 1 WHERE job_id = %s",
+				$job->job_id
+			));
+		}
 	}
 
 	/**
 	 * Create or update a product with optimized performance
 	 */
-	private function create_or_update_product($data, $update_existing, $existing_products = array())
+	private function create_or_update_product($data, $update_existing)
 	{
 		$sku = sanitize_text_field($data[mamma_mia_get_column_key('sku')]);
 
-		// Check if product exists using preloaded data
+		// Check if product exists
 		$existing_product = null;
-
-		if (isset($existing_products[$sku])) {
-			$existing_product = $existing_products[$sku];
-		}
-		else {
-			$existing_product_id = wc_get_product_id_by_sku($sku);
-			if ($existing_product_id) {
-				$existing_product = wc_get_product($existing_product_id);
-			}
+		$existing_product_id = wc_get_product_id_by_sku($sku);
+		if ($existing_product_id) {
+			$existing_product = wc_get_product($existing_product_id);
 		}
 
 		if ($existing_product && !$update_existing) {
@@ -1338,9 +1508,104 @@ class WebsiteConfig
 	{
 		if (strpos($hook, 'mamma-mia') !== false) {
 			wp_enqueue_script('jquery');
+			
+			// Load external files for import page
+			if (strpos($hook, 'mamma-mia-import') !== false) {
+				// Enqueue CSS file
+				wp_enqueue_style(
+					'mamma-mia-import-css',
+					WEBSITE_CONFIG_PLUGIN_URL . 'assets/css/import-page.css',
+					array(),
+					WEBSITE_CONFIG_VERSION
+				);
+				
+				// Enqueue JavaScript file
+				wp_enqueue_script(
+					'mamma-mia-import-js',
+					WEBSITE_CONFIG_PLUGIN_URL . 'assets/js/import-page.js',
+					array('jquery'),
+					WEBSITE_CONFIG_VERSION,
+					true
+				);
+			}
 		}
+	}
+
+	public function plugin_activate()
+	{
+		$this->create_import_tables();
+		$this->schedule_cron_jobs();
+	}
+
+	public function plugin_deactivate()
+	{
+		// Clear scheduled cron jobs
+		wp_clear_scheduled_hook('mamma_mia_process_import_queue');
+	}
+
+	/**
+	 * Display recent import jobs status
+	 */
+	private function display_import_jobs_status()
+	{
+		global $wpdb;
+		$jobs_table = $wpdb->prefix . 'mamma_mia_import_jobs';
+
+		$jobs = $wpdb->get_results(
+			"SELECT * FROM $jobs_table ORDER BY created_at DESC LIMIT 10"
+		);
+
+		if (empty($jobs)) {
+			echo '<p>Không có nhiệm vụ import nào được thực hiện.</p>';
+			return;
+		}
+
+		echo '<table class="wp-list-table widefat fixed striped">';
+		echo '<thead><tr><th>Job ID</th><th>Tổng sản phẩm</th><th>Đã xử lý</th><th>Tạo mới</th><th>Cập nhật</th><th>Lỗi</th><th>Trạng thái</th><th>Thời gian</th></tr></thead>';
+		echo '<tbody>';
+
+		foreach ($jobs as $job) {
+			$status_class = '';
+			$status_text = '';
+
+			switch ($job->status) {
+				case 'pending':
+					$status_class = 'warning';
+					$status_text = 'Đang chờ';
+					break;
+				case 'processing':
+					$status_class = 'info';
+					$status_text = 'Đang xử lý';
+					break;
+				case 'completed':
+					$status_class = 'success';
+					$status_text = 'Hoàn tất';
+					break;
+				case 'failed':
+					$status_class = 'error';
+					$status_text = 'Thất bại';
+					break;
+			}
+
+			echo '<tr class="' . esc_attr($status_class) . '">';
+			echo '<td>' . esc_html($job->job_id) . '</td>';
+			echo '<td>' . esc_html($job->total_products) . '</td>';
+			echo '<td>' . esc_html($job->processed_products) . '</td>';
+			echo '<td>' . esc_html($job->created_products) . '</td>';
+			echo '<td>' . esc_html($job->updated_products) . '</td>';
+			echo '<td>' . esc_html($job->failed_products) . '</td>';
+			echo '<td>' . esc_html($status_text) . '</td>';
+			echo '<td>' . esc_html(date('Y-m-d H:i:s', strtotime($job->created_at))) . '</td>';
+			echo '</tr>';
+		}
+
+		echo '</tbody></table>';
 	}
 }
 
 // Initialize the plugin
-new WebsiteConfig();
+$website_config = new WebsiteConfig();
+
+// Plugin activation hook
+register_activation_hook(__FILE__, array($website_config, 'plugin_activate'));
+register_deactivation_hook(__FILE__, array($website_config, 'plugin_deactivate'));
