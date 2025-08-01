@@ -151,7 +151,7 @@ class WebsiteConfig
 	public function schedule_cron_jobs()
 	{
 		if (!wp_next_scheduled('mamma_mia_process_import_queue')) {
-			wp_schedule_event(time(), 'mamma_mia_every_30_seconds', 'mamma_mia_process_import_queue');
+			wp_schedule_event(time(), 'every_minute', 'mamma_mia_process_import_queue');
 		}
 
 		// Add custom cron interval
