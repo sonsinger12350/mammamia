@@ -483,7 +483,7 @@ jQuery(function($) {
 			}, 400);
 		}
 		else {
-			element.css('max-height', '32px');
+			element.css('max-height', window.screen.width <= 1199 ? '32px' : '38px');
 
 			setTimeout(function() {
 				element.css('max-width', window.screen.width <= 1199 ? '120px' : '10%');
