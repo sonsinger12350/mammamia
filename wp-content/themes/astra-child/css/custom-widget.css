@@ -308,12 +308,6 @@ footer .widget .widget-title {
 	fill: #fff;
 }
 
-@media (max-width: 1400px) {
-	.projects-slide.projects-slide-header .list .item-image img {
-		height: 700px;
-	}
-}
-
 @media (max-width: 1199px) {
 	.projects-slide.projects-slide-header .list .item-body .content {
 		width: 75%;
@@ -1286,8 +1280,7 @@ footer .widget .widget-title {
 	font-size: 24px;
 	color: var(--color-blue);
 	text-transform: uppercase;
-	line-height: 1.1;
-    margin-bottom: 4px;
+	line-height: 1.3;
 }
 
 .custom-product-content .body .product-content hr {
@@ -1299,7 +1292,7 @@ footer .widget .widget-title {
 
 .custom-product-content .body .block-content .block-title {
 	font-size: 20px;
-	line-height: 1.2;
+	line-height: 1.3;
 	color: var(--color-blue);
 	text-transform: uppercase;
 	font-weight: 600;
@@ -1312,14 +1305,14 @@ footer .widget .widget-title {
 	color: var(--color-blue);
 	text-transform: uppercase;
 	font-weight: 600;
-    margin-bottom: 0px;
-	line-height: 1.2;
+    margin-bottom: 4px;
+	line-height: 1.3;
 }
 
 .custom-product-content .body .block-content .short-description {
 	margin-top: 8px;
 	margin-bottom: 0px;
-	line-height: 1.2;
+	line-height: 1.3;
 }
 
 .custom-product-content .body .block-content .product-features {
@@ -1345,7 +1338,7 @@ footer .widget .widget-title {
     margin-top: 4px;
     font-weight: 500;
     color: var(--color-blue);
-	line-height: 1.2;
+	line-height: 1.3;
 }
 
 .custom-product-content .body .block-content .custom-field,
