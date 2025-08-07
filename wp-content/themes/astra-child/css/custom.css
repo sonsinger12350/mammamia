@@ -588,6 +588,11 @@ a {
 	background-color: #d78c43;
 }
 
+.os-scrollbar-auto-hide-hidden {
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
 @media (max-width: 1400px) {
 	#content .product-categories-row .product-category img {
 		height: 200px;
