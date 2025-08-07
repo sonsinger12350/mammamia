@@ -84,7 +84,7 @@ jQuery(function($) {
 
 	$('.projects-slide .list').owlCarousel({
 		loop: true,
-		margin: 10,
+		margin: 0,
 		nav: true,
 		autoplay: false,
 		autoplayTimeout: 5000,

@@ -134,6 +134,7 @@ footer .widget .widget-title {
 
 .projects-slide .list .item-image {
 	position: relative;
+	width: 100%;
 }
 
 .projects-slide .list .item-image img {
@@ -267,7 +268,7 @@ footer .widget .widget-title {
 }
 
 .projects-slide.projects-slide-header .list .item-image img {
-	width: 100vw;
+	width: 100%;
 	height: 100vh;
 }
 
@@ -1282,20 +1283,23 @@ footer .widget .widget-title {
 }
 
 .custom-product-content .body .product-content .product-name {
-	font-size: 28px;
+	font-size: 24px;
 	color: var(--color-blue);
 	text-transform: uppercase;
+	line-height: 1.1;
+    margin-bottom: 4px;
 }
 
 .custom-product-content .body .product-content hr {
 	height: 1px;
 	width: 100%;
 	background: var(--color-blue);
-	margin: 20px 0;
+	margin: 12px 0;
 }
 
 .custom-product-content .body .block-content .block-title {
-	font-size: 22px;
+	font-size: 20px;
+	line-height: 1.2;
 	color: var(--color-blue);
 	text-transform: uppercase;
 	font-weight: 600;
@@ -1309,16 +1313,19 @@ footer .widget .widget-title {
 	text-transform: uppercase;
 	font-weight: 600;
     margin-bottom: 0px;
+	line-height: 1.2;
 }
 
 .custom-product-content .body .block-content .short-description {
-	margin-top: 24px;
+	margin-top: 8px;
+	margin-bottom: 0px;
+	line-height: 1.2;
 }
 
 .custom-product-content .body .block-content .product-features {
 	display: flex;
 	flex-wrap: wrap;
-	gap: 16px;
+	gap: 8px 16px;
 }
 
 .custom-product-content .body .block-content .product-features .item {
@@ -1327,7 +1334,7 @@ footer .widget .widget-title {
 
 .custom-product-content .body .block-content .product-features .item img {
 	width: 100%;
-    height: 100px;
+    height: 60px;
     object-fit: contain;
 }
 
@@ -1335,9 +1342,10 @@ footer .widget .widget-title {
 	text-transform: uppercase;
     margin-bottom: 0px;
     text-align: center;
-    margin-top: 8px;
+    margin-top: 4px;
     font-weight: 500;
     color: var(--color-blue);
+	line-height: 1.2;
 }
 
 .custom-product-content .body .block-content .custom-field,
@@ -1397,6 +1405,10 @@ footer .widget .widget-title {
 
 .custom-product-content .body .block-content .d-flex .block-title {
 	margin: 0;
+}
+
+.custom-product-content .body .add-to-wishlist .yith-add-to-wishlist-button-block.yith-add-to-wishlist-button-block--single {
+	margin: 0px;
 }
 
 .custom-product-content .body .add-to-wishlist .yith-wcwl-icon {
