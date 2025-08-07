@@ -515,7 +515,14 @@ jQuery(function($) {
 					action: 'yith_wcwl_update_wishlist_count'
 				},
 				success: function(response) {
-					$('.wishlist-icon .wishlist-count').text(response.count);
+					if ($('.wishlist-icon .wishlist-count').length > 0) {
+						$('.wishlist-icon .wishlist-count').text(response.count);
+					}
+					else {
+						$('.wishlist-icon').append(`
+							<span class="wishlist-count">${response.count}</span>
+						`);
+					}
 				}
 			});
 		}, 1000);
