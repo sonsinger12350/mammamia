@@ -111,6 +111,12 @@ function getProductListByConditions($conditions) {
 		}
 	}
 
+	$args['meta_key'] = 'featured';
+	$args['orderby']  = [
+		'meta_value_num' => 'DESC',
+		'date'           => 'DESC',
+	];
+
 	$query = new WP_Query($args);
 	if (!$query->have_posts()) return '<p align="center">Sản phẩm đang cập nhật.</p>';
 
@@ -119,11 +125,14 @@ function getProductListByConditions($conditions) {
 	$output .= '<div class="list-product ' . (count($query->posts) > 4 ? 'collapse' : '') . '">';
 
 	foreach ($query->posts as $post) {
+		$thumbnail = get_the_post_thumbnail($post, 'post-thumbnail');
+		$thumbnail = !empty($thumbnail) ? $thumbnail : '<img src="' . get_stylesheet_directory_uri() . '/assets/images/no-image.jpg" alt="' . get_the_title($post) . '">';
+
 		$output .= '
 			<div class="product">
 				' . do_shortcode('[yith_wcwl_add_to_wishlist product_id="' . $post->ID . '"]') . '
 				<a class="product-content" href="' . get_permalink($post) . '">
-					<div class="product-image">' . get_the_post_thumbnail($post, 'post-thumbnail') . '</div>
+					<div class="product-image">' . $thumbnail . '</div>
 					<p class="product-title">' . get_the_title($post) . '</p>
 				</a>
 			</div>
