@@ -111,10 +111,21 @@ function getProductListByConditions($conditions) {
 		}
 	}
 
-	$args['meta_key'] = 'featured';
-	$args['orderby']  = [
-		'meta_value_num' => 'DESC',
-		'date'           => 'DESC',
+	$args['meta_query'][] = [
+		'relation' => 'OR',
+		[
+			'key'     => 'featured',
+			'compare' => 'EXISTS',
+		],
+		[
+			'key'     => 'featured',
+			'compare' => 'NOT EXISTS',
+		]
+	];
+	
+	$args['orderby'] = [
+		'meta_value_num' => 'DESC', // featured = 1 sẽ lên đầu
+		'date'           => 'DESC'  // sau đó sắp xếp theo ngày
 	];
 
 	$query = new WP_Query($args);
