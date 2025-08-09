@@ -504,6 +504,7 @@ a {
 	max-height: 38px;
 	max-width: 10%;
 	transition: all .3s;
+	z-index: 2;
 }
 
 .footer-contact-form .show-footer-contact-form {
