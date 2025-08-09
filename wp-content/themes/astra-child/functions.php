@@ -396,4 +396,29 @@ add_action('save_post_product', function($post_id){
     }
 });
 
+// Sắp xếp template Elementor theo level của category
+add_filter( 'elementor/theme/get_location_templates/template_id', function( $template_id ) {
+    if ( is_tax( 'product_cat' ) ) {
+        $term = get_queried_object();
+        $level = 0;
+        $parent = $term->parent;
+
+        while ( $parent != 0 ) {
+            $parent_term = get_term( $parent, 'product_cat' );
+            $parent = $parent_term->parent;
+            $level++;
+        }
+
+        if ( $level === 0 ) {
+            return 624; // ID template Elementor cho category cấp 1
+        } elseif ( $level === 1 ) {
+            return 774; // ID template Elementor cho category cấp 2
+        } elseif ( $level === 2 ) {
+            return 1721; // ID template Elementor cho category cấp 3
+        }
+    }
+    return $template_id;
+});
+
+
 ?>
