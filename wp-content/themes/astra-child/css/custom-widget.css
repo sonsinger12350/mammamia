@@ -2240,7 +2240,7 @@ footer .widget .widget-title {
 }
 
 .product-title-font * {
-	font-family: var(--product-font);
+	font-family: var(--product-font) !important;
 }
 
 @media (max-width: 1199px) {
