@@ -40,7 +40,11 @@ class Astra_Child_Custom_Widget_Header_Menu extends WP_Widget
 	private function render_menu_item($menu_item, $current_url, $queried_object_id, $level = 0) {
 		// Check if current item is active
 		$is_current = isset($menu_item->object_id) && intval($menu_item->object_id) === intval($queried_object_id);
-		if (!$is_current) $is_current = trailingslashit($menu_item->url) === trailingslashit($current_url);
+		$menu_path    = user_trailingslashit( wp_make_link_relative( $menu_item->url ) );
+		$current_path = user_trailingslashit( wp_make_link_relative( $current_url ) );
+
+		if (!$is_current) $is_current = $menu_path === $current_path;
+		if (!$is_current) $is_current = ($menu_path !== '/') && str_starts_with($current_path, $menu_path);
 	
 		$menu_class = 'menu-item';
 		if ($is_current) $menu_class .= ' active';
@@ -74,7 +78,11 @@ class Astra_Child_Custom_Widget_Header_Menu extends WP_Widget
 	 * Render mobile menu item with submenu support
 	 */
 	private function render_mobile_menu_item($menu_item, $current_url, $level = 0) {
-		$is_active = (trailingslashit($menu_item->url) === trailingslashit($current_url)) ? 'active' : '';
+		$menu_path    = user_trailingslashit( wp_make_link_relative( $menu_item->url ) );
+		$current_path = user_trailingslashit( wp_make_link_relative( $current_url ) );
+
+		$is_active = $menu_path === $current_path ? 'active' : '';
+		if (!$is_active) $is_active = ($menu_path !== '/') && str_starts_with($current_path, $menu_path) ? 'active' : '';
 
 		$menu_class = 'mobile-menu-item';
 		if ($is_active) $menu_class .= ' active';
