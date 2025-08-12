@@ -3,6 +3,7 @@
 	--color-white: #fff;
 	--color-orange: #d78c43;
 	--content-font: "Montserrat", sans-serif;
+	--product-font: "Segoe UI", sans-serif;
 }
 
 .button-primary {
@@ -1083,7 +1084,7 @@ footer .widget .widget-title {
 }
 
 .product-list-by-category .item .list-product .product .product-title {
-	font-family: var(--content-font);
+	font-family: var(--product-font);
     font-size: 18px;
     color: #000;
     margin: 0;
