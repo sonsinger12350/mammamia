@@ -2239,6 +2239,10 @@ footer .widget .widget-title {
 	background: #e8eaed;
 }
 
+.product-title-font {
+	font-family: var(--product-font);
+}
+
 @media (max-width: 1199px) {
 	.header-menu-desktop .menu-list .menu-item .submenu {
 		min-width: 180px;
