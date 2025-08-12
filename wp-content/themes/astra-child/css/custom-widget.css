@@ -1052,7 +1052,7 @@ footer .widget .widget-title {
 }
 
 .product-list-by-category .item .list-product.collapse {
-	height: 300px;
+	height: 320px;
 	overflow: hidden;
 }
 
@@ -1143,7 +1143,7 @@ footer .widget .widget-title {
 
 @media (max-width: 1199px) {
 	.product-list-by-category .item .list-product.collapse {
-		height: 250px;
+		height: 270px;
 	}
 
 	.product-list-by-category .item .list-product .product .product-image img {
