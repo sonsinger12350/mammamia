@@ -2239,7 +2239,7 @@ footer .widget .widget-title {
 	background: #e8eaed;
 }
 
-.product-title-font {
+.product-title-font * {
 	font-family: var(--product-font);
 }
 
