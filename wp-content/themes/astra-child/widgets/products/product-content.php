@@ -1,4 +1,7 @@
 <?php
+
+use Elementor\Controls_Manager;
+use Elementor\Group_Control_Typography;
 class Custom_Elementor_Widget_Product_Content extends \Elementor\Widget_Base {
 
 	public function get_name() {
@@ -18,11 +21,92 @@ class Custom_Elementor_Widget_Product_Content extends \Elementor\Widget_Base {
 	}
 
 	protected function _register_controls() {
+
+		// --- CONTENT TAB (nếu sau này bạn cần thêm input nội dung) ---
 		$this->start_controls_section(
 			'content_section',
 			[
 				'label' => __('Content', 'astra-child'),
-				'tab' => \Elementor\Controls_Manager::TAB_CONTENT,
+				'tab'   => Controls_Manager::TAB_CONTENT,
+			]
+		);
+		$this->end_controls_section();
+
+		// --- STYLE: PRODUCT TITLE ---
+		$this->start_controls_section(
+			'style_title_section',
+			[
+				'label' => __('Tiêu đề sản phẩm', 'astra-child'),
+				'tab'   => Controls_Manager::TAB_STYLE,
+			]
+		);
+
+		$this->add_group_control(
+			Group_Control_Typography::get_type(),
+			[
+				'name'     => 'title_typography',
+				'label'    => __('Kiểu chữ', 'astra-child'),
+				'selector' => '{{WRAPPER}} .custom-product-content .product-content .product-name',
+			]
+		);
+
+		$this->end_controls_section();
+
+		// --- STYLE: DESCRIPTION/CONTENT ---
+		$this->start_controls_section(
+			'style_desc_section',
+			[
+				'label' => __('Description', 'astra-child'),
+				'tab'   => Controls_Manager::TAB_STYLE,
+			]
+		);
+
+		$this->add_group_control(
+			Group_Control_Typography::get_type(),
+			[
+				'name'     => 'desc_typography',
+				'label'    => __('Kiểu chữ', 'astra-child'),
+				'selector' => '{{WRAPPER}} .custom-product-content .product-content .short-description',
+			]
+		);
+
+		$this->end_controls_section();
+
+		// --- STYLE: Feature title ---
+		$this->start_controls_section(
+			'style_feature_title_section',
+			[
+				'label' => __('Tiêu đề tính năng', 'astra-child'),
+				'tab'   => Controls_Manager::TAB_STYLE,
+			]
+		);
+
+		$this->add_group_control(
+			Group_Control_Typography::get_type(),
+			[
+				'name'     => 'feature_title_typography',
+				'label'    => __('Kiểu chữ', 'astra-child'),
+				'selector' => '{{WRAPPER}} .custom-product-content .block-content .product-features .item p',
+			]
+		);
+
+		$this->end_controls_section();
+
+		// --- STYLE: Block title ---
+		$this->start_controls_section(
+			'style_block_title_section',
+			[
+				'label' => __('Tiêu đề khối', 'astra-child'),
+				'tab'   => Controls_Manager::TAB_STYLE,
+			]
+		);
+
+		$this->add_group_control(
+			Group_Control_Typography::get_type(),
+			[
+				'name'     => 'block_title_typography',
+				'label'    => __('Kiểu chữ', 'astra-child'),
+				'selector' => '{{WRAPPER}} .custom-product-content .block-content .block-title',
 			]
 		);
 

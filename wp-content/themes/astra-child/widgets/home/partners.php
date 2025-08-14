@@ -1,7 +1,8 @@
 <?php
-use Elementor\Widget_Base;
+
 use Elementor\Controls_Manager;
 use Elementor\Repeater;
+use Elementor\Group_Control_Typography;
 
 class Custom_Elementor_Widget_Partners extends \Elementor\Widget_Base {
 
@@ -105,6 +106,26 @@ class Custom_Elementor_Widget_Partners extends \Elementor\Widget_Base {
 					],
 				],
 				'title_field' => '{{{ title }}}',
+			]
+		);
+
+		$this->end_controls_section();
+
+		// --- STYLE: Partners ---
+		$this->start_controls_section(
+			'style_partners_section',
+			[
+				'label' => __('Đối tác', 'astra-child'),
+				'tab'   => Controls_Manager::TAB_STYLE,
+			]
+		);
+
+		$this->add_group_control(
+			Group_Control_Typography::get_type(),
+			[
+				'name'     => 'title_typography',
+				'label'    => __('Kiểu chữ', 'astra-child'),
+				'selector' => '{{WRAPPER}} .partners-widget .item span',
 			]
 		);
 

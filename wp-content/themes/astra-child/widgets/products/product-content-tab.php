@@ -1,4 +1,8 @@
 <?php
+
+use Elementor\Controls_Manager;
+use Elementor\Group_Control_Typography;
+
 class Custom_Elementor_Widget_Product_Content_Tab extends \Elementor\Widget_Base {
 
 	public function get_name() {
@@ -23,6 +27,115 @@ class Custom_Elementor_Widget_Product_Content_Tab extends \Elementor\Widget_Base
 			[
 				'label' => __('Content', 'astra-child'),
 				'tab' => \Elementor\Controls_Manager::TAB_CONTENT,
+			]
+		);
+
+		$this->end_controls_section();
+
+		// --- STYLE: TAB TITLE ---
+		$this->start_controls_section(
+			'style_tab_title_section',
+			[
+				'label' => __('Tiêu đề tab', 'astra-child'),
+				'tab'   => Controls_Manager::TAB_STYLE,
+			]
+		);
+
+		$this->add_group_control(
+			Group_Control_Typography::get_type(),
+			[
+				'name'     => 'title_typography',
+				'label'    => __('Kiểu chữ', 'astra-child'),
+				'selector' => '{{WRAPPER}} .custom-product-content-tab .tabs-title .tab-title',
+			]
+		);
+
+		$this->end_controls_section();
+
+		// --- STYLE: Product Description ---
+		$this->start_controls_section(
+			'style_product_description_section',
+			[
+				'label' => __('Mô tả sản phẩm', 'astra-child'),
+				'tab'   => Controls_Manager::TAB_STYLE,
+			]
+		);
+
+		$this->add_group_control(
+			Group_Control_Typography::get_type(),
+			[
+				'name'     => 'description_typography',
+				'label'    => __('Kiểu chữ', 'astra-child'),
+				'selector' => '{{WRAPPER}} .custom-product-content-tab .tabs-content #tab-description .description',
+			]
+		);
+
+		$this->end_controls_section();
+
+		// --- STYLE: Detail Information ---
+		$this->start_controls_section(
+			'style_detail_information_section',
+			[
+				'label' => __('Thông tin chi tiết', 'astra-child'),
+				'tab'   => Controls_Manager::TAB_STYLE,
+			]
+		);
+
+		$this->add_group_control(
+			Group_Control_Typography::get_type(),
+			[
+				'name'     => 'detail_information_typography',
+				'label'    => __('Kiểu chữ', 'astra-child'),
+				'selector' => '{{WRAPPER}} .custom-product-content-tab .tabs-content #tab-detail table tr td',
+			]
+		);
+
+		$this->end_controls_section();
+
+		// --- STYLE: Warranty Policy ---
+		$this->start_controls_section(
+			'style_warranty_policy_section',
+			[
+				'label' => __('Chính sách bảo hành', 'astra-child'),
+				'tab'   => Controls_Manager::TAB_STYLE,
+			]
+		);
+
+		$this->add_group_control(
+			Group_Control_Typography::get_type(),
+			[
+				'name'     => 'warranty_policy_title_typography',
+				'label'    => __('Kiểu chữ tiêu đề', 'astra-child'),
+				'selector' => '{{WRAPPER}} .custom-product-content-tab .tabs-content #tab-detail .block-title',
+			]
+		);
+
+		$this->add_group_control(
+			Group_Control_Typography::get_type(),
+			[
+				'name'     => 'warranty_policy_content_typography',
+				'label'    => __('Kiểu chữ nội dung', 'astra-child'),
+				'selector' => '{{WRAPPER}} .custom-product-content-tab .tabs-content #tab-detail .warranty-policy li',
+			]
+		);
+
+		$this->end_controls_section();
+
+		// --- STYLE: Download File ---
+		$this->start_controls_section(
+			'style_download_file_section',
+			[
+				'label' => __('Download', 'astra-child'),
+				'tab'   => Controls_Manager::TAB_STYLE,
+			]
+		);
+
+		$this->add_group_control(
+			Group_Control_Typography::get_type(),
+			[
+				'name'     => 'download_file_title_typography',
+				'label'    => __('Kiểu chữ', 'astra-child'),
+				'selector' => '{{WRAPPER}} .custom-product-content-tab .tabs-content #tab-file .list-file .file .file-title',
 			]
 		);
 

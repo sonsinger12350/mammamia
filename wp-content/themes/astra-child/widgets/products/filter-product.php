@@ -1,4 +1,8 @@
 <?php
+
+use Elementor\Controls_Manager;
+use Elementor\Group_Control_Typography;
+
 class Custom_Elementor_Widget_Filter_Product extends \Elementor\Widget_Base {
 
 	public function get_name() {
@@ -23,6 +27,26 @@ class Custom_Elementor_Widget_Filter_Product extends \Elementor\Widget_Base {
 			[
 				'label' => __('Content', 'astra-child'),
 				'tab' => \Elementor\Controls_Manager::TAB_CONTENT,
+			]
+		);
+
+		$this->end_controls_section();
+
+		// --- STYLE: PRODUCT TITLE ---
+		$this->start_controls_section(
+			'style_title_section',
+			[
+				'label' => __('Tiêu đề', 'astra-child'),
+				'tab'   => Controls_Manager::TAB_STYLE,
+			]
+		);
+
+		$this->add_group_control(
+			Group_Control_Typography::get_type(),
+			[
+				'name'     => 'title_typography',
+				'label'    => __('Kiểu chữ', 'astra-child'),
+				'selector' => '{{WRAPPER}} .custom-filter-product .list-item .item label',
 			]
 		);
 

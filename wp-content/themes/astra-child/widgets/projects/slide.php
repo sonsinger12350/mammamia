@@ -1,4 +1,8 @@
 <?php
+
+use Elementor\Controls_Manager;
+use Elementor\Group_Control_Typography;
+
 class Custom_Elementor_Widget_Projects_Slide extends \Elementor\Widget_Base {
 
 	public function get_name() {
@@ -23,6 +27,35 @@ class Custom_Elementor_Widget_Projects_Slide extends \Elementor\Widget_Base {
 			[
 				'label' => __('Content', 'astra-child'),
 				'tab' => \Elementor\Controls_Manager::TAB_CONTENT,
+			]
+		);
+
+		$this->end_controls_section();
+
+		// --- STYLE: Projects ---
+		$this->start_controls_section(
+			'style_projects_section',
+			[
+				'label' => __('Dự án', 'astra-child'),
+				'tab'   => Controls_Manager::TAB_STYLE,
+			]
+		);
+
+		$this->add_group_control(
+			Group_Control_Typography::get_type(),
+			[
+				'name'     => 'title_typography',
+				'label'    => __('Kiểu chữ tiêu đề', 'astra-child'),
+				'selector' => '{{WRAPPER}} .projects-slide.projects-slide-header .list .item-title',
+			]
+		);
+
+		$this->add_group_control(
+			Group_Control_Typography::get_type(),
+			[
+				'name'     => 'content_typography',
+				'label'    => __('Kiểu chữ nội dung', 'astra-child'),
+				'selector' => '{{WRAPPER}} .projects-slide.projects-slide-header .list .item-content',
 			]
 		);
 
