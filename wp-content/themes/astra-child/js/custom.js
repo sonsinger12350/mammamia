@@ -209,11 +209,12 @@ jQuery(function($) {
 		}
 	});
 
-	$('body').on('click', '.custom-table-content .elementor-toc__top-level', function(e) {
+	$('body').on('click', '.custom-table-content .elementor-toc__list-item-text', function(e) {
 		e.preventDefault();
 		let target = $(this).attr('href');
+		let text = $(this).text();
 
-		scrollToElement($(target), 150);
+		scrollToElement($(target).find(`span:contains('${text}')`), 150);
 
 		return false;
 	});
