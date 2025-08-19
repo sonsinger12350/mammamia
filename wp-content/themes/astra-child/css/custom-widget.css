@@ -142,6 +142,7 @@ footer .widget .widget-title {
 	width: 70vw;
 	height: 600px;
 	object-fit: cover;
+	margin-left: auto;
 }
 
 .projects-slide .list .item-image .zoom-image {
@@ -154,12 +155,12 @@ footer .widget .widget-title {
 	justify-content: center;
 	align-items: center;
 	background-color: #c4956a;
-	display: none;
 }
 
 .projects-slide .list .item-image .zoom-image img {
 	width: 30px;
 	height: 30px;
+	margin: 0;
 }
 
 .projects-slide .list .item-body {

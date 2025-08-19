@@ -73,15 +73,6 @@ jQuery(function($) {
 
 	let loadingIcon = '<i class="fa fa-spinner fa-pulse" aria-hidden="true"></i>';
 
-	// $(window).on('scroll', function () {
-	// 	if ($(this).scrollTop() > 100) {
-	// 		$('#masthead').addClass('active');
-	// 	}
-	// 	else {
-	// 		$('#masthead').removeClass('active');
-	// 	}
-	// });
-
 	jQuery(window).on('elementor/frontend/init', function () {
 		elementorFrontend.hooks.addAction('frontend/element_ready/global', function ($scope, $) {
 			var $carousel = $scope.find('.projects-slide .list');
@@ -89,7 +80,7 @@ jQuery(function($) {
 			if ($carousel.length && !$carousel.hasClass('owl-loaded')) {
 				$carousel.owlCarousel({
 					loop: true,
-					margin: 0,
+					margin: 1,
 					nav: true,
 					autoplay: false,
 					autoplayTimeout: 5000,
