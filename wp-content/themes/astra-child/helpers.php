@@ -97,7 +97,7 @@ function getProductListByConditions($conditions) {
 		if (isset($taxonomy_map[$key])) {
 			$args['tax_query'][] = [
 				'taxonomy' => $taxonomy_map[$key],
-				'field'    => 'slug',
+				'field'    => $key === 'brand' ? 'term_id' : 'slug',
 				'terms'    => (array) $value,
 			];
 		}

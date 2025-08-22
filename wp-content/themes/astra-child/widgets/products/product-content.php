@@ -147,7 +147,6 @@ class Custom_Elementor_Widget_Product_Content extends \Elementor\Widget_Base {
 		$brands = get_the_terms($product->get_id(), 'product_brand');
 		$brand_names = (!empty($brands) && !is_wp_error($brands)) ? wp_list_pluck($brands, 'name') : [];
 		$features = get_post_meta($product_id, '_custom_product_features', true);
-		
 
 		?>
 			<div class="custom-product-content">

@@ -275,6 +275,10 @@ footer .widget .widget-title {
 	height: 100vh;
 }
 
+.projects-slide.projects-slide-header .list .item-image .zoom-image {
+	display: none;
+}
+
 .projects-slide.projects-slide-header .list .owl-nav {
 	top: unset;
 	bottom: 6%;
