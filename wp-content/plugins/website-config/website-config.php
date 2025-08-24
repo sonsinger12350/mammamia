@@ -42,6 +42,7 @@ class WebsiteConfig
 		'catalogue',
 		'brochure',
 		'instructions',
+		'user_guide',
 		'3d',
 		'spec',
 		'autocad',

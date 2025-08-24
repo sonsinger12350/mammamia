@@ -40,6 +40,7 @@ function mamma_mia_get_column_mappings() {
         'catalogue' => 'Catalogue',
         'brochure' => 'Brochure',
         'instructions' => 'Hướng dẫn lắp đặt',
+        'user_guide' => 'Hướng dẫn sử dụng',
         '3d' => '3D',
         'spec' => 'SPEC',
         'autocad' => 'AutoCAD',
