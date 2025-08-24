@@ -85,7 +85,7 @@ class Custom_Elementor_Widget_Projects extends \Elementor\Widget_Base {
 							. '<a href="' . get_the_permalink($post) . '" class="button-primary">Xem thêm</a>'
 						. '</div>'
 						. '<div class="item-image">' . get_the_post_thumbnail($post, 'full')
-						.     '<a href="' . get_the_post_thumbnail_url($post, 'full') . '" class="zoom-image" data-fancybox="gallery">'
+						.     '<a href="' . get_the_post_thumbnail_url($post, 'full') . '" class="zoom-image" data-fancybox="">'
 						.         '<img src="' . get_stylesheet_directory_uri() . '/assets/icon/search.svg" alt="zoom">'
 						.     '</a>'
 						. '</div>'
