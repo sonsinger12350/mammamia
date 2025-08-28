@@ -575,7 +575,7 @@ jQuery(function($) {
 		if (brandId) {
 			// Show loading state for collection field
 			collectionSelect.prop('disabled', true);
-			collectionSelect.html('<option value="" disabled>Đang tải...</option>');
+			collectionSelect.html('<option value="" selected>Đang tải...</option>');
 
 			// Add loading spinner
 			collectionSelect.addClass('loading');
