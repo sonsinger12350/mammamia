@@ -34,11 +34,14 @@ class Custom_Elementor_Widget_Partners extends \Elementor\Widget_Base {
 		$repeater = new Repeater();
 
 		$repeater->add_control(
-			'title',
+			'image',
 			[
-				'label' => __( 'Tên đối tác', 'astra-child' ),
-				'type' => Controls_Manager::TEXT,
-				'default' => __( 'Tên đối tác', 'astra-child' ),
+				'label' => __( 'Hình ảnh đối tác', 'astra-child' ),
+				'type' => Controls_Manager::MEDIA,
+				'default' => [
+					'url' => '',
+				],
+				'media_type' => 'image',
 			]
 		);
 
@@ -99,13 +102,15 @@ class Custom_Elementor_Widget_Partners extends \Elementor\Widget_Base {
 				'fields' => $repeater->get_controls(),
 				'default' => [
 					[
-						'title' => __( 'Đối tác 1', 'astra-child' ),
+						'image' => [
+							'url' => '',
+						],
 						'link' => "",
 						'top' => 10,
 						'left' => 20,
 					],
 				],
-				'title_field' => '{{{ title }}}',
+				'title_field' => '{{{ image.url }}}',
 			]
 		);
 
@@ -140,12 +145,20 @@ class Custom_Elementor_Widget_Partners extends \Elementor\Widget_Base {
 			$output = '<div class="partners-widget">';
 
 			foreach ( $settings['items'] as $item ) {
+				$image_url = !empty($item['image']['url']) ? $item['image']['url'] : '';
+				$image_alt = !empty($item['image']['alt']) ? $item['image']['alt'] : __('Đối tác', 'astra-child');
+				
 				$output .= '<a href="' . $item['link']['url'] . '" target="_blank" class="item" style="
 				top: ' . $item['top']['size'] . '%; 
 				left: ' . $item['left']['size'] . '%;
 				background-image: url(' . get_stylesheet_directory_uri() . '/assets/background/partner.png);
-				">
-				<span>' . $item['title'] . '</span></a>';
+				">';
+				
+				if (!empty($image_url)) {
+					$output .= '<img src="' . esc_url($image_url) . '" alt="' . esc_attr($image_alt) . '" class="partner-image">';
+				}
+				
+				$output .= '</a>';
 			}
 
 			$output .= '</div>';

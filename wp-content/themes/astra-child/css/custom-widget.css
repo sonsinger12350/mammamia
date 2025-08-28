@@ -521,12 +521,10 @@ footer .widget .widget-title {
 	text-decoration: none !important;
 }
 
-.partners-widget .item span {
-	font-size: 20px;
-	font-weight: 600;
-	text-transform: uppercase;
-	text-align: center;
-	width: 70%;
+.partners-widget .item img {
+	width: 100px;
+    height: 100px;
+    object-fit: contain;
 }
 
 @media (max-width: 767px) {
@@ -537,6 +535,11 @@ footer .widget .widget-title {
 	.partners-widget .item {
 		width: 100px;
 		height: 100px;
+	}
+
+	.partners-widget .item img {
+		width: 70px;
+		height: 70px;
 	}
 
 	.partners-widget .item span {
@@ -560,6 +563,11 @@ footer .widget .widget-title {
 		height: 90px;
 	}
 
+	.partners-widget .item img {
+		width: 70px;
+		height: 70px;
+	}
+
 	.partners-widget .item span {
 		font-size: 14px;
 	}
@@ -571,6 +579,11 @@ footer .widget .widget-title {
 		height: 80px;
 	}
 
+	.partners-widget .item img {
+		width: 60px;
+		height: 60px;
+	}
+
 	.partners-widget .item span {
 		font-size: 12px;
 	}
@@ -580,6 +593,11 @@ footer .widget .widget-title {
 	.partners-widget .item {
 		width: 70px;
 		height: 70px;
+	}
+
+	.partners-widget .item img {
+		width: 50px;
+		height: 50px;
 	}
 
 	.partners-widget .item span {
