@@ -160,7 +160,7 @@ class Astra_Child_Custom_Widget_Header_Menu extends WP_Widget
 						</ul>
 					</div>
 				<?php else: ?>
-					<a href="javascript:void(0)" onclick="showCustomModal('#modal-login')" class="menu-icon"><i class="fa fa-sign-in" aria-hidden="true" rel="nofollow noopener noreferrer"></i></a>
+					<a href="javascript:void(0)" onclick="showCustomModal('#modal-login')" class="menu-icon" rel="nofollow noopener noreferrer"><i class="fa fa-sign-in" aria-hidden="true"></i></a>
 				<?php endif; ?>
 			</form>
 			<div class="menu-list">
