@@ -72,7 +72,7 @@ class Custom_Elementor_Widget_Filter_Product extends \Elementor\Widget_Base {
 			],
 			'set_up' => [
 				'title' => 'Lắp đặt',
-				'options' => getTaxonomyTermsByCat($currentCat, 'set_up'),
+				'options' => getOptionsCustomFieldByCat($currentCat, 'set_up'),
 			],
 		];
 
@@ -85,7 +85,7 @@ class Custom_Elementor_Widget_Filter_Product extends \Elementor\Widget_Base {
 				$content .= '
 					<div class="item">
 						<label for="' . $field . '">' . esc_html($data['title']) . '</label>
-						<select id="' . $field . '" name="' . $field . '">
+						<select id="' . $field . '" name="' . $field . '" class="filter-select" data-field="' . $field . '">
 							<option value="">' . esc_html('Tất cả') . '</option>
 					';
 					if (!empty($data['options'])) {

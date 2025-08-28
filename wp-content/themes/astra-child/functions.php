@@ -135,6 +135,12 @@ function custom_enqueue_styles() {
 		true
 	);
 
+	// Localize AJAX URL for filter product widget
+	wp_localize_script('custom-script', 'filter_product_ajax', array(
+		'ajax_url' => admin_url('admin-ajax.php'),
+		'nonce' => wp_create_nonce('filter_product_nonce')
+	));
+
 	wp_enqueue_style(
 		'astra-child-custom-widget-css',
 		get_stylesheet_directory_uri() . '/css/custom-widget.css',
@@ -420,5 +426,75 @@ add_filter( 'elementor/theme/get_location_templates/template_id', function( $tem
     return $template_id;
 });
 
+// 1) Bắt mọi lần before_section_end rồi lọc theo widget = wc-categories
+add_action('elementor/element/before_section_end', function($element, $section_id, $args){
+    if ( ! method_exists($element, 'get_name') ) return;
+
+    switch ( $element->get_name() ) {
+        case 'wc-categories':
+            // Chỉ cần patch ở section chứa control 'orderby' (thực tế là section_query)
+            if ( ! method_exists($element, 'get_controls') ) return;
+            $controls = $element->get_controls();
+            if ( empty($controls['orderby']) ) return;
+
+            $opts = isset($controls['orderby']['options']) && is_array($controls['orderby']['options']) ? $controls['orderby']['options'] : [];
+
+            if ( ! isset($opts['menu_order']) ) {
+                $opts['menu_order'] = __('Thứ tự trong admin', 'astra-child');
+                $element->update_control('orderby', ['options' => $opts]);
+            }
+
+            break;
+        case 'theme-post-content':
+            // Thêm trực tiếp vào section_style
+            if ( $section_id !== 'section_style' ) return;
+
+            $element->add_group_control(
+                \Elementor\Group_Control_Typography::get_type(),
+                [
+                    'name'     => 'my_pc_heading_typography',
+                    'label'    => __('Heading Typography (H1–H6)', 'astra-child'),
+                    'selector' => '{{WRAPPER}} h1, {{WRAPPER}} h2, {{WRAPPER}} h3, {{WRAPPER}} h4, {{WRAPPER}} h5, {{WRAPPER}} h6',
+                ]
+            );
+            break;
+    }
+}, 20, 3);
+
+// 2) Đảm bảo khi người dùng chọn 'menu_order' thì query thực sự dùng menu_order
+add_action('elementor/frontend/widget/before_render', function($widget){
+    if (!($widget instanceof \ElementorPro\Modules\Woocommerce\Widgets\Categories)) return;
+
+    $settings = $widget->get_settings_for_display();
+    // Chỉ can thiệp nếu Order By = menu_order
+    if (empty($settings['orderby']) || $settings['orderby'] !== 'menu_order') return;
+
+    // Lấy chiều sắp xếp từ control 'order' có sẵn của widget (nếu có)
+    $order = '';
+
+    if (!empty($settings['order'])) {
+        $maybe = strtoupper($settings['order']);
+        if ($maybe === 'ASC' || $maybe === 'DESC') $order = $maybe;
+    }
+
+    $cb = function($args, $taxonomies) use ($order){
+        if (!empty($taxonomies) && in_array('product_cat', (array)$taxonomies, true)) {
+            $args['orderby'] = 'menu_order';
+            if ($order) $args['order'] = $order;
+        }
+
+        return $args;
+    };
+
+    $widget->__my_terms_cb = $cb;
+    add_filter('get_terms_args', $cb, 10, 2);
+}, 8);
+
+add_action('elementor/frontend/widget/after_render', function($widget){
+    if (isset($widget->__my_terms_cb) && is_callable($widget->__my_terms_cb)) {
+        remove_filter('get_terms_args', $widget->__my_terms_cb, 10);
+        unset($widget->__my_terms_cb);
+    }
+}, 999);
 
 ?>

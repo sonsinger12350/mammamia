@@ -258,7 +258,6 @@ function getTaxonomyTermsByCat($catObj, $taxonomy) {
 	return $terms;
 }
 
-
 // Modifi this function to get all attribute of product
 function get_all_attributes_with_images($product) {
     $data = [];
@@ -396,4 +395,196 @@ function get_all_custom_field_values( $product_id ) {
 	}
 
 	return $data;
+}
+
+/**
+ * Get set_up field options for products in a specific category
+ * 
+ * @param object $catObj Category object
+ * @return array Array of set_up options with key => value pairs
+ */
+function getOptionsCustomFieldByCat($catObj, $field_name) {
+	if (!$catObj || !isset($catObj->term_id) || empty($field_name)) return [];
+
+	$cat_id = $catObj->term_id;
+
+	// Get all products in the current category
+	$args = [
+		'post_type' => 'product',
+		'posts_per_page' => -1,
+		'tax_query' => [
+			[
+				'taxonomy' => 'product_cat',
+				'field' => 'term_id',
+				'terms' => $cat_id,
+			]
+		],
+		'fields' => 'ids',
+	];
+
+	$product_ids = get_posts($args);
+	if (empty($product_ids)) return [];
+
+	$set_up_values = [];
+
+	// Loop through products to get set_up field values
+	foreach ($product_ids as $product_id) {
+		$set_up_value = get_field($field_name, $product_id);
+		if (!empty($set_up_value)) $set_up_values[$set_up_value] = $set_up_value;
+	}
+
+	if (isset($set_up_values['Không có'])) unset($set_up_values['Không có']);
+
+	// Sort by value
+	asort($set_up_values);
+	
+	return $set_up_values;
+}
+
+/**
+ * Get collection options based on brand only - Optimized version
+ * 
+ * @param int $brand_id Brand term ID
+ * @return array Array of collection options with key => value pairs
+ */
+function getCollectionOptionsByBrand($brand_id) {
+	if (empty($brand_id)) return [];
+
+	// Check cache first (both transient and object cache)
+	$cache_key = 'collection_options_brand_' . $brand_id;
+	$cached_result = get_transient($cache_key);
+	
+	if ($cached_result !== false) return $cached_result;
+	
+	// Also check object cache if available
+	$object_cache_key = 'collection_options_brand_' . $brand_id;
+	$object_cached_result = wp_cache_get($object_cache_key, 'filter_product');
+	
+	if ($object_cached_result !== false) return $object_cached_result;
+
+	// Use direct database query for better performance
+	global $wpdb;
+	
+	$sql = $wpdb->prepare("
+		SELECT DISTINCT t.term_id, t.name
+		FROM {$wpdb->terms} t
+		INNER JOIN {$wpdb->term_taxonomy} tt ON t.term_id = tt.term_id
+		INNER JOIN {$wpdb->term_relationships} tr ON tt.term_taxonomy_id = tr.term_taxonomy_id
+		INNER JOIN {$wpdb->posts} p ON tr.object_id = p.ID
+		INNER JOIN {$wpdb->term_relationships} tr2 ON p.ID = tr2.object_id
+		INNER JOIN {$wpdb->term_taxonomy} tt2 ON tr2.term_taxonomy_id = tt2.term_taxonomy_id
+		WHERE tt.taxonomy = 'bo-suu-tap'
+		AND tt2.taxonomy = 'product_brand'
+		AND tt2.term_id = %d
+		AND p.post_type = 'product'
+		AND p.post_status = 'publish'
+		ORDER BY t.name ASC
+	", $brand_id);
+
+	$results = $wpdb->get_results($sql);
+	
+	$collection_values = [];
+
+	foreach ($results as $result) {
+		$collection_values[$result->term_id] = $result->name;
+	}
+
+	// Cache the result for 1 hour (3600 seconds) in both transient and object cache
+	set_transient($cache_key, $collection_values, 3600);
+	wp_cache_set($object_cache_key, $collection_values, 'filter_product', 3600);
+
+	return $collection_values;
+}
+
+/**
+ * Preload collection options cache for all brands to improve performance
+ */
+function preload_collection_options_cache() {
+	global $wpdb;
+	
+	// Get all brand IDs
+	$brand_ids = $wpdb->get_col("
+		SELECT DISTINCT t.term_id 
+		FROM {$wpdb->terms} t 
+		INNER JOIN {$wpdb->term_taxonomy} tt ON t.term_id = tt.term_id 
+		WHERE tt.taxonomy = 'product_brand'
+	");
+	
+	// Preload cache for each brand
+	foreach ($brand_ids as $brand_id) {
+		getCollectionOptionsByBrand($brand_id);
+	}
+}
+
+/**
+ * Initialize cache preloading on appropriate hooks
+ */
+function init_collection_options_cache() {
+	// Preload cache on category pages
+	if (is_tax('product_cat')) preload_collection_options_cache();
+}
+
+// Hook to preload cache
+add_action('wp', 'init_collection_options_cache');
+
+/**
+ * Get all collection options for all brands in a single query - Most efficient approach
+ */
+function getAllCollectionOptionsForAllBrands() {
+	global $wpdb;
+	
+	// Check cache first
+	$cache_key = 'all_collection_options_all_brands';
+	$cached_result = get_transient($cache_key);
+	
+	if ($cached_result !== false) return $cached_result;
+	
+	// Single query to get all collection options grouped by brand
+	$sql = "
+		SELECT 
+			tt2.term_id as brand_id,
+			t.term_id as collection_id,
+			t.name as collection_name
+		FROM {$wpdb->terms} t
+		INNER JOIN {$wpdb->term_taxonomy} tt ON t.term_id = tt.term_id
+		INNER JOIN {$wpdb->term_relationships} tr ON tt.term_taxonomy_id = tr.term_taxonomy_id
+		INNER JOIN {$wpdb->posts} p ON tr.object_id = p.ID
+		INNER JOIN {$wpdb->term_relationships} tr2 ON p.ID = tr2.object_id
+		INNER JOIN {$wpdb->term_taxonomy} tt2 ON tr2.term_taxonomy_id = tt2.term_taxonomy_id
+		WHERE tt.taxonomy = 'bo-suu-tap'
+		AND tt2.taxonomy = 'product_brand'
+		AND p.post_type = 'product'
+		AND p.post_status = 'publish'
+		GROUP BY collection_name
+		ORDER BY tt2.term_id, t.name ASC
+	";
+
+	$results = $wpdb->get_results($sql);
+	
+	// Group results by brand
+	$brand_collections = [];
+
+	foreach ($results as $result) {
+		if (!isset($brand_collections[$result->brand_id])) $brand_collections[$result->brand_id] = [];
+
+		$brand_collections[$result->brand_id][$result->collection_id] = $result->collection_name;
+	}
+	
+	// Cache the result for 2 hours (7200 seconds)
+	set_transient($cache_key, $brand_collections, 7200);
+	
+	return $brand_collections;
+}
+
+/**
+ * Optimized version of getCollectionOptionsByBrand using preloaded data
+ */
+function getCollectionOptionsByBrandOptimized($brand_id) {
+	if (empty($brand_id)) return [];
+	
+	// Get all collections for all brands
+	$all_collections = getAllCollectionOptionsForAllBrands();
+	
+	// Return collections for specific brand
+	return isset($all_collections[$brand_id]) ? $all_collections[$brand_id] : [];
 }

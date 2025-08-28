@@ -563,4 +563,45 @@ jQuery(function($) {
 			}, 2000);
 		}
 	});
+
+	// Filter Product Widget AJAX functionality
+	$('#brand').on('change', function() {
+		var brandId = $(this).val();
+		var collectionSelect = $('#bo-suu-tap');
+
+		// Reset collection field
+		collectionSelect.html('<option value="">Tất cả</option>');
+
+		if (brandId) {
+			// Show loading state for collection field
+			collectionSelect.prop('disabled', true);
+			collectionSelect.html('<option value="" disabled>Đang tải...</option>');
+
+			// Add loading spinner
+			collectionSelect.addClass('loading');
+
+			// Make AJAX request for collection options
+			$.ajax({
+				url: filter_product_ajax.ajax_url,
+				type: 'POST',
+				data: {
+					action: 'get_collection_options',
+					brand_id: brandId,
+					nonce: filter_product_ajax.nonce
+				},
+				success: function(response) {
+					if (response.success) {
+						collectionSelect.html(response.data.html);
+					} else {
+						console.error('Error:', response.data);
+						collectionSelect.html('<option value="">Tất cả</option>');
+					}
+				},
+				complete: function() {
+					collectionSelect.prop('disabled', false);
+					collectionSelect.removeClass('loading');
+				}
+			});
+		}
+	});
 });
