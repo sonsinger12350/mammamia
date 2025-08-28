@@ -497,4 +497,39 @@ add_action('elementor/frontend/widget/after_render', function($widget){
     }
 }, 999);
 
+// Cho phép upload thêm các loại file CAD/3D và RAR
+add_filter('upload_mimes', function ($mimes) {
+    // Nếu không phải admin thì return luôn
+    if ( ! current_user_can('manage_options') ) return $mimes;
+
+    // Nén
+    $mimes['rar'] = 'application/x-rar-compressed'; // RAR
+    $mimes['cbr'] = 'application/x-cbr'; // Comic RAR
+
+    // CAD / 3D
+    $mimes['stp'] = 'application/x-step'; // STEP
+    $mimes['max'] = 'application/octet-stream'; // 3ds Max
+    $mimes['dwg'] = 'application/acad'; // AutoCAD DWG
+    $mimes['dxf'] = 'application/dxf'; // AutoCAD DXF
+
+    return $mimes;
+});
+
+// Tin vào phần mở rộng nếu Finfo không match (cho 5 định dạng này)
+add_filter('wp_check_filetype_and_ext', function ($data, $file, $filename, $mimes) {
+    if ( ! current_user_can('manage_options') ) return $data;
+
+    $checked = wp_check_filetype($filename, $mimes);
+    $allow_exts = ['rar', 'stp', 'max', 'dwg', 'dxf'];
+
+    if (!empty($checked['ext']) && in_array($checked['ext'], $allow_exts, true)) {
+        // Ghi đè kết quả để cho phép upload
+        $data['ext']  = $checked['ext'];
+        $data['type'] = $checked['type'] ?: 'application/octet-stream';
+        $data['proper_filename'] = $filename;
+    }
+
+    return $data;
+}, 10, 4);
+
 ?>
