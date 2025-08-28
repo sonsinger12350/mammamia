@@ -10,12 +10,12 @@
 					<form class="form-login" novalidate name="login_user" data-nonce="<?= wp_create_nonce('login_user') ?>">
 						<p class="form-title"><?= __('Đăng nhập', 'astra-child') ?></p>
 						<div class="form-group mb-3">
-							<label for="email"><?= __('Email', 'astra-child') ?></label>
-							<input class="form-control" type="email" name="email" id="email" placeholder="Nhập email" required>
+							<label for="email_login"><?= __('Email', 'astra-child') ?></label>
+							<input class="form-control" type="email" name="email" id="email_login" placeholder="Nhập email" autocomplete="username" required>
 						</div>
 						<div class="form-group mb-3">
-							<label for="password"><?= __('Mật khẩu', 'astra-child') ?></label>
-							<input class="form-control" type="password" name="password" id="password" placeholder="Nhập mật khẩu" required>
+							<label for="password_login"><?= __('Mật khẩu', 'astra-child') ?></label>
+							<input class="form-control" type="password" name="password" id="password_login" placeholder="Nhập mật khẩu" autocomplete="current-password" required>
 						</div>
 						<button type="submit" class="btn btn-outline-primary mb-2 mt-3"><?= __('Đăng nhập', 'astra-child') ?></button>
 						<div class="form-forgot">
@@ -25,16 +25,16 @@
 					<form class="form-register" novalidate name="register_user" data-nonce="<?= wp_create_nonce('register_user') ?>">
 						<p class="form-title"><?= __('Đăng ký', 'astra-child') ?></p>
 						<div class="form-group mb-3">
-							<label for="email"><?= __('Email', 'astra-child') ?></label>
-							<input class="form-control" type="email" name="email" id="email" placeholder="Nhập email" required>
+							<label for="email_register"><?= __('Email', 'astra-child') ?></label>
+							<input class="form-control" type="email" name="email" id="email_register" placeholder="Nhập email" autocomplete="username" required>
 						</div>
 						<div class="form-group mb-3">
-							<label for="password"><?= __('Mật khẩu', 'astra-child') ?></label>
-							<input class="form-control" type="password" name="password" id="password" placeholder="Nhập mật khẩu" required>
+							<label for="password_register"><?= __('Mật khẩu', 'astra-child') ?></label>
+							<input class="form-control" type="password" name="password" id="password_register" placeholder="Nhập mật khẩu" autocomplete="new-password" required>
 						</div>
 						<div class="form-group mb-3">
 							<label for="confirm-password"><?= __('Nhập lại mật khẩu', 'astra-child') ?></label>
-							<input class="form-control" type="password" name="confirm_password" id="confirm-password" placeholder="Nhập lại mật khẩu" required>
+							<input class="form-control" type="password" name="confirm_password" id="confirm-password" placeholder="Nhập lại mật khẩu" autocomplete="new-password" required>
 						</div>
 						<button type="submit" class="btn btn-outline-primary mt-3"><?= __('Đăng ký', 'astra-child') ?></button>
 					</form>
