@@ -246,7 +246,7 @@ class Custom_Elementor_Widget_Product_Content_Tab extends \Elementor\Widget_Base
 											$onclick = 'onclick="showCustomModal(\'#modal-contact-download\')"';
 										}
 								?>
-									<a href="<?= $download == 1 ? $v : 'javascript:void(0)' ?>" class="file download-level-<?= $download ?>" <?= $onclick ?> download>
+									<a href="<?= $download == 1 ? $v : 'javascript:void(0)' ?>" class="file download-level-<?= $download ?>" <?= $onclick ?> download rel="nofollow noopener noreferrer">
 										<div class="left">
 											<img src="<?= get_stylesheet_directory_uri() . '/assets/icon/folder.svg' ?>">
 										</div>

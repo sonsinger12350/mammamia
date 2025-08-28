@@ -151,7 +151,7 @@ class Astra_Child_Custom_Widget_Header_Menu extends WP_Widget
 				<a href="/san-pham-yeu-thich" class="wishlist-icon menu-icon"><i class="fa fa-heart-o" aria-hidden="true"></i><?php echo $count_wishlist; ?></a>
 				<?php if (is_user_logged_in()): ?>
 					<div class="dropdown">
-						<a href="javascript:void(0)" class="menu-icon" id="dropdownUserAction" data-bs-toggle="dropdown" aria-expanded="false">
+						<a href="javascript:void(0)" class="menu-icon" id="dropdownUserAction" data-bs-toggle="dropdown" aria-expanded="false" rel="nofollow noopener noreferrer">
 							<i class="fa fa-user-circle-o" aria-hidden="true"></i>
 						</a>
 
@@ -160,7 +160,7 @@ class Astra_Child_Custom_Widget_Header_Menu extends WP_Widget
 						</ul>
 					</div>
 				<?php else: ?>
-					<a href="javascript:void(0)" onclick="showCustomModal('#modal-login')" class="menu-icon"><i class="fa fa-sign-in" aria-hidden="true"></i></a>
+					<a href="javascript:void(0)" onclick="showCustomModal('#modal-login')" class="menu-icon"><i class="fa fa-sign-in" aria-hidden="true" rel="nofollow noopener noreferrer"></i></a>
 				<?php endif; ?>
 			</form>
 			<div class="menu-list">

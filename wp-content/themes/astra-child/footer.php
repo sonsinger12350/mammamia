@@ -39,7 +39,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		$phone = get_option('website_config_phone', '');
 	?>
 	<div class="footer-button">
-		<a class="btn-scroll-top" href="javascript:void(0)" style="display: none;">
+		<a class="btn-scroll-top" href="javascript:void(0)" style="display: none;" rel="nofollow noopener noreferrer">
 			<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 				<image x="0px" y="0px" xlink:href="data:img/png;base64,iVBORw0KGgoAAAANSUhEUgAAAD0AAAAkCAMAAAANZcKIAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAh1BMVEUGKykGKykGKykGKykGKykGKykGKykGKykGKykGKykGKykGKykGKykGKykGKykGKykGKykGKykGKykGKykGKykGKykGKykGKykGKykGKykGKykGKykGKykGKykGKykGKykGKykGKykGKykGKykGKykGKykGKykGKykGKykGKykGKykGKyn///9GrhIYAAAAK3RSTlMAH5zpP+9C9kFAN/H3kUMq3Cc2HDMt6yDkxiQbOOIxMAz5Xmb7WLL6sB4rM3TfDQAAAAFiS0dELLrdcasAAAAHdElNRQfpBxMTOAuTPrzRAAAA7UlEQVRIx6XVyRKCMBAE0FFAVMANF1BUwAWU//8/41aVhCwz0Kd017xzAPQZDJ3GGQ6gU1yvecdzu+CR33zjj3rgLpzDdD7mMeMTCp4GjZhg2gNTuALjuRJjuQbjuBZjuAHbuRHbuAWbuYTDaDafRSGSS3ix/KzLBYqvJBz/9ljiaxXebNW4xbcbCkZwE7ZyM7ZwGzZyOzZwDNZyHNbwnYPD7G9JhEtnx7YUiwH2Ik8BDnjc4gfI+Ho0Y5ln4HIt2YMtAnfhRMIiP0NekDDPixygpGGOl+92uZLwn4e3bzvdw6p+oDHAo678+skeL07EiKL8vE2bAAAAAElFTkSuQmCC" />
 			</svg>
