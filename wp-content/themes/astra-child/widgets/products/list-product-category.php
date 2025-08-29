@@ -71,7 +71,6 @@ class Custom_Elementor_Widget_Product_List_By_Category extends \Elementor\Widget
 					<div class="item">
 						<div class="item-header">
 							<h3 class="item-title">' . esc_html($category->name) . '</h3>
-							<p class="item-description">' . esc_html($category->description) . '</p>
 						</div>
 						<hr>
 						<div class="item-body">
@@ -87,7 +86,6 @@ class Custom_Elementor_Widget_Product_List_By_Category extends \Elementor\Widget
 				<div class="item">
 					<div class="item-header">
 						<h3 class="item-title">' . esc_html($category->name) . '</h3>
-						<p class="item-description">' . esc_html($category->description) . '</p>
 					</div>
 					<hr>
 					<div class="item-body">
