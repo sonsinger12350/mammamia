@@ -328,7 +328,7 @@ function render_custom_product_features($post) {
                     <img class="custom-image-preview" src="<?= !empty($item['image']) ? esc_url($item['image']) : '/wp-content/themes/astra-child/assets/images/no-image.jpg' ?>" style="" />
                     <button class="button select-image">Chọn ảnh</button>
                     <input type="text" name="custom_product_features[<?php echo $index; ?>][feature]" value="<?php echo esc_attr($item['feature']); ?>" placeholder="Tính năng" />
-                    <a href="javascript:void(0)" class="remove-item" rel="nofollow noopener noreferrer"><span class="dashicons dashicons-remove"></span></a>
+                    <a href="javascript:void(0)" class="remove-item" rel="nofollow"><span class="dashicons dashicons-remove"></span></a>
                 </div>
             <?php endforeach; ?>
         <?php endif; ?>
@@ -347,7 +347,7 @@ function render_custom_product_features($post) {
                     <img class="custom-image-preview" src="/wp-content/themes/astra-child/assets/images/no-image.jpg"/>
                     <button class="button select-image">Chọn ảnh</button>
                     <input type="text" name="custom_product_features[${product_features_index}][feature]" value="" placeholder="Tính năng" />
-                    <a href="javascript:void(0)" class="remove-item" rel="nofollow noopener noreferrer"><span class="dashicons dashicons-remove"></span></a>
+                    <a href="javascript:void(0)" class="remove-item" rel="nofollow"><span class="dashicons dashicons-remove"></span></a>
                 </div>`;
             $('#custom-repeatable-fields').append(html);
             product_features_index++;

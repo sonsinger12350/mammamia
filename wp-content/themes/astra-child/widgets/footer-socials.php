@@ -108,7 +108,7 @@ class Astra_Child_Custom_Widget_Footer_Socials extends WP_Widget {
 							type="url" value="<?php echo esc_attr($url); ?>">
 					</p>
 
-					<a href="javascript:void(0)" class="fsr-delete" rel="nofollow noopener noreferrer"><span class="dashicons dashicons-trash"></span></a>
+					<a href="javascript:void(0)" class="fsr-delete" rel="nofollow"><span class="dashicons dashicons-trash"></span></a>
 				</li>
 			<?php endforeach; ?>
 			</ul>
@@ -127,7 +127,7 @@ class Astra_Child_Custom_Widget_Footer_Socials extends WP_Widget {
 						<input class="widefat" name="<?php echo esc_attr($this->get_field_name('items')); ?>[{{i}}][url]" type="url" value="">
 					</p>
 
-					<a href="javascript:void(0)" class="fsr-delete" rel="nofollow noopener noreferrer"><span class="dashicons dashicons-trash"></span></a>
+					<a href="javascript:void(0)" class="fsr-delete" rel="nofollow"><span class="dashicons dashicons-trash"></span></a>
 				</li>
 			</script>
 
