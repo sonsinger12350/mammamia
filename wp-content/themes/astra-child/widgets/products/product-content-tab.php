@@ -36,7 +36,7 @@ class Custom_Elementor_Widget_Product_Content_Tab extends \Elementor\Widget_Base
 		$this->start_controls_section(
 			'style_tab_title_section',
 			[
-				'label' => __('Tiêu đề tab', 'astra-child'),
+				'label' => __('Kiểu chữ', 'astra-child'),
 				'tab'   => Controls_Manager::TAB_STYLE,
 			]
 		);
@@ -45,19 +45,8 @@ class Custom_Elementor_Widget_Product_Content_Tab extends \Elementor\Widget_Base
 			Group_Control_Typography::get_type(),
 			[
 				'name'     => 'title_typography',
-				'label'    => __('Kiểu chữ', 'astra-child'),
+				'label'    => __('Tiêu đề tab', 'astra-child'),
 				'selector' => '{{WRAPPER}} .custom-product-content-tab .tabs-title .tab-title',
-			]
-		);
-
-		$this->end_controls_section();
-
-		// --- STYLE: Product Description ---
-		$this->start_controls_section(
-			'style_product_description_section',
-			[
-				'label' => __('Mô tả sản phẩm', 'astra-child'),
-				'tab'   => Controls_Manager::TAB_STYLE,
 			]
 		);
 
@@ -65,19 +54,17 @@ class Custom_Elementor_Widget_Product_Content_Tab extends \Elementor\Widget_Base
 			Group_Control_Typography::get_type(),
 			[
 				'name'     => 'description_typography',
-				'label'    => __('Kiểu chữ', 'astra-child'),
+				'label'    => __('Mô tả sản phẩm', 'astra-child'),
 				'selector' => '{{WRAPPER}} .custom-product-content-tab .tabs-content #tab-description .description',
 			]
 		);
 
-		$this->end_controls_section();
-
-		// --- STYLE: Detail Information ---
-		$this->start_controls_section(
-			'style_detail_information_section',
+		$this->add_group_control(
+			\Elementor\Group_Control_Typography::get_type(),
 			[
-				'label' => __('Thông tin chi tiết', 'astra-child'),
-				'tab'   => Controls_Manager::TAB_STYLE,
+				'name'     => 'heading_description_typography',
+				'label'    => __('Heading mô tả sản phẩm', 'astra-child'),
+				'selector' => '{{WRAPPER}} .custom-product-content-tab .tabs-content #tab-description .description h1, {{WRAPPER}} .custom-product-content-tab .tabs-content #tab-description .description h2, {{WRAPPER}} .custom-product-content-tab .tabs-content #tab-description .description h3, {{WRAPPER}} .custom-product-content-tab .tabs-content #tab-description .description h4, {{WRAPPER}} .custom-product-content-tab .tabs-content #tab-description .description h5, {{WRAPPER}} .custom-product-content-tab .tabs-content #tab-description .description h6',
 			]
 		);
 
@@ -85,19 +72,8 @@ class Custom_Elementor_Widget_Product_Content_Tab extends \Elementor\Widget_Base
 			Group_Control_Typography::get_type(),
 			[
 				'name'     => 'detail_information_typography',
-				'label'    => __('Kiểu chữ', 'astra-child'),
+				'label'    => __('Thông tin chi tiết', 'astra-child'),
 				'selector' => '{{WRAPPER}} .custom-product-content-tab .tabs-content #tab-detail table tr td',
-			]
-		);
-
-		$this->end_controls_section();
-
-		// --- STYLE: Warranty Policy ---
-		$this->start_controls_section(
-			'style_warranty_policy_section',
-			[
-				'label' => __('Chính sách bảo hành', 'astra-child'),
-				'tab'   => Controls_Manager::TAB_STYLE,
 			]
 		);
 
@@ -105,7 +81,7 @@ class Custom_Elementor_Widget_Product_Content_Tab extends \Elementor\Widget_Base
 			Group_Control_Typography::get_type(),
 			[
 				'name'     => 'warranty_policy_title_typography',
-				'label'    => __('Kiểu chữ tiêu đề', 'astra-child'),
+				'label'    => __('Tiêu đề chính sách bảo hành', 'astra-child'),
 				'selector' => '{{WRAPPER}} .custom-product-content-tab .tabs-content #tab-detail .block-title',
 			]
 		);
@@ -114,19 +90,8 @@ class Custom_Elementor_Widget_Product_Content_Tab extends \Elementor\Widget_Base
 			Group_Control_Typography::get_type(),
 			[
 				'name'     => 'warranty_policy_content_typography',
-				'label'    => __('Kiểu chữ nội dung', 'astra-child'),
+				'label'    => __('Nội dung chính sách bảo hành', 'astra-child'),
 				'selector' => '{{WRAPPER}} .custom-product-content-tab .tabs-content #tab-detail .warranty-policy li',
-			]
-		);
-
-		$this->end_controls_section();
-
-		// --- STYLE: Download File ---
-		$this->start_controls_section(
-			'style_download_file_section',
-			[
-				'label' => __('Download', 'astra-child'),
-				'tab'   => Controls_Manager::TAB_STYLE,
 			]
 		);
 
@@ -134,7 +99,7 @@ class Custom_Elementor_Widget_Product_Content_Tab extends \Elementor\Widget_Base
 			Group_Control_Typography::get_type(),
 			[
 				'name'     => 'download_file_title_typography',
-				'label'    => __('Kiểu chữ', 'astra-child'),
+				'label'    => __('Download', 'astra-child'),
 				'selector' => '{{WRAPPER}} .custom-product-content-tab .tabs-content #tab-file .list-file .file .file-title',
 			]
 		);

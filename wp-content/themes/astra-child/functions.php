@@ -430,34 +430,36 @@ add_filter( 'elementor/theme/get_location_templates/template_id', function( $tem
 add_action('elementor/element/before_section_end', function($element, $section_id, $args){
     if ( ! method_exists($element, 'get_name') ) return;
 
-    switch ( $element->get_name() ) {
-        case 'wc-categories':
-            // Chỉ cần patch ở section chứa control 'orderby' (thực tế là section_query)
-            if ( ! method_exists($element, 'get_controls') ) return;
-            $controls = $element->get_controls();
-            if ( empty($controls['orderby']) ) return;
+    $name = $element->get_name();
 
-            $opts = isset($controls['orderby']['options']) && is_array($controls['orderby']['options']) ? $controls['orderby']['options'] : [];
+    // 1) Product Categories: thêm 'menu_order' trong Order By
+    if ($name === 'wc-categories') {
+        if ( ! method_exists($element, 'get_controls') ) return;
 
-            if ( ! isset($opts['menu_order']) ) {
-                $opts['menu_order'] = __('Thứ tự trong admin', 'astra-child');
-                $element->update_control('orderby', ['options' => $opts]);
-            }
+        $controls = $element->get_controls();
+        if ( empty($controls['orderby']) ) return;
 
-            break;
-        case 'theme-post-content':
-            // Thêm trực tiếp vào section_style
-            if ( $section_id !== 'section_style' ) return;
+        $opts = isset($controls['orderby']['options']) && is_array($controls['orderby']['options'])
+            ? $controls['orderby']['options'] : [];
 
-            $element->add_group_control(
-                \Elementor\Group_Control_Typography::get_type(),
-                [
-                    'name'     => 'my_pc_heading_typography',
-                    'label'    => __('Heading Typography (H1–H6)', 'astra-child'),
-                    'selector' => '{{WRAPPER}} h1, {{WRAPPER}} h2, {{WRAPPER}} h3, {{WRAPPER}} h4, {{WRAPPER}} h5, {{WRAPPER}} h6',
-                ]
-            );
-            break;
+        if ( ! isset($opts['menu_order']) ) {
+            $opts['menu_order'] = __('Thứ tự trong admin', 'astra-child');
+            $element->update_control('orderby', ['options' => $opts]);
+        }
+
+        return;
+    }
+
+    // 2) + 3) Post Content & Text Editor: thêm Heading Typography vào section_style
+    if ( ($name === 'theme-post-content' || $name === 'text-editor') && $section_id === 'section_style' ) {
+        $element->add_group_control(
+            \Elementor\Group_Control_Typography::get_type(),
+            [
+                'name'     => 'my_heading_typography',
+                'label'    => __('Heading Typography (H1–H6)', 'astra-child'),
+                'selector' => '{{WRAPPER}} h1, {{WRAPPER}} h2, {{WRAPPER}} h3, {{WRAPPER}} h4, {{WRAPPER}} h5, {{WRAPPER}} h6',
+            ]
+        );
     }
 }, 20, 3);
 
