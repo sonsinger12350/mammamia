@@ -1216,16 +1216,19 @@ class WebsiteConfig
 
 		// Check if we already have this file in media library by file ID
 		$existing_attachment = $this->get_attachment_by_drive_id($file_id);
+
 		if ($existing_attachment) {
 			$result = $returnType === 'url' ? wp_get_attachment_url($existing_attachment) : $existing_attachment;
+			$urlAttachment = $returnType === 'url' ? $result : wp_get_attachment_url($existing_attachment);
 			
 			// Check if the URL is still valid (not 404)
-			if ($returnType === 'url' && !$this->is_url_accessible($result)) {
+			if (!$this->is_url_accessible($urlAttachment)) {
 				// URL is 404, remove from cache and continue to re-download
 				wp_cache_delete($cache_key);
 				// Also delete the attachment from media library
 				wp_delete_attachment($existing_attachment, true);
-			} else {
+			}
+			else {
 				wp_cache_set($cache_key, $result, '', 3600);
 				return $result;
 			}
