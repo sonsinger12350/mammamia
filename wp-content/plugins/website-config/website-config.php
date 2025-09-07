@@ -16,7 +16,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('WEBSITE_CONFIG_VERSION', '1.0.0');
+define('WEBSITE_CONFIG_VERSION', '1.0.1');
 define('WEBSITE_CONFIG_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('WEBSITE_CONFIG_PLUGIN_PATH', plugin_dir_path(__FILE__));
 
@@ -87,6 +87,10 @@ class WebsiteConfig
 		add_action('wp_ajax_check_running_imports', array($this, 'check_running_imports'));
 		add_action('wp_ajax_nopriv_check_running_imports', array($this, 'check_running_imports'));
 
+		// Add AJAX handlers for cancel import
+		add_action('wp_ajax_cancel_import', array($this, 'cancel_import'));
+		add_action('wp_ajax_nopriv_cancel_import', array($this, 'cancel_import'));
+
 		// Hook for plugin activation
 		register_activation_hook(__FILE__, array($this, 'create_import_tables'));
 
@@ -109,7 +113,7 @@ class WebsiteConfig
 		$sql = "CREATE TABLE $table_name (
 			id int(11) NOT NULL AUTO_INCREMENT,
 			job_id varchar(50) NOT NULL,
-			status enum('pending','processing','completed','failed') DEFAULT 'pending',
+			status enum('pending','processing','completed','failed','cancelled') DEFAULT 'pending',
 			total_products int(11) DEFAULT 0,
 			processed_products int(11) DEFAULT 0,
 			created_products int(11) DEFAULT 0,
@@ -131,7 +135,7 @@ class WebsiteConfig
 			job_id varchar(50) NOT NULL,
 			product_type enum('main','variant') DEFAULT 'main',
 			product_data longtext NOT NULL,
-			status enum('pending','processing','completed','failed') DEFAULT 'pending',
+			status enum('pending','processing','completed','failed','cancelled') DEFAULT 'pending',
 			error_message text,
 			created_at datetime DEFAULT CURRENT_TIMESTAMP,
 			updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -319,9 +323,6 @@ class WebsiteConfig
 	public function import_page()
 	{
 		// Hardcode import settings (no longer show in admin)
-		$import_max_rows = 1000;
-		$import_max_images = 5;
-		$import_timeout = 300;
 		?>
 			<div class="wrap">
 				<h1>Import Products from Excel</h1>
@@ -690,6 +691,58 @@ class WebsiteConfig
 	}
 
 	/**
+	 * Cancel import via AJAX
+	 */
+	public function cancel_import()
+	{
+		if (!isset($_POST['job_id']) || !wp_verify_nonce($_POST['nonce'], 'excel_import_nonce')) {
+			wp_send_json_error('Invalid request');
+		}
+
+		global $wpdb;
+		$job_id = sanitize_text_field($_POST['job_id']);
+		$jobs_table = $wpdb->prefix . 'mamma_mia_import_jobs';
+		$queue_table = $wpdb->prefix . 'mamma_mia_import_queue';
+
+		// Check if job exists and is cancellable
+		$job = $wpdb->get_row($wpdb->prepare(
+			"SELECT * FROM $jobs_table WHERE job_id = %s AND status IN ('pending', 'processing')",
+			$job_id
+		));
+
+		if (!$job) {
+			wp_send_json_error('Job not found or cannot be cancelled');
+		}
+
+		// Update job status to cancelled
+		$updated = $wpdb->update(
+			$jobs_table,
+			array('status' => 'cancelled'),
+			array('job_id' => $job_id),
+			array('%s'),
+			array('%s')
+		);
+
+		if ($updated === false) {
+			wp_send_json_error('Failed to cancel job');
+		}
+
+		// Mark all pending queue items as cancelled
+		$wpdb->update(
+			$queue_table,
+			array('status' => 'cancelled'),
+			array(
+				'job_id' => $job_id,
+				'status' => 'pending'
+			),
+			array('%s', '%s'),
+			array('%s', '%s')
+		);
+
+		wp_send_json_success('Import cancelled successfully');
+	}
+
+	/**
 	 * Process import queue (called by cron)
 	 */
 	public function process_import_queue()
@@ -771,25 +824,33 @@ class WebsiteConfig
 				array('%d')
 			);
 
-			// Update job counters
-			if ($queue_item->product_type === 'main') {
-				if (isset($result['action']) && $result['action'] === 'created') {
-					$wpdb->query($wpdb->prepare(
-						"UPDATE $jobs_table SET processed_products = processed_products + 1, created_products = created_products + 1 WHERE job_id = %s",
-						$job->job_id
-					));
-				} else {
-					$wpdb->query($wpdb->prepare(
-						"UPDATE $jobs_table SET processed_products = processed_products + 1, updated_products = updated_products + 1 WHERE job_id = %s",
-						$job->job_id
-					));
-				}
+		// Update job counters - count both main products and variants
+		if ($queue_item->product_type === 'main') {
+			if (isset($result['action']) && $result['action'] === 'created') {
+				$wpdb->query($wpdb->prepare(
+					"UPDATE $jobs_table SET processed_products = processed_products + 1, created_products = created_products + 1 WHERE job_id = %s",
+					$job->job_id
+				));
 			} else {
 				$wpdb->query($wpdb->prepare(
-					"UPDATE $jobs_table SET processed_products = processed_products + 1 WHERE job_id = %s",
+					"UPDATE $jobs_table SET processed_products = processed_products + 1, updated_products = updated_products + 1 WHERE job_id = %s",
 					$job->job_id
 				));
 			}
+		} else {
+			// Count variants as well
+			if (isset($result['action']) && $result['action'] === 'created') {
+				$wpdb->query($wpdb->prepare(
+					"UPDATE $jobs_table SET processed_products = processed_products + 1, created_products = created_products + 1 WHERE job_id = %s",
+					$job->job_id
+				));
+			} else {
+				$wpdb->query($wpdb->prepare(
+					"UPDATE $jobs_table SET processed_products = processed_products + 1, updated_products = updated_products + 1 WHERE job_id = %s",
+					$job->job_id
+				));
+			}
+		}
 		} else {
 			$error_message = $result['message'] ?? 'Unknown error';
 			$wpdb->update(
@@ -959,10 +1020,12 @@ class WebsiteConfig
 		);
 
 		// Tạo hoặc cập nhật biến thể
+		$action = '';
 		if ($existing_variant_id) {
 			$variant = wc_get_product($existing_variant_id);
 			$variant->set_props($variant_data);
 			$variant->save();
+			$action = 'updated';
 		}
 		else {
 			$variant = new WC_Product_Variation();
@@ -970,6 +1033,7 @@ class WebsiteConfig
 			$variant->set_parent_id($parent_id);
 			$variant_id = $variant->save();
 			$variant = wc_get_product($variant_id);
+			$action = 'created';
 		}
 
 		// ===== ẢNH ĐẠI DIỆN CHO BIẾN THỂ =====
@@ -1054,7 +1118,7 @@ class WebsiteConfig
 			$variant->save();
 		}
 
-		return array('success' => true);
+		return array('success' => true, 'action' => $action);
 	}
 
 	private function ensure_parent_has_attribute_term($parent_id, $taxonomy, $term_value) {
@@ -1107,6 +1171,21 @@ class WebsiteConfig
 	}
 
 	/**
+	 * Check if URL is accessible (not 404)
+	 */
+	private function is_url_accessible($url) {
+		$response = wp_remote_head($url, array(
+			'timeout' => 10,
+			'redirection' => 3
+		));
+
+		if (is_wp_error($response)) return false;
+
+		$response_code = wp_remote_retrieve_response_code($response);
+		return $response_code === 200;
+	}
+
+	/**
 	 * Import image from Google Drive link with caching and optimization
 	 */
 	private function import_image_from_drive($drive_url, $returnType = 'id')
@@ -1139,8 +1218,17 @@ class WebsiteConfig
 		$existing_attachment = $this->get_attachment_by_drive_id($file_id);
 		if ($existing_attachment) {
 			$result = $returnType === 'url' ? wp_get_attachment_url($existing_attachment) : $existing_attachment;
-			wp_cache_set($cache_key, $result, '', 3600);
-			return $result;
+			
+			// Check if the URL is still valid (not 404)
+			if ($returnType === 'url' && !$this->is_url_accessible($result)) {
+				// URL is 404, remove from cache and continue to re-download
+				wp_cache_delete($cache_key);
+				// Also delete the attachment from media library
+				wp_delete_attachment($existing_attachment, true);
+			} else {
+				wp_cache_set($cache_key, $result, '', 3600);
+				return $result;
+			}
 		}
 
 		// Use direct download URL (faster than confirm token method)
@@ -1585,6 +1673,10 @@ class WebsiteConfig
 				case 'failed':
 					$status_class = 'error';
 					$status_text = 'Thất bại';
+					break;
+				case 'cancelled':
+					$status_class = 'warning';
+					$status_text = 'Đã hủy';
 					break;
 			}
 

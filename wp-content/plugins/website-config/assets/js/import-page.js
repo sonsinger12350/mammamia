@@ -107,7 +107,12 @@ jQuery(document).ready(function($) {
 							html += '<div class="import-job-card ' + statusClass + '">';
 							html += '<div class="job-header">';
 							html += '<h4>Import Job: ' + job.job_id.substring(0, 8) + '...</h4>';
+							html += '<div class="job-actions">';
 							html += '<span class="status-badge ' + job.status + '">' + job.status.toUpperCase() + '</span>';
+							if (job.status === 'pending' || job.status === 'processing') {
+								html += '<button class="button button-small cancel-import-btn" data-job-id="' + job.job_id + '">Hủy</button>';
+							}
+							html += '</div>';
 							html += '</div>';
 							html += '<div class="job-progress">';
 							html += '<div class="progress-bar-bg"><div class="progress-bar-fill" style="width: ' + percentage + '%"></div></div>';
@@ -237,7 +242,7 @@ jQuery(document).ready(function($) {
 	function startProgressTracking(jobId) {
 		progressInterval = setInterval(function() {
 			checkImportProgress(jobId);
-		}, 3000); // Check every 3 seconds
+		}, 5000); // Check every 5 seconds
 	}
 
 	function checkImportProgress(jobId) {
@@ -302,6 +307,42 @@ jQuery(document).ready(function($) {
 		if (progressInterval) {
 			clearInterval(progressInterval);
 		}
+	});
+
+	// Handle cancel import button clicks
+	$(document).on('click', '.cancel-import-btn', function() {
+		var jobId = $(this).data('job-id');
+		var $button = $(this);
+		
+		if (!confirm('Bạn có chắc chắn muốn hủy import này?')) {
+			return;
+		}
+		
+		$button.prop('disabled', true).text('Đang hủy...');
+		
+		$.ajax({
+			url: ajaxurl,
+			type: 'POST',
+			data: {
+				action: 'cancel_import',
+				job_id: jobId,
+				nonce: window.websiteConfigNonce
+			},
+			success: function(response) {
+				if (response.success) {
+					alert('Import đã được hủy thành công!');
+					// Refresh the running imports display
+					$('#check-running-imports').click();
+				} else {
+					alert('Lỗi khi hủy import: ' + response.data);
+					$button.prop('disabled', false).text('Hủy');
+				}
+			},
+			error: function() {
+				alert('Lỗi khi hủy import. Vui lòng thử lại.');
+				$button.prop('disabled', false).text('Hủy');
+			}
+		});
 	});
 
 	// Auto-refresh running imports every 30 seconds
