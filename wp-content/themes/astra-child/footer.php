@@ -52,7 +52,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			</a>
 		<?php endif; ?>
 		<?php if($email): ?>
-			<a class="btn-contact-email" href="mailto:<?php echo $email; ?>">
+			<a class="btn-contact-email" href="mailto:<?php echo $email; ?>" aria-label="Email">
 				<i class="fa fa-envelope" aria-hidden="true"></i>
 			</a>
 		<?php endif; ?>
