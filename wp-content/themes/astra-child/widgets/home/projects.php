@@ -74,7 +74,7 @@ class Custom_Elementor_Widget_Projects extends \Elementor\Widget_Base {
 		if (empty($query->posts)) return null;
 
 		$output = '<div class="projects-slide">';
-		$output .= '<div class="list owl-carousel owl-theme">';
+		$output .= '<div id="projects-slide-list" class="list owl-carousel owl-theme">';
 
 		foreach ($query->posts as $post) {
 			$output .= '<div class="item">'

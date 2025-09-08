@@ -170,7 +170,7 @@ class Astra_Child_Custom_Widget_Header_Menu extends WP_Widget
 			</div>
 		</div>
 		<div class="header-menu-mobile">
-			<div class="mobile-menu-toggle" aria-expanded="false" data-index="0">
+			<div class="mobile-menu-toggle" aria-expanded="false" aria-controls="menu-list-mobile" aria-label="Mở menu" data-index="0">
 				<span class="screen-reader-text">Main Menu</span>
 				<span class="mobile-menu-toggle-icon">
 					<span aria-hidden="true" class="toggle-icon active" data-action="open">
@@ -181,7 +181,7 @@ class Astra_Child_Custom_Widget_Header_Menu extends WP_Widget
 					</span>
 				</span>
 			</div>
-			<div class="menu-list">
+			<div id="menu-list-mobile" class="menu-list">
 				<?php foreach ($menu_tree as $menu_item): ?>
 					<?php echo $this->render_mobile_menu_item($menu_item, $current_url); ?>
 				<?php endforeach; ?>

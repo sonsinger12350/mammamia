@@ -798,7 +798,7 @@ footer .widget .widget-title {
 	align-items: center;
 	height: 35px;
 	width: 35px;
-	border: 1px solid;
+	border: 1px solid #fff;
 	line-height: 100%;
 	cursor: pointer;
 }
