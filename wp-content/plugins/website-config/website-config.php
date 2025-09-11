@@ -168,9 +168,9 @@ class WebsiteConfig
 	 */
 	public function add_cron_intervals($schedules)
 	{
-		$schedules['mamma_mia_every_30_seconds'] = array(
-			'interval' => 30,
-			'display'  => esc_html__('Every 30 Seconds'),
+		$schedules['mamma_mia_every_60_seconds'] = array(
+			'interval' => 60,
+			'display'  => esc_html__('Every 60 Seconds'),
 		);
 		return $schedules;
 	}
