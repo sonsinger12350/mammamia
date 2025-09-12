@@ -481,7 +481,7 @@ add_action('elementor/frontend/widget/before_render', function($widget){
 
     $cb = function($args, $taxonomies) use ($order){
         if (!empty($taxonomies) && in_array('product_cat', (array)$taxonomies, true)) {
-            $args['orderby'] = 'order';
+            $args['orderby'] = 'meta_value_num';
             if ($order) $args['order'] = $order;
         }
 
