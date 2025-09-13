@@ -119,6 +119,7 @@ class WebsiteConfig
 			created_products int(11) DEFAULT 0,
 			updated_products int(11) DEFAULT 0,
 			failed_products int(11) DEFAULT 0,
+			failed_products_list longtext,
 			update_existing tinyint(1) DEFAULT 0,
 			created_at datetime DEFAULT CURRENT_TIMESTAMP,
 			updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -863,6 +864,35 @@ class WebsiteConfig
 				array('%s', '%s'),
 				array('%d')
 			);
+
+			// Get SKU from product data for failed products list
+			$failed_sku = '';
+			if (isset($product_data[mamma_mia_get_column_key('sku')])) {
+				$failed_sku = sanitize_text_field($product_data[mamma_mia_get_column_key('sku')]);
+			}
+
+			// Get current failed products list
+			$current_failed_list = $wpdb->get_var($wpdb->prepare(
+				"SELECT failed_products_list FROM $jobs_table WHERE job_id = %s",
+				$job->job_id
+			));
+
+			// Parse existing list or create new one
+			$failed_list = !empty($current_failed_list) ? json_decode($current_failed_list, true) : array();
+			
+			// Add new failed SKU if not already in list
+			if (!empty($failed_sku) && !in_array($failed_sku, $failed_list)) {
+				$failed_list[] = $failed_sku;
+				
+				// Update failed products list
+				$wpdb->update(
+					$jobs_table,
+					array('failed_products_list' => json_encode($failed_list)),
+					array('job_id' => $job->job_id),
+					array('%s'),
+					array('%s')
+				);
+			}
 
 			// Update job error counter
 			$wpdb->query($wpdb->prepare(
@@ -1653,7 +1683,7 @@ class WebsiteConfig
 		}
 
 		echo '<table class="wp-list-table widefat fixed striped">';
-		echo '<thead><tr><th>Job ID</th><th>Tổng sản phẩm</th><th>Đã xử lý</th><th>Tạo mới</th><th>Cập nhật</th><th>Lỗi</th><th>Trạng thái</th><th>Thời gian</th></tr></thead>';
+		echo '<thead><tr><th>Job ID</th><th>Tổng sản phẩm</th><th>Đã xử lý</th><th>Tạo mới</th><th>Cập nhật</th><th>Lỗi</th><th>SKU bị lỗi</th><th>Trạng thái</th><th>Thời gian</th></tr></thead>';
 		echo '<tbody>';
 
 		foreach ($jobs as $job) {
@@ -1683,6 +1713,24 @@ class WebsiteConfig
 					break;
 			}
 
+			// Parse failed products list
+			$failed_skus = !empty($job->failed_products_list) ? json_decode($job->failed_products_list, true) : array();
+			$failed_skus_display = '';
+			
+			if (!empty($failed_skus)) {
+				$failed_skus_display = '<div class="failed-skus-container">';
+				$failed_skus_display .= '<span class="failed-skus-count">' . count($failed_skus) . ' SKU</span>';
+				$failed_skus_display .= '<div class="failed-skus-list" style="display: none;">';
+				foreach ($failed_skus as $sku) {
+					$failed_skus_display .= '<span class="failed-sku-item">' . esc_html($sku) . '</span>';
+				}
+				$failed_skus_display .= '</div>';
+				$failed_skus_display .= '<button type="button" class="button button-small toggle-failed-skus" onclick="toggleFailedSKUs(this)">Xem</button>';
+				$failed_skus_display .= '</div>';
+			} else {
+				$failed_skus_display = '-';
+			}
+
 			echo '<tr class="' . esc_attr($status_class) . '">';
 			echo '<td>' . esc_html($job->job_id) . '</td>';
 			echo '<td>' . esc_html($job->total_products) . '</td>';
@@ -1690,12 +1738,30 @@ class WebsiteConfig
 			echo '<td>' . esc_html($job->created_products) . '</td>';
 			echo '<td>' . esc_html($job->updated_products) . '</td>';
 			echo '<td>' . esc_html($job->failed_products) . '</td>';
+			echo '<td>' . $failed_skus_display . '</td>';
 			echo '<td>' . esc_html($status_text) . '</td>';
 			echo '<td>' . esc_html(date('Y-m-d H:i:s', strtotime($job->created_at))) . '</td>';
 			echo '</tr>';
 		}
 
 		echo '</tbody></table>';
+		
+		// Add JavaScript for toggle functionality
+		echo '<script>
+		function toggleFailedSKUs(button) {
+			var container = button.parentElement;
+			var list = container.querySelector(".failed-skus-list");
+			var isVisible = list.style.display !== "none";
+			
+			if (isVisible) {
+				list.style.display = "none";
+				button.textContent = "Xem";
+			} else {
+				list.style.display = "block";
+				button.textContent = "Ẩn";
+			}
+		}
+		</script>';
 	}
 }
 
