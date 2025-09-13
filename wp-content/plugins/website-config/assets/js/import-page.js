@@ -56,7 +56,7 @@ jQuery(document).ready(function($) {
 		const allowedTypes = ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel'];
 		
 		if (!allowedTypes.includes(file.type)) {
-			alert('Please select a valid Excel file (.xlsx or .xls)');
+			alert('Vui lòng chọn file Excel hợp lệ (.xlsx hoặc .xls)');
 			return;
 		}
 
@@ -95,7 +95,7 @@ jQuery(document).ready(function($) {
 					if (data.length === 0) {
 						html = '<div class="status-message no-imports">' +
 							'<span class="dashicons dashicons-yes-alt"></span>' +
-							'<p>No import processes are currently running.</p>' +
+							'<p>Không có quá trình import nào đang chạy.</p>' +
 							'</div>';
 						$('#global-import-progress').hide();
 					} else {
@@ -106,7 +106,7 @@ jQuery(document).ready(function($) {
 							
 							html += '<div class="import-job-card ' + statusClass + '">';
 							html += '<div class="job-header">';
-							html += '<h4>Import Job: ' + job.job_id.substring(0, 8) + '...</h4>';
+							html += '<h4>Nhiệm vụ Import: ' + job.job_id.substring(0, 8) + '...</h4>';
 							html += '<div class="job-actions">';
 							html += '<span class="status-badge ' + job.status + '">' + job.status.toUpperCase() + '</span>';
 							if (job.status === 'pending' || job.status === 'processing') {
@@ -119,10 +119,10 @@ jQuery(document).ready(function($) {
 							html += '<span class="progress-percentage">' + percentage + '%</span>';
 							html += '</div>';
 							html += '<div class="job-stats">';
-							html += '<span>Progress: ' + job.processed_products + '/' + job.total_products + '</span>';
-							html += '<span>Created: ' + job.created_products + '</span>';
-							html += '<span>Updated: ' + job.updated_products + '</span>';
-							html += '<span>Failed: ' + job.failed_products + '</span>';
+							html += '<span>Tiến độ: ' + job.processed_products + '/' + job.total_products + '</span>';
+							html += '<span>Đã tạo: ' + job.created_products + '</span>';
+							html += '<span>Đã cập nhật: ' + job.updated_products + '</span>';
+							html += '<span>Lỗi: ' + job.failed_products + '</span>';
 							html += '</div>';
 							html += '</div>';
 
@@ -138,14 +138,14 @@ jQuery(document).ready(function($) {
 				} else {
 					$status.html('<div class="status-message error">' +
 						'<span class="dashicons dashicons-warning"></span>' +
-						'<p>Error checking running imports: ' + response.data + '</p>' +
+						'<p>Lỗi khi kiểm tra import đang chạy: ' + response.data + '</p>' +
 						'</div>');
 				}
 			},
 			error: function() {
 				$status.html('<div class="status-message error">' +
 					'<span class="dashicons dashicons-warning"></span>' +
-					'<p>Failed to check running imports.</p>' +
+					'<p>Không thể kiểm tra import đang chạy.</p>' +
 					'</div>');
 			},
 			complete: function() {
@@ -160,7 +160,7 @@ jQuery(document).ready(function($) {
 		
 		$('#global-import-progress').show();
 		$('.progress-bar-fill').css('width', percentage + '%');
-		$('.progress-text').text(percentage + '% Complete');
+		$('.progress-text').text(percentage + '% Hoàn thành');
 		$('#global-processed').text(job.processed_products);
 		$('#global-total').text(job.total_products);
 		$('#global-created').text(job.created_products);
@@ -176,7 +176,7 @@ jQuery(document).ready(function($) {
 		formData.append('action', 'import_products_excel');
 		formData.append('nonce', window.websiteConfigNonce);
 
-		$('#import-submit').prop('disabled', true).html('<span class="spinner is-active"></span> Preparing Import...');
+		$('#import-submit').prop('disabled', true).html('<span class="spinner is-active"></span> Đang chuẩn bị Import...');
 		$('#import-results').html('');
 
 		$.ajax({
@@ -192,13 +192,13 @@ jQuery(document).ready(function($) {
 					
 					$('#import-results').html(
 						'<div class="notice notice-success">' +
-						'<h3><span class="dashicons dashicons-yes"></span> Import Started Successfully!</h3>' +
-						'<p>Your file has been processed and added to the import queue.</p>' +
+						'<h3><span class="dashicons dashicons-yes"></span> Import Đã Bắt Đầu Thành Công!</h3>' +
+						'<p>File của bạn đã được xử lý và thêm vào hàng đợi import.</p>' +
 						'<ul>' +
 						'<li><strong>Job ID:</strong> ' + response.data.job_id + '</li>' +
-						'<li><strong>Total Products:</strong> ' + response.data.total_products + '</li>' +
+						'<li><strong>Tổng sản phẩm:</strong> ' + response.data.total_products + '</li>' +
 						'</ul>' +
-						'<p>The import will begin processing shortly. You can monitor progress above.</p>' +
+						'<p>Import sẽ bắt đầu xử lý sớm. Bạn có thể theo dõi tiến độ ở trên.</p>' +
 						'</div>'
 					);
 
@@ -210,28 +210,28 @@ jQuery(document).ready(function($) {
 						$('#check-running-imports').click();
 					}, 2000);
 				} else {
-					$('#import-submit').prop('disabled', false).html('<span class="dashicons dashicons-database-import"></span> Start Import');
+					$('#import-submit').prop('disabled', false).html('<span class="dashicons dashicons-database-import"></span> Bắt Đầu Import');
 					$('#import-results').html(
 						'<div class="notice notice-error">' +
-						'<h3><span class="dashicons dashicons-warning"></span> Import Failed</h3>' +
+						'<h3><span class="dashicons dashicons-warning"></span> Import Thất Bại</h3>' +
 						'<p>' + response.data + '</p>' +
 						'</div>'
 					);
 				}
 			},
 			error: function(xhr, status, error) {
-				$('#import-submit').prop('disabled', false).html('<span class="dashicons dashicons-database-import"></span> Start Import');
+				$('#import-submit').prop('disabled', false).html('<span class="dashicons dashicons-database-import"></span> Bắt Đầu Import');
 				
-				var errorMessage = 'Failed to start import process.';
+				var errorMessage = 'Không thể bắt đầu quá trình import.';
 				if (status === 'timeout') {
-					errorMessage = 'File parsing timed out. The file may be too large or corrupted.';
+					errorMessage = 'Phân tích file quá thời gian. File có thể quá lớn hoặc bị hỏng.';
 				} else if (xhr.responseJSON && xhr.responseJSON.data) {
 					errorMessage = xhr.responseJSON.data;
 				}
 
 				$('#import-results').html(
 					'<div class="notice notice-error">' +
-					'<h3><span class="dashicons dashicons-warning"></span> Import Failed</h3>' +
+					'<h3><span class="dashicons dashicons-warning"></span> Import Thất Bại</h3>' +
 					'<p>' + errorMessage + '</p>' +
 					'</div>'
 				);
@@ -264,17 +264,17 @@ jQuery(document).ready(function($) {
 					// Check if import is completed or failed
 					if (data.status === 'completed') {
 						clearInterval(progressInterval);
-						$('#import-submit').prop('disabled', false).html('<span class="dashicons dashicons-database-import"></span> Start Import');
+						$('#import-submit').prop('disabled', false).html('<span class="dashicons dashicons-database-import"></span> Bắt Đầu Import');
 						
 						$('#import-results').html(
 							'<div class="notice notice-success">' +
-							'<h3><span class="dashicons dashicons-yes"></span> Import Completed Successfully!</h3>' +
+							'<h3><span class="dashicons dashicons-yes"></span> Import Hoàn Thành Thành Công!</h3>' +
 							'<div class="import-summary">' +
-							'<div class="summary-item"><span class="count">' + data.created_products + '</span><span class="label">Products Created</span></div>' +
-							'<div class="summary-item"><span class="count">' + data.updated_products + '</span><span class="label">Products Updated</span></div>' +
-							'<div class="summary-item"><span class="count">' + data.failed_products + '</span><span class="label">Errors</span></div>' +
+							'<div class="summary-item"><span class="count">' + data.created_products + '</span><span class="label">Sản phẩm đã tạo</span></div>' +
+							'<div class="summary-item"><span class="count">' + data.updated_products + '</span><span class="label">Sản phẩm đã cập nhật</span></div>' +
+							'<div class="summary-item"><span class="count">' + data.failed_products + '</span><span class="label">Lỗi</span></div>' +
 							'</div>' +
-							(data.failed_products > 0 ? '<p><strong>Note:</strong> Some products failed to import. Check the logs for details.</p>' : '') +
+							(data.failed_products > 0 ? '<p><strong>Lưu ý:</strong> Một số sản phẩm import thất bại. Kiểm tra log để xem chi tiết.</p>' : '') +
 							'</div>'
 						);
 						
@@ -284,12 +284,12 @@ jQuery(document).ready(function($) {
 						}, 2000);
 					} else if (data.status === 'failed') {
 						clearInterval(progressInterval);
-						$('#import-submit').prop('disabled', false).html('<span class="dashicons dashicons-database-import"></span> Start Import');
+						$('#import-submit').prop('disabled', false).html('<span class="dashicons dashicons-database-import"></span> Bắt Đầu Import');
 
 						$('#import-results').html(
 							'<div class="notice notice-error">' +
-							'<h3><span class="dashicons dashicons-warning"></span> Import Failed</h3>' +
-							'<p>' + (data.error_message || 'Unknown error occurred') + '</p>' +
+							'<h3><span class="dashicons dashicons-warning"></span> Import Thất Bại</h3>' +
+							'<p>' + (data.error_message || 'Đã xảy ra lỗi không xác định') + '</p>' +
 							'</div>'
 						);
 					}
@@ -297,7 +297,7 @@ jQuery(document).ready(function($) {
 			},
 			error: function() {
 				// Continue trying unless too many failures
-				console.log('Progress check failed, retrying...');
+				console.log('Kiểm tra tiến độ thất bại, đang thử lại...');
 			}
 		});
 	}

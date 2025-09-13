@@ -16,7 +16,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('WEBSITE_CONFIG_VERSION', '1.0.1');
+define('WEBSITE_CONFIG_VERSION', '1.0.2');
 define('WEBSITE_CONFIG_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('WEBSITE_CONFIG_PLUGIN_PATH', plugin_dir_path(__FILE__));
 
@@ -193,8 +193,8 @@ class WebsiteConfig
 
 		add_submenu_page(
 			'mamma-mia',
-			'Import Products',
-			'Import Products',
+			'Import Sản Phẩm',
+			'Import Sản Phẩm',
 			'manage_options',
 			'mamma-mia-import',
 			array($this, 'import_page')
@@ -326,49 +326,49 @@ class WebsiteConfig
 		// Hardcode import settings (no longer show in admin)
 		?>
 			<div class="wrap">
-				<h1>Import Products from Excel</h1>
-				<p>Upload an Excel file to import products with variants. The system will process your file in the background.</p>
+				<h1>Import Sản Phẩm từ Excel</h1>
+				<p>Tải lên file Excel để import sản phẩm với các biến thể. Hệ thống sẽ xử lý file của bạn trong nền.</p>
 
 				<!-- Import Process Status with Enhanced UI -->
 				<div class="card import-status-card" style="max-width: 100%; margin-bottom: 20px;">
-					<h2><span class="dashicons dashicons-admin-tools"></span> Import Process Status</h2>
+					<h2><span class="dashicons dashicons-admin-tools"></span> Trạng Thái Quá Trình Import</h2>
 					<div id="running-imports-container">
 						<div class="import-status-header">
 							<button type="button" id="check-running-imports" class="button button-secondary">
-								<span class="dashicons dashicons-update"></span> Check Active Imports
+								<span class="dashicons dashicons-update"></span> Kiểm Tra Import Đang Chạy
 							</button>
 							<div class="status-indicators">
-								<span class="indicator-dot pending" title="Pending"></span>
-								<span class="indicator-dot processing" title="Processing"></span>
-								<span class="indicator-dot completed" title="Completed"></span>
-								<span class="indicator-dot failed" title="Failed"></span>
+								<span class="indicator-dot pending" title="Đang chờ"></span>
+								<span class="indicator-dot processing" title="Đang xử lý"></span>
+								<span class="indicator-dot completed" title="Hoàn tất"></span>
+								<span class="indicator-dot failed" title="Thất bại"></span>
 							</div>
 						</div>
 						<div id="running-imports-status" class="import-status-display"></div>
 						<div id="global-import-progress" style="display: none;">
 							<div class="global-progress-container">
-								<h3>Current Import Progress</h3>
+								<h3>Tiến Độ Import Hiện Tại</h3>
 								<div class="progress-wrapper">
 									<div class="progress-bar-bg">
 										<div class="progress-bar-fill" style="width: 0%"></div>
 									</div>
-									<div class="progress-text">0% Complete</div>
+									<div class="progress-text">0% Hoàn thành</div>
 								</div>
 								<div class="progress-details">
 									<div class="detail-item">
-										<span class="label">Processed:</span>
+										<span class="label">Đã xử lý:</span>
 										<span id="global-processed">0</span> / <span id="global-total">0</span>
 									</div>
 									<div class="detail-item">
-										<span class="label">Created:</span>
+										<span class="label">Đã tạo:</span>
 										<span id="global-created">0</span>
 									</div>
 									<div class="detail-item">
-										<span class="label">Updated:</span>
+										<span class="label">Đã cập nhật:</span>
 										<span id="global-updated">0</span>
 									</div>
 									<div class="detail-item">
-										<span class="label">Failed:</span>
+										<span class="label">Lỗi:</span>
 										<span id="global-failed">0</span>
 									</div>
 								</div>
@@ -379,13 +379,13 @@ class WebsiteConfig
 
 				<!-- Upload Excel File Section with Enhanced UI -->
 				<div class="card upload-card" style="max-width: 800px; margin-bottom: 20px;">
-					<h2><span class="dashicons dashicons-upload"></span> Upload Excel File</h2>
+					<h2><span class="dashicons dashicons-upload"></span> Tải Lên File Excel</h2>
 					<form id="excel-import-form" enctype="multipart/form-data">
 						<div class="upload-area" id="upload-area">
 							<div class="upload-content">
 								<span class="dashicons dashicons-cloud-upload upload-icon"></span>
-								<h3>Drag & Drop your Excel file here</h3>
-								<p>or <span class="browse-link">browse to select a file</span></p>
+								<h3>Kéo thả file Excel vào đây</h3>
+								<p>hoặc <span class="browse-link">chọn file từ máy</span></p>
 								<input type="file" id="excel_file" name="excel_file" accept=".xlsx,.xls" required style="display: none;" />
 								<div class="file-info" id="file-info" style="display: none;">
 									<span class="dashicons dashicons-media-spreadsheet"></span>
@@ -399,13 +399,13 @@ class WebsiteConfig
 							<label class="checkbox-wrapper">
 								<input type="checkbox" id="update_existing" name="update_existing" value="1" />
 								<span class="checkmark"></span>
-								<span class="option-text">Update existing products (instead of creating new ones)</span>
+								<span class="option-text">Cập nhật sản phẩm đã tồn tại</span>
 							</label>
 						</div>
 
 						<div class="submit-wrapper">
 							<button type="submit" class="button button-primary button-hero" id="import-submit" disabled>
-								<span class="dashicons dashicons-database-import"></span> Start Import
+								<span class="dashicons dashicons-database-import"></span> Bắt Đầu Import
 							</button>
 						</div>
 					</form>
@@ -415,7 +415,7 @@ class WebsiteConfig
 
 				<!-- Import Jobs History Section -->
 				<div class="card" style="max-width: 100%; margin-bottom: 20px;">
-					<h2><span class="dashicons dashicons-list-view"></span> Import History</h2>
+					<h2><span class="dashicons dashicons-list-view"></span> Lịch Sử Import</h2>
 					<?php $this->display_import_jobs_status(); ?>
 				</div>
 			</div>
@@ -434,12 +434,12 @@ class WebsiteConfig
 	{
 		// Verify nonce
 		if (!wp_verify_nonce($_POST['nonce'], 'excel_import_nonce')) {
-			wp_die('Security check failed');
+			wp_die('Kiểm tra bảo mật thất bại');
 		}
 
 		// Check if file was uploaded
 		if (!isset($_FILES['excel_file']) || $_FILES['excel_file']['error'] !== UPLOAD_ERR_OK) {
-			wp_send_json_error('No file uploaded or upload error occurred');
+			wp_send_json_error('Không có file được tải lên hoặc có lỗi xảy ra khi tải lên');
 		}
 
 		$file = $_FILES['excel_file'];
@@ -448,7 +448,7 @@ class WebsiteConfig
 		// Check file type
 		$allowed_types = ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel'];
 		if (!in_array($file['type'], $allowed_types)) {
-			wp_send_json_error('Invalid file type. Please upload an Excel file.');
+			wp_send_json_error('Loại file không hợp lệ. Vui lòng tải lên file Excel.');
 		}
 
 		// Include PhpSpreadsheet library
@@ -465,7 +465,7 @@ class WebsiteConfig
 			wp_send_json_success(array(
 				'job_id' => $result['job_id'],
 				'total_products' => $result['total_products'],
-				'message' => 'Import job created successfully. Processing will begin shortly.'
+				'message' => 'Tạo nhiệm vụ import thành công. Quá trình xử lý sẽ bắt đầu sớm.'
 			));
 		} else {
 			wp_send_json_error($result['message']);
@@ -497,7 +497,7 @@ class WebsiteConfig
 		} catch (Exception $e) {
 			return array(
 				'success' => false,
-				'message' => 'Error parsing Excel file: ' . $e->getMessage()
+				'message' => 'Lỗi phân tích file Excel: ' . $e->getMessage()
 			);
 		}
 	}
@@ -547,7 +547,7 @@ class WebsiteConfig
 		if (empty($rows) || count($rows) < 2) {
 			return array(
 				'success' => false,
-				'message' => 'No data found in Excel file'
+				'message' => 'Không tìm thấy dữ liệu trong file Excel'
 			);
 		}
 
@@ -575,7 +575,7 @@ class WebsiteConfig
 		if ($total_products === 0) {
 			return array(
 				'success' => false,
-				'message' => 'No valid products found in the file'
+				'message' => 'Không tìm thấy sản phẩm hợp lệ trong file'
 			);
 		}
 
@@ -598,7 +598,7 @@ class WebsiteConfig
 		if (!$job_inserted) {
 			return array(
 				'success' => false,
-				'message' => 'Failed to create import job',
+				'message' => 'Không thể tạo nhiệm vụ import',
 				'error' => $wpdb->last_error
 			);
 		}
@@ -644,7 +644,7 @@ class WebsiteConfig
 	public function check_import_progress()
 	{
 		if (!isset($_POST['job_id']) || !wp_verify_nonce($_POST['nonce'], 'excel_import_nonce')) {
-			wp_send_json_error('Invalid request');
+			wp_send_json_error('Yêu cầu không hợp lệ');
 		}
 
 		global $wpdb;
@@ -657,7 +657,7 @@ class WebsiteConfig
 		));
 
 		if (!$job) {
-			wp_send_json_error('Job not found');
+			wp_send_json_error('Không tìm thấy nhiệm vụ');
 		}
 
 		wp_send_json_success(array(
@@ -678,7 +678,7 @@ class WebsiteConfig
 	public function check_running_imports()
 	{
 		if (!wp_verify_nonce($_POST['nonce'], 'excel_import_nonce')) {
-			wp_send_json_error('Invalid request');
+			wp_send_json_error('Yêu cầu không hợp lệ');
 		}
 
 		global $wpdb;
@@ -697,7 +697,7 @@ class WebsiteConfig
 	public function cancel_import()
 	{
 		if (!isset($_POST['job_id']) || !wp_verify_nonce($_POST['nonce'], 'excel_import_nonce')) {
-			wp_send_json_error('Invalid request');
+			wp_send_json_error('Yêu cầu không hợp lệ');
 		}
 
 		global $wpdb;
@@ -712,7 +712,7 @@ class WebsiteConfig
 		));
 
 		if (!$job) {
-			wp_send_json_error('Job not found or cannot be cancelled');
+			wp_send_json_error('Không tìm thấy nhiệm vụ hoặc không thể hủy');
 		}
 
 		// Update job status to cancelled
@@ -725,7 +725,7 @@ class WebsiteConfig
 		);
 
 		if ($updated === false) {
-			wp_send_json_error('Failed to cancel job');
+			wp_send_json_error('Không thể hủy nhiệm vụ');
 		}
 
 		// Mark all pending queue items as cancelled
@@ -740,7 +740,7 @@ class WebsiteConfig
 			array('%s', '%s')
 		);
 
-		wp_send_json_success('Import cancelled successfully');
+		wp_send_json_success('Đã hủy import thành công');
 	}
 
 	/**
@@ -853,7 +853,7 @@ class WebsiteConfig
 			}
 		}
 		} else {
-			$error_message = $result['message'] ?? 'Unknown error';
+			$error_message = $result['message'] ?? 'Lỗi không xác định';
 			$wpdb->update(
 				$queue_table,
 				array(
@@ -880,9 +880,33 @@ class WebsiteConfig
 			// Parse existing list or create new one
 			$failed_list = !empty($current_failed_list) ? json_decode($current_failed_list, true) : array();
 			
-			// Add new failed SKU if not already in list
-			if (!empty($failed_sku) && !in_array($failed_sku, $failed_list)) {
-				$failed_list[] = $failed_sku;
+			// Add new failed SKU with error message if not already in list
+			if (!empty($failed_sku)) {
+				// Check if SKU already exists in the list
+				$sku_exists = false;
+				foreach ($failed_list as $failed_item) {
+					if (is_array($failed_item) && isset($failed_item['sku']) && $failed_item['sku'] === $failed_sku) {
+						$sku_exists = true;
+						break;
+					} elseif (is_string($failed_item) && $failed_item === $failed_sku) {
+						// Convert old format to new format
+						$failed_list = array_map(function($item) use ($failed_sku, $error_message) {
+							if (is_string($item) && $item === $failed_sku) {
+								return array('sku' => $failed_sku, 'error' => $error_message);
+							}
+							return $item;
+						}, $failed_list);
+						$sku_exists = true;
+						break;
+					}
+				}
+				
+				if (!$sku_exists) {
+					$failed_list[] = array(
+						'sku' => $failed_sku,
+						'error' => $error_message
+					);
+				}
 				
 				// Update failed products list
 				$wpdb->update(
@@ -917,7 +941,7 @@ class WebsiteConfig
 		}
 
 		if ($existing_product && !$update_existing) {
-			return array('success' => false, 'message' => 'Product with SKU ' . $sku . ' already exists');
+			return array('success' => false, 'message' => 'Sản phẩm với SKU ' . $sku . ' đã tồn tại');
 		}
 
 		$product_data = array(
@@ -1037,11 +1061,11 @@ class WebsiteConfig
 
 		// Tìm sản phẩm cha
 		$parent_id = wc_get_product_id_by_sku($parent_sku);
-		if (!$parent_id) return array('success' => false, 'message' => 'Parent product with SKU ' . $parent_sku . ' not found');
+		if (!$parent_id) return array('success' => false, 'message' => 'Không tìm thấy sản phẩm cha với SKU ' . $parent_sku);
 
 		// Kiểm tra biến thể đã tồn tại chưa
 		$existing_variant_id = wc_get_product_id_by_sku($sku);
-		if ($existing_variant_id && !$update_existing) return array('success' => false, 'message' => 'Variant with SKU ' . $sku . ' already exists');
+		if ($existing_variant_id && !$update_existing) return array('success' => false, 'message' => 'Biến thể với SKU ' . $sku . ' đã tồn tại');
 
 		$variant_data = array(
 			'status'       => 'publish',
@@ -1714,21 +1738,37 @@ class WebsiteConfig
 			}
 
 			// Parse failed products list
-			$failed_skus = !empty($job->failed_products_list) ? json_decode($job->failed_products_list, true) : array();
-			$failed_skus_display = '';
+			$failed_products = !empty($job->failed_products_list) ? json_decode($job->failed_products_list, true) : array();
+			$failed_products_display = '';
 			
-			if (!empty($failed_skus)) {
-				$failed_skus_display = '<div class="failed-skus-container">';
-				$failed_skus_display .= '<span class="failed-skus-count">' . count($failed_skus) . ' SKU</span>';
-				$failed_skus_display .= '<div class="failed-skus-list" style="display: none;">';
-				foreach ($failed_skus as $sku) {
-					$failed_skus_display .= '<span class="failed-sku-item">' . esc_html($sku) . '</span>';
+			if (!empty($failed_products)) {
+				$failed_products_display = '<div class="failed-products-container">';
+				$failed_products_display .= '<span class="failed-products-count">' . count($failed_products) . ' sản phẩm</span>';
+				$failed_products_display .= '<div class="failed-products-list" style="display: none;">';
+				
+				foreach ($failed_products as $item) {
+					// Handle both old format (string) and new format (array)
+					if (is_array($item) && isset($item['sku'])) {
+						$sku = esc_html($item['sku']);
+						$error = esc_html($item['error']);
+						$failed_products_display .= '<div class="failed-product-item">';
+						$failed_products_display .= '<span class="failed-sku">' . $sku . '</span>';
+						$failed_products_display .= '<span class="failed-error">' . $error . '</span>';
+						$failed_products_display .= '</div>';
+					} elseif (is_string($item)) {
+						// Old format - just SKU
+						$failed_products_display .= '<div class="failed-product-item">';
+						$failed_products_display .= '<span class="failed-sku">' . esc_html($item) . '</span>';
+						$failed_products_display .= '<span class="failed-error">Lỗi không xác định</span>';
+						$failed_products_display .= '</div>';
+					}
 				}
-				$failed_skus_display .= '</div>';
-				$failed_skus_display .= '<button type="button" class="button button-small toggle-failed-skus" onclick="toggleFailedSKUs(this)">Xem</button>';
-				$failed_skus_display .= '</div>';
+				
+				$failed_products_display .= '</div>';
+				$failed_products_display .= '<button type="button" class="button button-small toggle-failed-products" onclick="toggleFailedProducts(this)">Xem</button>';
+				$failed_products_display .= '</div>';
 			} else {
-				$failed_skus_display = '-';
+				$failed_products_display = '-';
 			}
 
 			echo '<tr class="' . esc_attr($status_class) . '">';
@@ -1738,7 +1778,7 @@ class WebsiteConfig
 			echo '<td>' . esc_html($job->created_products) . '</td>';
 			echo '<td>' . esc_html($job->updated_products) . '</td>';
 			echo '<td>' . esc_html($job->failed_products) . '</td>';
-			echo '<td>' . $failed_skus_display . '</td>';
+			echo '<td>' . $failed_products_display . '</td>';
 			echo '<td>' . esc_html($status_text) . '</td>';
 			echo '<td>' . esc_html(date('Y-m-d H:i:s', strtotime($job->created_at))) . '</td>';
 			echo '</tr>';
@@ -1748,9 +1788,9 @@ class WebsiteConfig
 		
 		// Add JavaScript for toggle functionality
 		echo '<script>
-		function toggleFailedSKUs(button) {
+		function toggleFailedProducts(button) {
 			var container = button.parentElement;
-			var list = container.querySelector(".failed-skus-list");
+			var list = container.querySelector(".failed-products-list");
 			var isVisible = list.style.display !== "none";
 			
 			if (isVisible) {
