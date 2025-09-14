@@ -594,6 +594,52 @@ a {
     visibility: visible !important;
 }
 
+.custom-form-contact form {
+    display: grid;
+    gap: 8px;
+}
+
+.custom-form-contact form p:has(.title-form) {
+    display: none;
+}
+
+.custom-form-contact form p:has(textarea) {
+    grid-column: 1 / span 3;
+}
+
+.custom-form-contact form p:has(.wpcf7-submit) {
+    margin-left: auto;
+    grid-column: 1 / span 3;
+	margin-bottom: 0;
+}
+
+.custom-form-contact form p:has(.wpcf7-form-control-wrap) {
+    margin-bottom: 0;
+}
+
+.custom-form-contact form .wpcf7-form-control {
+    background-color: #031D1C;
+	color: #fff;
+}
+
+.custom-form-contact form textarea {
+    height: 100px;
+}
+
+.custom-form-contact form .wpcf7-submit {
+    background-color: #D78C43;
+    color: #ffffff;
+    padding: 10px 20px;
+}
+
+.custom-form-contact .wpcf7 .wpcf7-response-output {
+    color: red;
+    border: 0;
+	margin-bottom: 0px;
+    margin-top: 4px;
+	grid-column: 1 / span 3;
+}
+
 @media (max-width: 1400px) {
 	#content .product-categories-row .product-category img {
 		height: 200px;
