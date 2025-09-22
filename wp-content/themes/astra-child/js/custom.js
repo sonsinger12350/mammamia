@@ -14,6 +14,8 @@ function showCustomModal(element) {
 }
 
 function scrollToElement(element, distance = 200) {
+	if (element.length <= 0) return;
+
 	jQuery('html, body').animate({
 		scrollTop: element.offset().top - distance
 	}, 500);
@@ -205,8 +207,16 @@ jQuery(function($) {
 		e.preventDefault();
 		let target = $(this).attr('href');
 		let text = $(this).text();
+		let matched = $(target).find(`*:contains('${text}')`).filter(function() {
+			// lấy text trực tiếp của node (không tính text trong con)
+			let directText = $(this).contents().filter(function() {
+				return this.nodeType === 3; // node text
+			}).text().trim();
 
-		scrollToElement($(target).find(`span:contains('${text}')`), 150);
+			return directText.includes(text);
+		});
+
+		scrollToElement(matched, 150);
 
 		return false;
 	});
