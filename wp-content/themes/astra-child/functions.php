@@ -534,4 +534,182 @@ add_filter('wp_check_filetype_and_ext', function ($data, $file, $filename, $mime
     return $data;
 }, 10, 4);
 
+/**
+ * Woo: Remove product category base, keep hierarchy, ALWAYS trailing slash
+ */
+
+/*======================
+= 1) REWRITE RULES     =
+======================*/
+add_action('init', function () {
+    if (!taxonomy_exists('product_cat')) return;
+
+    $terms = get_terms([
+        'taxonomy'   => 'product_cat',
+        'hide_empty' => false,
+    ]);
+    if (is_wp_error($terms) || empty($terms)) return;
+
+    foreach ($terms as $term) {
+        // path = parent1/parent2/child (KHÔNG kèm slash ở đây)
+        $ancestors = get_ancestors($term->term_id, 'product_cat', 'taxonomy');
+        $slugs = [];
+        if (!empty($ancestors)) {
+            $ancestors = array_reverse($ancestors);
+            foreach ($ancestors as $aid) {
+                $a = get_term($aid, 'product_cat');
+                if ($a && !is_wp_error($a)) $slugs[] = $a->slug;
+            }
+        }
+        $slugs[] = $term->slug;
+        $path   = implode('/', $slugs);
+        $path_q = preg_quote($path, '#');
+
+        // Trang danh mục: nhận có/không slash, để ta tự canonicalize bằng redirect
+        add_rewrite_rule("^{$path_q}/?$", 'index.php?product_cat=' . $term->slug, 'top');
+        // Phân trang
+        add_rewrite_rule("^{$path_q}/page/([0-9]{1,})/?$", 'index.php?product_cat=' . $term->slug . '&paged=$matches[1]', 'top');
+        // RSS
+        add_rewrite_rule("^{$path_q}/feed/(feed|rdf|rss|rss2|atom)/?$", 'index.php?product_cat=' . $term->slug . '&feed=$matches[1]', 'top');
+    }
+}, 11);
+
+/*==========================================
+= 2) REDIRECT CANONICAL & TỪ BASE CŨ      =
+==========================================*/
+add_action('template_redirect', function () {
+    // Chỉ xử lý taxonomy product_cat (kể cả 404 thì không có $term để dùng, nên dựa vào main query là tốt nhất)
+    if (!is_tax('product_cat')) return;
+
+    $term = get_queried_object();
+    if (!$term || is_wp_error($term)) return;
+
+    // URL canonical BỎ base & CÓ slash cuối (tự giữ prefix ngôn ngữ)
+    $canonical = mm_strip_wc_cat_base(get_term_link($term, 'product_cat'));
+
+    // 2.1) Nếu vào từ đường cũ có base -> 301 sang canonical
+    $current_uri = $_SERVER['REQUEST_URI'] ?? '';
+    if (strpos($current_uri, '/danh-muc-san-pham/') !== false) {
+        // giữ query hiện tại
+        if (!empty($_GET)) $canonical = add_query_arg($_GET, $canonical);
+        wp_redirect($canonical, 301);
+        exit;
+    }
+
+    // 2.2) Nếu vào URL không có slash cuối -> 301 sang bản có slash
+    $path_only = parse_url(home_url(add_query_arg([])), PHP_URL_PATH); // path hiện tại
+    // Lấy path của canonical để so sánh đuôi '/'
+    $can_path  = wp_parse_url($canonical, PHP_URL_PATH);
+
+    if ($path_only && substr($path_only, -1) !== '/' && substr($can_path, -1) === '/') {
+        if (!empty($_GET)) $canonical = add_query_arg($_GET, $canonical);
+        wp_redirect($canonical, 301);
+        exit;
+    }
+});
+
+/*==========================================
+= 3) AUTO FLUSH KHI DANH MỤC THAY ĐỔI     =
+==========================================*/
+add_action('created_product_cat', 'mm_flush_rewrite_rules');
+add_action('edited_product_cat',  'mm_flush_rewrite_rules');
+add_action('delete_product_cat',  'mm_flush_rewrite_rules');
+add_action('after_switch_theme',  'mm_flush_rewrite_rules');
+function mm_flush_rewrite_rules() {
+    add_action('init', function () { flush_rewrite_rules(); }, 20);
+}
+
+/*===========================================================
+= 4) HÀM CHUNG: LẤY BASE & BỎ BASE + THÊM SLASH CUỐI        =
+===========================================================*/
+function mm_get_wc_category_base() {
+    if (function_exists('wc_get_permalink_structure')) {
+        $permalinks = wc_get_permalink_structure();
+        $base = !empty($permalinks['category_base']) ? trim($permalinks['category_base'], '/') : 'product-category';
+    } else {
+        $permalinks = get_option('woocommerce_permalinks', []);
+        $base = !empty($permalinks['category_base']) ? trim($permalinks['category_base'], '/') : 'product-category';
+    }
+    return $base ?: '';
+}
+
+function mm_strip_wc_cat_base($url) {
+    if (empty($url)) return $url;
+
+    $base = mm_get_wc_category_base();
+    // Parse URL
+    $parts = wp_parse_url($url);
+    $path  = $parts['path'] ?? '';
+    $segments = array_values(array_filter(explode('/', trim($path, '/'))));
+
+    if ($base) {
+        $idx = array_search($base, $segments, true);
+        if ($idx !== false) unset($segments[$idx]);
+    }
+
+    // LUÔN có slash cuối ở PATH
+    $new_path = '/' . implode('/', $segments) . '/';
+
+    // Gắn lại origin (giữ prefix ngôn ngữ nhờ dùng home_url khi thiếu origin)
+    if (isset($parts['scheme'], $parts['host'])) {
+        $port = isset($parts['port']) ? ':' . $parts['port'] : '';
+        $new  = $parts['scheme'] . '://' . $parts['host'] . $port . $new_path;
+    } else {
+        $new  = home_url($new_path);
+    }
+
+    if (!empty($parts['query']))    $new .= '?' . $parts['query'];
+    if (!empty($parts['fragment'])) $new .= '#' . $parts['fragment'];
+
+    return $new; // KHÔNG gọi user_trailingslashit ở toàn URL để tránh thêm sau ?query
+}
+
+/*========================================================
+= 5) FILTER LINK & SEO (ƯU TIÊN CAO ĐỂ THẮNG PLUGIN KHÁC)
+========================================================*/
+add_filter('term_link', function ($url, $term, $taxonomy) {
+    if ($taxonomy !== 'product_cat') return $url;
+    return mm_strip_wc_cat_base($url);
+}, 999, 3); // <- priority cao
+
+add_filter('rank_math/frontend/canonical', function ($canonical) {
+    return mm_strip_wc_cat_base($canonical);
+}, 999);
+
+add_filter('wpseo_canonical', function ($canonical) {
+    return mm_strip_wc_cat_base($canonical);
+}, 999);
+
+add_filter('woocommerce_get_breadcrumb', function ($crumbs) {
+    foreach ($crumbs as &$crumb) {
+        if (!empty($crumb[1])) {
+            $crumb[1] = mm_strip_wc_cat_base($crumb[1]);
+        }
+    }
+    return $crumbs;
+}, 999, 1);
+
+// Yoast SEO – sửa URL trong mảng breadcrumb trước khi render
+add_filter('wpseo_breadcrumb_links', function ($links) {
+    if (!is_array($links)) return $links;
+    foreach ($links as &$item) {
+        if (!empty($item['url'])) {
+            $item['url'] = mm_strip_wc_cat_base($item['url']); // hàm bạn đã có ở trên
+        }
+    }
+    return $links;
+}, 999);
+
+// Fallback: nếu theme/Yoast render trực tiếp HTML, thay thế ngay trong output thẻ <a>
+add_filter('wpseo_breadcrumb_single_link', function ($link_output, $link) {
+    if (!empty($link['url'])) {
+        $fixed = mm_strip_wc_cat_base($link['url']);
+        if ($fixed !== $link['url']) {
+            $link_output = str_replace($link['url'], $fixed, $link_output);
+        }
+    }
+    return $link_output;
+}, 999, 2);
+
+
 ?>
