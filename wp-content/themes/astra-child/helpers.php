@@ -58,12 +58,12 @@ function get_projects_list_html($paged = 1) {
 	return ob_get_clean();
 }
 
-function getProductListByConditions($conditions) {
+function getProductListByConditions($conditions, $limit = 12) {
 	if (empty($conditions['category'])) return null;
 
 	$args = [
 		'post_type'      => 'product',
-		'posts_per_page' => 12,
+		'posts_per_page' => $limit,
 		'post_status'    => 'publish',
 		'tax_query'      => [
 			'relation' => 'AND',
@@ -162,12 +162,15 @@ function getProductListByConditions($conditions) {
 		';
 	}
 	
-	$output .= '
-		<a href="' . get_term_link($conditions['category'], 'product_cat') . '" class="btn-view-all">
-			Truy cập danh mục ' . $conditions['category']->name . ' <i class="fa fa-angle-double-right" aria-hidden="true"></i>
-		</a>
-		</div>
-	';
+	if ($limit != -1) {
+		$output .= '
+			<a href="' . get_term_link($conditions['category'], 'product_cat') . '" class="btn-view-all">
+				Truy cập danh mục ' . $conditions['category']->name . ' <i class="fa fa-angle-double-right" aria-hidden="true"></i>
+			</a>
+		';
+	}
+	
+	$output .= '</div>';
 
 	echo $output;
 	return ob_get_clean();

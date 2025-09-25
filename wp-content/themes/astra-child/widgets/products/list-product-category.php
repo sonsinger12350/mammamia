@@ -30,6 +30,19 @@ class Custom_Elementor_Widget_Product_List_By_Category extends \Elementor\Widget
 			]
 		);
 
+		$this->add_control(
+			'show_full_product',
+			[
+				'label' => __('Show Full Product', 'astra-child'),
+				'type' => \Elementor\Controls_Manager::SELECT,
+				'options' => [
+					'0' => __('No', 'astra-child'),
+					'1' => __('Yes', 'astra-child'),
+				],
+				'default' => '0',
+			]
+		);
+
 		$this->end_controls_section();
 
 		// --- STYLE: PRODUCT TITLE ---
@@ -55,6 +68,8 @@ class Custom_Elementor_Widget_Product_List_By_Category extends \Elementor\Widget
 
 	protected function render() {
 		if (!is_tax('product_cat')) return false;
+		$show_full_product = $this->get_settings('show_full_product');
+		$limit = !empty($show_full_product) ? -1 : '';
 
 		$currentCat = get_queried_object();
 		$child_categories = get_terms([
@@ -74,7 +89,7 @@ class Custom_Elementor_Widget_Product_List_By_Category extends \Elementor\Widget
 						</div>
 						<hr>
 						<div class="item-body">
-							'. getProductListByConditions(['category' => $category]) .'
+							'. getProductListByConditions(['category' => $category], $limit) .'
 						</div>
 					</div>
 				';
@@ -89,7 +104,7 @@ class Custom_Elementor_Widget_Product_List_By_Category extends \Elementor\Widget
 					</div>
 					<hr>
 					<div class="item-body">
-						'. getProductListByConditions(['category' => $category]) .'
+						'. getProductListByConditions(['category' => $category], $limit) .'
 					</div>
 				</div>
 			';
