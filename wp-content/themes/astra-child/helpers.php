@@ -359,6 +359,17 @@ function get_all_acf_fields( $product_id ) {
     return $acf_fields;
 }
 
+function get_design_file_fields_label($product_id) {
+	$field_object = get_field_object('design_file', $product_id);
+	$data = [];
+
+	foreach ($field_object['sub_fields'] as $field) {
+		$data[$field['name']] = $field['label'];
+	}
+
+	return $data;
+}
+
 function get_all_custom_field_values( $product_id ) {
 	if (empty($product_id)) return null;
 

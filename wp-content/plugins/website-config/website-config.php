@@ -46,6 +46,7 @@ class WebsiteConfig
 		'3d',
 		'spec',
 		'autocad',
+		'consulting_drawing',
 	];
 
 	public $acf_fields = [

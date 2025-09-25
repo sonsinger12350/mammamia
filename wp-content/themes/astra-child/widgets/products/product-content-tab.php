@@ -112,9 +112,9 @@ class Custom_Elementor_Widget_Product_Content_Tab extends \Elementor\Widget_Base
 		$product = wc_get_product( $product_id );
 		if (empty($product)) return null;
 
-		
 		$custom_data = get_all_custom_field_values($product_id);
 		$design_file = get_field('design_file', $product_id);
+		$design_file_label = get_design_file_fields_label($product_id);
 		$download_design_file = json_decode(get_option('website_config_download_design_file', ''), true);
 		$technical_image = get_field('technical_image', $product_id);
 
@@ -216,7 +216,7 @@ class Custom_Elementor_Widget_Product_Content_Tab extends \Elementor\Widget_Base
 											<img src="<?= get_stylesheet_directory_uri() . '/assets/icon/folder.svg' ?>">
 										</div>
 										<div class="right">
-											<p class="file-title"><?= $k ?></p>
+											<p class="file-title"><?= $design_file_label[$k] ?></p>
 											<img src="<?= get_stylesheet_directory_uri() . '/assets/icon/download.svg' ?>" class="icon-download">
 										</div>
 									</a>

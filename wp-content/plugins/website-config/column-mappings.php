@@ -44,6 +44,7 @@ function mamma_mia_get_column_mappings() {
         '3d' => '3D',
         'spec' => 'SPEC',
         'autocad' => 'AutoCAD',
+        'consulting_drawing' => 'Bản vẽ tư vấn',
 
         'features_text' => 'TEXT USP',
         'features_image' => 'HÌNH ẢNH USP',
