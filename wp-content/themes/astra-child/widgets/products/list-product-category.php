@@ -69,7 +69,7 @@ class Custom_Elementor_Widget_Product_List_By_Category extends \Elementor\Widget
 	protected function render() {
 		if (!is_tax('product_cat')) return false;
 		$show_full_product = $this->get_settings('show_full_product');
-		$limit = !empty($show_full_product) ? -1 : '';
+		$limit = !empty($show_full_product) ? -1 : 12;
 
 		$currentCat = get_queried_object();
 		$child_categories = get_terms([
