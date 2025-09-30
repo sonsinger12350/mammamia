@@ -126,9 +126,9 @@ class Custom_Elementor_Widget_Product_Content_Tab extends \Elementor\Widget_Base
 		}
 
 		// Generate table of contents from product description
-		$description = $product->get_description();
+		$description = wpautop($product->get_description());
 		$table_of_contents = $this->generate_table_of_contents($description);
-		
+
 		// Add IDs to headings in description for table of contents linking
 		$description_with_ids = $this->add_ids_to_headings($description);
 
