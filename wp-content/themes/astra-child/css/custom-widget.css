@@ -1380,7 +1380,8 @@ footer .widget .widget-title {
 
 .custom-product-content .body .block-content .list-color {
 	display: flex;
-	gap: 16px;
+	gap: 12px;
+	flex-wrap: wrap;
 }
 
 .custom-product-content .body .block-content .list-color span {
