@@ -636,21 +636,23 @@ function mm_get_wc_category_base() {
 function mm_strip_wc_cat_base($url) {
     if (empty($url)) return $url;
 
-    $base = mm_get_wc_category_base();
-    // Parse URL
-    $parts = wp_parse_url($url);
-    $path  = $parts['path'] ?? '';
-    $segments = array_values(array_filter(explode('/', trim($path, '/'))));
+    $base   = mm_get_wc_category_base();
+    $parts  = wp_parse_url($url);
+    $path   = $parts['path'] ?? '';
+    $segs   = array_values(array_filter(explode('/', trim($path, '/'))));
 
     if ($base) {
-        $idx = array_search($base, $segments, true);
-        if ($idx !== false) unset($segments[$idx]);
+        $idx = array_search($base, $segs, true);
+        if ($idx !== false) unset($segs[$idx]);
     }
 
-    // LUÔN có slash cuối ở PATH
-    $new_path = '/' . implode('/', $segments) . '/';
+    // ✅ Nếu không còn segment nào (ví dụ trang chủ) thì path chỉ là '/'
+    if (empty($segs)) {
+        $new_path = '/';
+    } else {
+        $new_path = '/' . implode('/', $segs) . '/';
+    }
 
-    // Gắn lại origin (giữ prefix ngôn ngữ nhờ dùng home_url khi thiếu origin)
     if (isset($parts['scheme'], $parts['host'])) {
         $port = isset($parts['port']) ? ':' . $parts['port'] : '';
         $new  = $parts['scheme'] . '://' . $parts['host'] . $port . $new_path;
@@ -661,7 +663,7 @@ function mm_strip_wc_cat_base($url) {
     if (!empty($parts['query']))    $new .= '?' . $parts['query'];
     if (!empty($parts['fragment'])) $new .= '#' . $parts['fragment'];
 
-    return $new; // KHÔNG gọi user_trailingslashit ở toàn URL để tránh thêm sau ?query
+    return $new;
 }
 
 /*========================================================
