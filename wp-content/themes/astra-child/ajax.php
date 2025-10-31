@@ -40,7 +40,7 @@ function filter_products() {
 				<div class="item">
 					<div class="item-header">
 						<h3 class="item-title">' . esc_html($category->name) . '</h3>
-						<p class="item-description">' . esc_html($category->description) . '</p>
+						<!--<p class="item-description">' . wp_kses_post($category->description) . '</p>-->
 					</div>
 					<hr>
 					<div class="item-body">
@@ -63,7 +63,7 @@ function filter_products() {
 			<div class="item">
 				<div class="item-header">
 					<h3 class="item-title">' . esc_html($category->name) . '</h3>
-					<p class="item-description">' . esc_html($category->description) . '</p>
+					<!--<p class="item-description">' . wp_kses_post($category->description) . '</p>-->
 				</div>
 				<hr>
 				<div class="item-body">
