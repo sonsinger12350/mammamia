@@ -147,7 +147,7 @@ class Astra_Child_Custom_Widget_Header_Menu extends WP_Widget
 						oninvalid="this.setCustomValidity('Vui lòng nội dung tìm kiếm')"
 						oninput="this.setCustomValidity('')"
 				>
-				<img class="search-icon menu-icon" src="<?php echo get_stylesheet_directory_uri(); ?>/assets/icon/search.svg" alt="zoom">
+				<img class="search-icon menu-icon" src="<?php echo get_stylesheet_directory_uri(); ?>/assets/icon/search.svg" alt="search-icon" width="25" height="25">
 				<a href="/san-pham-yeu-thich" class="wishlist-icon menu-icon" aria-label="Danh sách yêu thích"><i class="fa fa-heart-o" aria-hidden="true"></i><?php echo $count_wishlist; ?></a>
 				<?php if (is_user_logged_in()): ?>
 					<div class="dropdown">
@@ -174,10 +174,10 @@ class Astra_Child_Custom_Widget_Header_Menu extends WP_Widget
 				<span class="screen-reader-text">Main Menu</span>
 				<span class="mobile-menu-toggle-icon">
 					<span aria-hidden="true" class="toggle-icon active" data-action="open">
-						<img class="search-icon" src="<?php echo get_stylesheet_directory_uri(); ?>/assets/icon/menu-bar.svg" alt="zoom">
+						<img class="search-icon" src="<?php echo get_stylesheet_directory_uri(); ?>/assets/icon/menu-bar.svg" alt="menu-bar" width="24" height="24">
 					</span>
 					<span aria-hidden="true" class="toggle-icon" data-action="close">
-						<img class="search-icon" src="<?php echo get_stylesheet_directory_uri(); ?>/assets/icon/menu-bar-close.svg" alt="zoom">
+						<img class="search-icon" src="<?php echo get_stylesheet_directory_uri(); ?>/assets/icon/menu-bar-close.svg" alt="menu-bar-close" width="24" height="24">
 					</span>
 				</span>
 			</div>
@@ -193,7 +193,7 @@ class Astra_Child_Custom_Widget_Header_Menu extends WP_Widget
 							oninvalid="this.setCustomValidity('Vui lòng nội dung tìm kiếm')"
 							oninput="this.setCustomValidity('')"
 					>
-					<button type="submit" class="btn-search"><img class="search-icon" src="<?php echo get_stylesheet_directory_uri(); ?>/assets/icon/search.svg" alt="zoom"></button>
+					<button type="submit" class="btn-search"><img class="search-icon" src="<?php echo get_stylesheet_directory_uri(); ?>/assets/icon/search.svg" alt="search-icon" width="25" height="24"></button>
 				</form>
 			</div>
 		</div>
