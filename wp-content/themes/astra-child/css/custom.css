@@ -656,7 +656,8 @@ a {
 	grid-column: 1 / span 3;
 }
 
-.mobile-menu-toggle-icon {
+.mobile-menu-toggle-icon,
+.mobile-menu-toggle {
 	background-color: transparent;
 }
 
