@@ -17,6 +17,13 @@ a {
 	text-decoration: none;
 }
 
+.btn-link-custom {
+	cursor: pointer;
+	display: inline-block;
+	text-decoration: underline;
+	color: var(--color-blue);
+}
+
 #masthead {
 	position: fixed;
 	width: 100%;
@@ -223,6 +230,11 @@ a {
 	text-align: center;
 }
 
+.custom-modal .modal-body [data-bs-dismiss="modal"] {
+	cursor: pointer;
+	font-size: 24px;
+}
+
 .custom-modal .modal-body .modal-title {
 	font-size: 36px;
 	font-weight: 600;
@@ -411,7 +423,8 @@ a {
 	z-index: 1;
 }
 
-.footer-button a {
+.footer-button a,
+.footer-button .btn-scroll-top {
 	width: 60px;
 	height: 60px;
 	border-radius: 50%;
@@ -428,7 +441,8 @@ a {
 	box-shadow: 0 0.5rem 1rem rgb(0 0 0 / 48%);
 }
 
-.footer-button a.btn-scroll-top {
+.footer-button .btn-scroll-top {
+	cursor: pointer;
 	flex-direction: column;
 	font-weight: 500;
 	font-size: 13px;
@@ -490,7 +504,9 @@ a {
 }
 
 .footer-button a svg,
-.footer-button a svg image {
+.footer-button .btn-scroll-top svg,
+.footer-button a svg image,
+.footer-button .btn-scroll-top svg image {
 	width: 20px;
 	height: 15px;
 }

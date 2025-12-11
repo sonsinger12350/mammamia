@@ -1708,7 +1708,7 @@ class WebsiteConfig
 		}
 
 		echo '<table class="wp-list-table widefat fixed striped">';
-		echo '<thead><tr><th>Job ID</th><th>Tổng sản phẩm</th><th>Đã xử lý</th><th>Tạo mới</th><th>Cập nhật</th><th>Lỗi</th><th>SKU bị lỗi</th><th>Trạng thái</th><th>Thời gian</th></tr></thead>';
+		echo '<thead><tr><th>Job ID</th><th>Tổng sản phẩm</th><th>Đã xử lý</th><th>Tạo mới</th><th>Cập nhật</th><<th>SKU bị lỗi</th><th>Trạng thái</th><th>Thời gian</th></tr></thead>';
 		echo '<tbody>';
 
 		foreach ($jobs as $job) {
@@ -1778,7 +1778,6 @@ class WebsiteConfig
 			echo '<td>' . esc_html($job->processed_products) . '</td>';
 			echo '<td>' . esc_html($job->created_products) . '</td>';
 			echo '<td>' . esc_html($job->updated_products) . '</td>';
-			echo '<td>' . esc_html($job->failed_products) . '</td>';
 			echo '<td>' . $failed_products_display . '</td>';
 			echo '<td>' . esc_html($status_text) . '</td>';
 			echo '<td>' . esc_html(date('Y-m-d H:i:s', strtotime($job->created_at))) . '</td>';

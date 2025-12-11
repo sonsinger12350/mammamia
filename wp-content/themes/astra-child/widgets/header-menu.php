@@ -151,16 +151,16 @@ class Astra_Child_Custom_Widget_Header_Menu extends WP_Widget
 				<a href="/san-pham-yeu-thich" class="wishlist-icon menu-icon" aria-label="Danh sách yêu thích"><i class="fa fa-heart-o" aria-hidden="true"></i><?php echo $count_wishlist; ?></a>
 				<?php if (is_user_logged_in()): ?>
 					<div class="dropdown">
-						<a href="javascript:void(0)" class="menu-icon" id="dropdownUserAction" data-bs-toggle="dropdown" aria-expanded="false" rel="nofollow">
+						<span class="menu-icon btn-link-custom" id="dropdownUserAction" data-bs-toggle="dropdown" aria-expanded="false" rel="nofollow">
 							<i class="fa fa-user-circle-o" aria-hidden="true"></i>
-						</a>
+						</span>
 
 						<ul class="dropdown-menu" aria-labelledby="dropdownUserAction">
 							<li><a class="dropdown-item" href="<?php echo wp_logout_url(home_url()); ?>">Đăng xuất</a></li>
 						</ul>
 					</div>
 				<?php else: ?>
-					<a href="javascript:void(0)" onclick="showCustomModal('#modal-login')" class="menu-icon" rel="nofollow" aria-label="Đăng nhập"><i class="fa fa-sign-in" aria-hidden="true"></i></a>
+					<span onclick="showCustomModal('#modal-login')" class="menu-icon btn-link-custom" rel="nofollow" aria-label="Đăng nhập"><i class="fa fa-sign-in" aria-hidden="true"></i></span>
 				<?php endif; ?>
 			</form>
 			<div class="menu-list">

@@ -19,7 +19,7 @@
 						</div>
 						<button type="submit" class="btn btn-outline-primary mb-2 mt-3"><?= __('Đăng nhập', 'astra-child') ?></button>
 						<div class="form-forgot">
-							Quên mật khẩu? <a href="javascript:void(0)" rel="nofollow"><?= __('Nhấp vào đây', 'astra-child') ?></a>
+							Quên mật khẩu? <span class="btn-link-custom" rel="nofollow"><?= __('Nhấp vào đây', 'astra-child') ?></span>
 						</div>
 					</form>
 					<form class="form-register" novalidate name="register_user" data-nonce="<?= wp_create_nonce('register_user') ?>">
