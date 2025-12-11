@@ -656,6 +656,10 @@ a {
 	grid-column: 1 / span 3;
 }
 
+.mobile-menu-toggle-icon {
+	background-color: transparent;
+}
+
 @media (max-width: 1400px) {
 	#content .product-categories-row .product-category img {
 		height: 200px;
