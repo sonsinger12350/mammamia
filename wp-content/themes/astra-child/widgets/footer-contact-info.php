@@ -1,7 +1,5 @@
 <?php
 
-use Elementor\Icons_Manager;
-
 class Astra_Child_Custom_Widget_Footer_Contact_Info extends WP_Widget
 {
 	public function __construct()
@@ -15,24 +13,12 @@ class Astra_Child_Custom_Widget_Footer_Contact_Info extends WP_Widget
 
 	public function form($instance)
 	{
+		$content = isset($instance['content']) ? $instance['content'] : '';
 ?>
 		<p>
-			<label for="<?php echo esc_attr($this->get_field_id('address')); ?>"><?php _e('Địa chỉ:', 'astra-child'); ?></label>
-			<input class="widefat" id="<?php echo esc_attr($this->get_field_id('address')); ?>"
-				name="<?php echo esc_attr($this->get_field_name('address')); ?>" type="text"
-				value="<?php echo esc_attr($instance['address']); ?>">
-		</p>
-		<p>
-			<label for="<?php echo esc_attr($this->get_field_id('hotline')); ?>"><?php _e('Hotline:', 'astra-child'); ?></label>
-			<input class="widefat" id="<?php echo esc_attr($this->get_field_id('hotline')); ?>"
-				name="<?php echo esc_attr($this->get_field_name('hotline')); ?>" type="text"
-				value="<?php echo esc_attr($instance['hotline']); ?>">
-		</p>
-		<p>
-			<label for="<?php echo esc_attr($this->get_field_id('email')); ?>"><?php _e('Email:', 'astra-child'); ?></label>
-			<input class="widefat" id="<?php echo esc_attr($this->get_field_id('email')); ?>"
-				name="<?php echo esc_attr($this->get_field_name('email')); ?>" type="text"
-				value="<?php echo esc_attr($instance['email']); ?>">
+			<label for="<?php echo esc_attr($this->get_field_id('content')); ?>"><?php _e('Nội dung:', 'astra-child'); ?></label>
+			<textarea class="widefat" id="<?php echo esc_attr($this->get_field_id('content')); ?>"
+				name="<?php echo esc_attr($this->get_field_name('content')); ?>" rows="5"><?php echo esc_textarea($content); ?></textarea>
 		</p>
 <?php
 	}
@@ -40,9 +26,7 @@ class Astra_Child_Custom_Widget_Footer_Contact_Info extends WP_Widget
 	public function update($new_instance, $old_instance)
 	{
 		return [
-			'address' => !empty($new_instance['address']) ? sanitize_text_field($new_instance['address']) : '',
-			'hotline' => !empty($new_instance['hotline']) ? sanitize_text_field($new_instance['hotline']) : '',
-			'email' => !empty($new_instance['email']) ? sanitize_text_field($new_instance['email']) : '',
+			'content' => !empty($new_instance['content']) ? sanitize_textarea_field($new_instance['content']) : '',
 		];
 	}
 
@@ -52,21 +36,9 @@ class Astra_Child_Custom_Widget_Footer_Contact_Info extends WP_Widget
 
 		echo '<h3 class="widget-title">Trụ sở</h3>';
 
-		if (!empty($instance['address'])) {
+		if (!empty($instance['content'])) {
 			echo '<div class="item">';
-			echo '<span>' . esc_html($instance['address']) . '</span>';
-			echo '</div>';
-		}
-
-		if (!empty($instance['hotline'])) {
-			echo '<div class="item">';
-			echo '<span>Hotline: <a href="tel:' . esc_html($instance['hotline']) . '">' . esc_html($instance['hotline']) . '</a></span>';
-			echo '</div>';
-		}
-
-		if (!empty($instance['email'])) {
-			echo '<div class="item">';
-			echo '<span>Email: <a href="mailto:' . esc_html($instance['email']) . '">' . esc_html($instance['email']) . '</a></span>';
+			echo wp_kses_post(nl2br(esc_html($instance['content'])));
 			echo '</div>';
 		}
 
