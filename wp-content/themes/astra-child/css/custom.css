@@ -661,6 +661,10 @@ a {
 	background-color: transparent;
 }
 
+#astra_child_custom_widget_footer_contact_info-3 .item {
+	color: #fff;
+}
+
 @media (max-width: 1400px) {
 	#content .product-categories-row .product-category img {
 		height: 200px;
