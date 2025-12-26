@@ -141,6 +141,16 @@ function custom_enqueue_styles() {
 		'nonce' => wp_create_nonce('filter_product_nonce')
 	));
 
+	// Elementor Pagination Scroll Custom - Scroll to top when pagination clicked
+	// Load after Elementor Pro scripts to ensure AjaxPagination is available
+	wp_enqueue_script(
+		'elementor-pagination-scroll',
+		get_stylesheet_directory_uri() . '/js/elementor-pagination-scroll.js',
+		array('jquery'),
+		filemtime( get_stylesheet_directory() . '/js/elementor-pagination-scroll.js' ),
+		true
+	);
+
 	wp_enqueue_style(
 		'astra-child-custom-widget-css',
 		get_stylesheet_directory_uri() . '/css/custom-widget.css',
