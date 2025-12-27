@@ -142,11 +142,10 @@ function custom_enqueue_styles() {
 	));
 
 	// Elementor Pagination Scroll Custom - Scroll to top when pagination clicked
-	// Load after Elementor Pro scripts to ensure AjaxPagination is available
 	wp_enqueue_script(
 		'elementor-pagination-scroll',
 		get_stylesheet_directory_uri() . '/js/elementor-pagination-scroll.js',
-		array('jquery'),
+		array('jquery', 'elementor-frontend'),
 		filemtime( get_stylesheet_directory() . '/js/elementor-pagination-scroll.js' ),
 		true
 	);
