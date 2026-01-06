@@ -722,5 +722,10 @@ add_filter('wpseo_breadcrumb_single_link', function ($link_output, $link) {
     return $link_output;
 }, 999, 2);
 
-
+function restrict_search_to_posts_and_products( $query ) {
+    if ( ! is_admin() && $query->is_main_query() && $query->is_search() ) {
+        $query->set( 'post_type', array( 'post', 'product' ) );
+    }
+}
+add_action( 'pre_get_posts', 'restrict_search_to_posts_and_products' );
 ?>

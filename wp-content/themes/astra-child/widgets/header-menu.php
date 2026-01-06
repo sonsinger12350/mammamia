@@ -142,7 +142,7 @@ class Astra_Child_Custom_Widget_Header_Menu extends WP_Widget
 		?>
 	
 		<div class="header-menu-desktop">
-			<form class="search-form" action="/" method="get">
+			<form class="search-form" action="<?= home_url('/') ?>" method="get">
 				<input type="text" name="s" placeholder="<?php echo esc_attr__('Tìm kiếm...', 'astra-child'); ?>" required
 						oninvalid="this.setCustomValidity('Vui lòng nội dung tìm kiếm')"
 						oninput="this.setCustomValidity('')"
@@ -188,7 +188,7 @@ class Astra_Child_Custom_Widget_Header_Menu extends WP_Widget
 				<div class="mobile-menu-item">
 					<a href="/san-pham-yeu-thich" class="wishlist-link <?= trailingslashit($current_url) == trailingslashit(home_url("san-pham-yeu-thich")) ? 'active' : '' ?>"><?php echo esc_attr__('Sản phẩm yêu thích', 'astra-child'); ?></a>
 				</div>
-				<form class="search-form" action="/" method="get">
+				<form class="search-form" action="<?= home_url('/') ?>" method="get">
 					<input type="text" name="s" placeholder="<?php echo esc_attr__('Tìm kiếm...', 'astra-child'); ?>" required
 							oninvalid="this.setCustomValidity('Vui lòng nội dung tìm kiếm')"
 							oninput="this.setCustomValidity('')"
