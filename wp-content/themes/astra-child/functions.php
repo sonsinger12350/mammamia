@@ -728,4 +728,18 @@ function restrict_search_to_posts_and_products( $query ) {
     }
 }
 add_action( 'pre_get_posts', 'restrict_search_to_posts_and_products' );
+
+add_action( 'elementor/query/query_args', function( $query_args ) {
+    if ( ! is_search() ) return $query_args;
+
+    $paged = max(
+        1,
+        get_query_var( 'paged' ),
+        get_query_var( 'page' )
+    );
+
+    $query_args['paged'] = $paged;
+
+    return $query_args;
+}, 10, 1 );
 ?>
