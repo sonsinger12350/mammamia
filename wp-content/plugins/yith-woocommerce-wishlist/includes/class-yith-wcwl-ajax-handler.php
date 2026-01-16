@@ -7,7 +7,7 @@
  * @version 3.0.0
  */
 
-defined( 'YITH_WCWL' ) || exit; // Exit if accessed directly
+defined( 'YITH_WCWL' ) || exit; // Exit if accessed directly.
 
 if ( ! class_exists( 'YITH_WCWL_Ajax_Handler' ) ) {
 	/**
@@ -186,8 +186,16 @@ if ( ! class_exists( 'YITH_WCWL_Ajax_Handler' ) ) {
 
 			$fragments = isset( $_REQUEST['fragments'] ) ? wc_clean( $_REQUEST['fragments'] ) : false; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
 
+			$wishlist_token = isset( $_REQUEST['wishlist_token'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['wishlist_token'] ) ) : false;
+
+			$wishlist = YITH_WCWL_Wishlist_Factory::get_wishlist( $wishlist_token );
+
 			try {
-				yith_wcwl_wishlists()->remove_item(yith_wcwl()->get_details());
+				if ( $wishlist && ! $wishlist->current_user_can( 'remove_from_wishlist' ) ) {
+					wp_send_json( array( 'fragments' => array() ) );
+				}
+
+				yith_wcwl_wishlists()->remove_item( yith_wcwl()->get_details() );
 
 				/**
 				 * APPLY_FILTERS: yith_wcwl_product_removed_text
@@ -234,6 +242,12 @@ if ( ! class_exists( 'YITH_WCWL_Ajax_Handler' ) ) {
 				$item = YITH_WCWL_Wishlist_Factory::get_wishlist_item( $item_id );
 
 				if ( $item ) {
+					$wishlist = YITH_WCWL_Wishlist_Factory::get_wishlist( $item->get_wishlist_id() );
+
+					if ( $wishlist && ! $wishlist->current_user_can( 'remove_from_wishlist' ) ) {
+						wp_send_json( array( 'fragments' => array() ) );
+					}
+
 					$item->delete();
 
 					/**

@@ -2,7 +2,7 @@
  * Variation Swatches for WooCommerce
  *
  * Author: Emran Ahmed ( emran.bd.08@gmail.com )
- * Date: 2/16/2025, 5:38:38 PM
+ * Date: 11/11/2025, 3:19:45 PM
  * Released under the GPLv3 license.
  */
 .woo-variation-swatches.wvs-tooltip {
@@ -928,6 +928,9 @@
   pointer-events: none;
   opacity: 0.3;
 }
+.woo-variation-swatches.wvs-behavior-hide .variable-items-wrapper .variable-item.disabled.radio-variable-item {
+  width: auto !important;
+}
 .woo-variation-swatches.wvs-behavior-hide .variable-items-wrapper .variable-item.disabled {
   opacity: 0;
   visibility: hidden;
@@ -944,9 +947,6 @@
   margin: 0 !important;
   min-width: 0 !important;
   min-height: 0 !important;
-}
-.woo-variation-swatches.wvs-behavior-hide .variable-items-wrapper .variable-item.disabled.radio-variable-item {
-  width: auto !important;
 }
 .woo-variation-swatches.wvs-behavior-hide .variable-items-wrapper .variable-item.no-stock .variable-item-contents::before {
   background-image: none;

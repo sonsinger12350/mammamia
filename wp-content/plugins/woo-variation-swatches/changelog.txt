@@ -1,5 +1,16 @@
 *** Variation Swatches for WooCommerce ***
 
+2025-11-11 - version 2.2.2
+
+* Added - WC 10.3+ compatibility.
+
+2025-09-11 - version 2.2.1
+
+* Fixed - Composite product re-insert label issue.
+* Fixed - Unavailable de-select issue.
+* Added - WP 6.8+ compatibility.
+* Added - WC 10.1+ compatibility.
+
 2025-02-16 - version 2.2.0
 
 * Fixed - Broken Settings html table.

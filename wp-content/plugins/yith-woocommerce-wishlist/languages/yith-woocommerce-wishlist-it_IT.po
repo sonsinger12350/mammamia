@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: YITH WooCommerce Wishlist\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/yith-woocommerce-"
 "wishlist\n"
-"POT-Creation-Date: 2025-01-28T13:12:12+00:00\n"
+"POT-Creation-Date: 2025-11-18T14:57:58+00:00\n"
 "PO-Revision-Date: 2020-10-16 14:05+0200\n"
 "Last-Translator: Nicola Mustone <mail@nicolamustone.it>\n"
 "Language-Team: Your Inspiration Themes <plugins@yithemes.com>\n"
@@ -23,14 +23,17 @@ msgstr ""
 "X-Poedit-SearchPathExcluded-0: ../plugin-fw\n"
 
 #. Plugin Name of the plugin
+#: init.php
 msgid "YITH WooCommerce Wishlist"
 msgstr "YITH WooCommerce Wishlist"
 
 #. Plugin URI of the plugin
+#: init.php
 msgid "https://yithemes.com/themes/plugins/yith-woocommerce-wishlist/"
 msgstr ""
 
 #. Description of the plugin
+#: init.php
 msgid ""
 "<code><strong>YITH WooCommerce Wishlist</strong></code> gives your users the "
 "possibility to create, fill, manage and share their wishlists allowing you "
@@ -40,10 +43,12 @@ msgid ""
 msgstr ""
 
 #. Author of the plugin
+#: init.php
 msgid "YITH"
 msgstr ""
 
 #. Author URI of the plugin
+#: init.php
 msgid "https://yithemes.com/"
 msgstr ""
 
@@ -164,24 +169,26 @@ msgstr ""
 msgid "Wishlist Page"
 msgstr "Pagina Lista dei desideri"
 
-#: includes/admin/class-yith-wcwl-admin.php:99
+#: includes/admin/class-yith-wcwl-admin.php:98
 msgctxt "[Admin] Delete wishlist from panel confirmation modal"
 msgid "Confirm delete"
 msgstr ""
 
 #. translators: %s is the name of the wishlist
-#: includes/admin/class-yith-wcwl-admin.php:101
+#: includes/admin/class-yith-wcwl-admin.php:100
+#, php-format
 msgctxt "[Admin] Delete wishlist from panel confirmation modal"
 msgid "Are you sure you want to delete %s?"
 msgstr ""
 
-#: includes/admin/class-yith-wcwl-admin.php:102
+#: includes/admin/class-yith-wcwl-admin.php:101
 msgctxt "[Admin] Delete wishlist from panel confirmation modal"
 msgid "Delete"
 msgstr ""
 
 #. translators: %1$s is the opening tag to hyperlink the text; %2$s id the closing tag to hyperlink the text;
 #: includes/admin/class-yith-wcwl-rendering-method-admin-handler.php:49
+#, php-format
 msgid ""
 "YITH Wishlist 4.0 includes the new React Components. %1$s Read how to "
 "convert to them to improve the plugin performance %2$s"
@@ -278,8 +285,8 @@ msgstr "oppure"
 msgid "Close"
 msgstr ""
 
-#: includes/class-yith-wcwl-ajax-handler.php:201
-#: includes/class-yith-wcwl-ajax-handler.php:250
+#: includes/class-yith-wcwl-ajax-handler.php:209
+#: includes/class-yith-wcwl-ajax-handler.php:264
 msgid "Product successfully removed."
 msgstr "Prodotto rimosso con successo."
 
@@ -384,11 +391,13 @@ msgstr "Liste dei desideri"
 
 #. Translators: %s Order number.
 #: includes/class-yith-wcwl-privacy.php:232
+#, php-format
 msgid "Removed wishlist %s."
 msgstr "Lista dei desideri %s rimossa."
 
 #. Translators: %s Order number.
 #: includes/class-yith-wcwl-privacy.php:236
+#, php-format
 msgid "Wishlist %s has been retained."
 msgstr "La lista dei desideri %s è stata salvata."
 
@@ -551,6 +560,7 @@ msgstr "Gratuito!"
 
 #. translators: 1. % of reduction/increase in price.
 #: includes/class-yith-wcwl-wishlist-item.php:488
+#, php-format
 msgctxt ""
 "Part of the template that shows price variation since addition to list; "
 "placeholder will be replaced with a percentage"
@@ -559,25 +569,30 @@ msgstr ""
 
 #. translators: 2: original product price.
 #: includes/class-yith-wcwl-wishlist-item.php:490
+#, php-format
 msgctxt ""
 "Part of the template that shows price variation since addition to list; "
 "placeholder will be replaced with a price"
 msgid "(Was %2$s when added  in list)"
 msgstr ""
 
-#: includes/class-yith-wcwl-wishlists.php:277
+#: includes/class-yith-wcwl-wishlists.php:47
+msgid "There was an error while processing your request; please, try later"
+msgstr ""
+
+#: includes/class-yith-wcwl-wishlists.php:290
 msgid "The item cannot be added to this wishlist"
 msgstr "L'elemento non può essere aggiunto alla lista dei desideri"
 
-#: includes/class-yith-wcwl-wishlists.php:281
-#: includes/class-yith-wcwl-wishlists.php:287
+#: includes/class-yith-wcwl-wishlists.php:294
+#: includes/class-yith-wcwl-wishlists.php:300
 msgid "An error occurred while adding the products to the wishlist."
 msgstr ""
 "Si è verificato un errore mentre si cercava di aggiungere i prodotti alla "
 "lista."
 
-#: includes/class-yith-wcwl-wishlists.php:387
-#: includes/class-yith-wcwl-wishlists.php:413
+#: includes/class-yith-wcwl-wishlists.php:400
+#: includes/class-yith-wcwl-wishlists.php:426
 msgid "Error. Unable to remove the product from the wishlist."
 msgstr "Errore. Impossibile rimuovere il prodotto dalla lista dei desideri."
 
@@ -592,6 +607,7 @@ msgstr "Elemento della lista non valido."
 
 #. translators: 1. Number of users.
 #: includes/functions-yith-wcwl.php:375
+#, fuzzy, php-format
 msgid "%d user"
 msgid_plural "%d users"
 msgstr[0] "%s utente"
@@ -613,6 +629,7 @@ msgstr "ad aver aggiunto questo prodotto alla lista dei desideri"
 
 #. translators: 1. Count of users when many, or "another" when only one.
 #: includes/functions-yith-wcwl.php:383
+#, php-format
 msgid "You and %s user"
 msgid_plural "You and %d users"
 msgstr[0] "Tu e un altro utente"
@@ -973,6 +990,7 @@ msgstr ""
 
 #. translators: 1. Blog name.
 #: plugin-options/customization/labels-options.php:88
+#, php-format
 msgid "My wishlist on %s"
 msgstr "La mia lista dei desideri su %s"
 
@@ -1995,6 +2013,7 @@ msgstr "Rimuovi dalla lista"
 #. translators: 1. Wishlist formatted name.
 #: templates/wishlist-view-footer-mobile.php:93
 #: templates/wishlist-view-footer.php:93
+#, php-format
 msgid "Move to %s"
 msgstr ""
 
@@ -2080,6 +2099,7 @@ msgstr "Riordina"
 
 #. translators: 1. Date product was added to wishlist.
 #: templates/wishlist-view.php:479
+#, php-format
 msgid "Added on: %s"
 msgstr "Aggiunto il: %s"
 
@@ -2101,6 +2121,7 @@ msgstr ""
 
 #. translators: %1$s is the placeholder for the HTML opening tag to hyperlink the text; %2$s is the placeholder for the HTML closing tag to hyperlink the text;
 #: views/rendering-methods/react-only-option-notice.php:14
+#, php-format
 msgid ""
 "This option is available only in the new React templates. %1$s Convert your "
 "templates now to unlock all the new features > %2$s"

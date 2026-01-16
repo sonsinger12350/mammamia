@@ -613,8 +613,11 @@ class WC_Query {
 
 		// Convert to correct format.
 		$orderby = strtolower( is_array( $orderby ) ? (string) current( $orderby ) : (string) $orderby );
+		// ID can already be added and requires to be capitalized.
+		$orderby = str_replace( ' id', ' ID', $orderby );
 		$order   = strtoupper( is_array( $order ) ? (string) current( $order ) : (string) $order );
-		$args    = array(
+
+		$args = array(
 			'orderby'  => $orderby,
 			'order'    => ( 'DESC' === $order ) ? 'DESC' : 'ASC',
 			'meta_key' => '', // @codingStandardsIgnoreLine
@@ -638,8 +641,9 @@ class WC_Query {
 			case 'rand':
 				$args['orderby'] = 'rand'; // @codingStandardsIgnoreLine
 				break;
+			case 'modified':
 			case 'date':
-				$args['orderby'] = 'date ID';
+				$args['orderby'] = $orderby . ' ID';
 				$args['order']   = ( 'ASC' === $order ) ? 'ASC' : 'DESC';
 				break;
 			case 'price':
@@ -670,8 +674,18 @@ class WC_Query {
 	public function price_filter_post_clauses( $args, $wp_query ) {
 		global $wpdb;
 
+		/**
+		 * Filter whether to add the filter post clauses
+		 *
+		 * @param bool     $is_main_query Whether the current query is 'is_main_query'.
+		 * @param WP_Query $wp_query      The current WP_Query object.
+		 *
+		 * @since 9.9.0
+		 */
+		$enable_filtering = apply_filters( 'woocommerce_enable_post_clause_filtering', $wp_query->is_main_query(), $wp_query );
+
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( ! $wp_query->is_main_query() || ( ! isset( $_GET['max_price'] ) && ! isset( $_GET['min_price'] ) ) ) {
+		if ( ! $enable_filtering || ( ! isset( $_GET['max_price'] ) && ! isset( $_GET['min_price'] ) ) ) {
 			return $args;
 		}
 
@@ -932,6 +946,10 @@ class WC_Query {
 			if ( ! empty( $_GET ) ) {
 				foreach ( $_GET as $key => $value ) {
 					if ( 0 === strpos( $key, 'filter_' ) ) {
+						if ( ! is_string( $value ) ) {
+							continue;
+						}
+
 						$attribute    = wc_sanitize_taxonomy_name( str_replace( 'filter_', '', $key ) );
 						$taxonomy     = wc_attribute_taxonomy_name( $attribute );
 						$filter_terms = ! empty( $value ) ? explode( ',', wc_clean( wp_unslash( $value ) ) ) : array();

@@ -4,11 +4,9 @@ declare(strict_types=1);
 namespace Automattic\WooCommerce\Blocks;
 
 use Automattic\WooCommerce\Admin\Features\Features;
-use Automattic\WooCommerce\Blocks\AIContent\PatternsHelper;
 use Automattic\WooCommerce\Blocks\Domain\Package;
 use Automattic\WooCommerce\Blocks\Patterns\PatternRegistry;
 use Automattic\WooCommerce\Blocks\Patterns\PTKPatternsStore;
-use WP_Error;
 
 /**
  * Registers patterns under the `./patterns/` directory and from the PTK API and updates their content.
@@ -53,13 +51,6 @@ class BlockPatterns {
 	private PatternRegistry $pattern_registry;
 
 	/**
-	 * Patterns dictionary
-	 *
-	 * @var array|WP_Error
-	 */
-	private $dictionary;
-
-	/**
 	 * PTKPatternsStore instance.
 	 *
 	 * @var PTKPatternsStore $ptk_patterns_store
@@ -90,16 +81,19 @@ class BlockPatterns {
 	}
 
 	/**
-	 * Returns the Patterns dictionary.
+	 * Loads the content of a pattern.
 	 *
-	 * @return array|WP_Error
+	 * @param string $pattern_path The path to the pattern.
+	 * @return string The content of the pattern.
 	 */
-	private function get_patterns_dictionary() {
-		if ( null === $this->dictionary ) {
-			$this->dictionary = PatternsHelper::get_patterns_dictionary();
+	private function load_pattern_content( $pattern_path ) {
+		if ( ! file_exists( $pattern_path ) ) {
+			return '';
 		}
 
-		return $this->dictionary;
+		ob_start();
+		include $pattern_path;
+		return ob_get_clean();
 	}
 
 	/**
@@ -114,7 +108,13 @@ class BlockPatterns {
 
 		$patterns = $this->get_block_patterns();
 		foreach ( $patterns as $pattern ) {
-			$this->pattern_registry->register_block_pattern( $pattern['source'], $pattern, $this->get_patterns_dictionary() );
+			$pattern_path      = $this->patterns_path . '/' . $pattern['source'];
+			$pattern['source'] = $pattern_path;
+
+			$content            = $this->load_pattern_content( $pattern_path );
+			$pattern['content'] = $content;
+
+			$this->pattern_registry->register_block_pattern( $pattern_path, $pattern );
 		}
 	}
 
@@ -155,8 +155,9 @@ class BlockPatterns {
 		$patterns = array();
 
 		foreach ( $files as $file ) {
-			$data           = get_file_data( $file, $default_headers );
-			$data['source'] = $file;
+			$data = get_file_data( $file, $default_headers );
+			// We want to store the relative path in the cache, so we can use it later to register the pattern.
+			$data['source'] = str_replace( $this->patterns_path . '/', '', $file );
 			$patterns[]     = $data;
 		}
 
@@ -232,7 +233,7 @@ class BlockPatterns {
 			$pattern['slug']    = $pattern['name'];
 			$pattern['content'] = $pattern['html'];
 
-			$this->pattern_registry->register_block_pattern( $pattern['ID'], $pattern, $this->get_patterns_dictionary() );
+			$this->pattern_registry->register_block_pattern( $pattern['ID'], $pattern );
 		}
 	}
 
@@ -242,10 +243,7 @@ class BlockPatterns {
 	 * @param array $patterns The patterns to parse.
 	 * @return array The parsed patterns.
 	 */
-	private function parse_categories( $patterns ) {
-		if ( ! is_array( $patterns ) ) {
-			return array();
-		}
+	private function parse_categories( array $patterns ) {
 		return array_map(
 			function ( $pattern ) {
 				if ( ! isset( $pattern['categories'] ) ) {

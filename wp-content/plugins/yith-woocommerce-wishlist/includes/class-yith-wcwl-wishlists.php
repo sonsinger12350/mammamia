@@ -36,10 +36,16 @@ if ( ! class_exists( 'YITH_WCWL_Wishlists' ) ) {
 		 *
 		 * @param array $args Array of params for wishlist creation.
 		 * @return int|false The id of the wishlist created or false if something goes wrong
+		 *
+		 * @throws YITH_WCWL_Exception When trying to create wishlist.
 		 */
 		public function create( $args = array() ) {
 			// phpcs:disable WordPress.Security.NonceVerification.Recommended
-			$user_id = $args[ 'user_id' ] ?? false;
+			$user_id = $args['user_id'] ?? false;
+
+			if ( $user_id && get_current_user_id() !== $user_id && ! current_user_can( 'manage_woocommerce' ) ) { // phpcs:ignore WordPress.WP.Capabilities.Unknown
+				throw new YITH_WCWL_Exception( esc_html__( 'There was an error while processing your request; please, try later', 'yith-woocommerce-wishlist' ), 0 );
+			}
 
 			$wishlist = YITH_WCWL_Wishlist_Factory::generate_default_wishlist( $user_id );
 
@@ -70,8 +76,7 @@ if ( ! class_exists( 'YITH_WCWL_Wishlists' ) ) {
 		/**
 		 * Move an item from a wishlist to another
 		 *
-		 * @param array $args The arguments
-		 * @return array
+		 * @param array $args The arguments.
 		 */
 		public function move( $args ) {
 		}
@@ -113,6 +118,14 @@ if ( ! class_exists( 'YITH_WCWL_Wishlists' ) ) {
 			return apply_filters( 'yith_wcwl_wishlist_for_product', $item->get_wishlist(), $product_id );
 		}
 
+		/**
+		 * Get wishlist of current user where a specific product is found.
+		 *
+		 * @param int      $product_id Product ID.
+		 * @param bool|int $limit      Query limit.
+		 *
+		 * @return array
+		 */
 		public function get_wishlists_for_product( $product_id, $limit = false ) {
 			$args = array(
 				'product_id'  => $product_id,
@@ -122,7 +135,7 @@ if ( ! class_exists( 'YITH_WCWL_Wishlists' ) ) {
 			);
 
 			if ( $limit ) {
-				$args[ 'limit' ] = $limit;
+				$args['limit'] = $limit;
 			}
 
 			$items = YITH_WCWL_Wishlist_Factory::get_wishlist_items( $args );
@@ -238,7 +251,7 @@ if ( ! class_exists( 'YITH_WCWL_Wishlists' ) ) {
 		 * @param array $args Array of parameters.
 		 * @throws YITH_WCWL_Exception When an error occurs with Add to Wishlist operation.
 		 *
-		 * @return void
+		 * @return array
 		 */
 		public function add_item( $args = array() ) {
 			$defaults = array(
@@ -262,7 +275,7 @@ if ( ! class_exists( 'YITH_WCWL_Wishlists' ) ) {
 			 * @param int $wishlist_id Wishlist ID
 			 * @param int $user_id     User ID
 			 */
-			do_action( 'yith_wcwl_adding_to_wishlist', $args[ 'product_id' ], $args[ 'wishlist_id' ], $args[ 'user_id' ] );
+			do_action( 'yith_wcwl_adding_to_wishlist', $args['product_id'], $args['wishlist_id'], $args['user_id'] );
 
 			if ( ! $this->can_user_add_to_wishlist() ) {
 				/**
@@ -277,11 +290,11 @@ if ( ! class_exists( 'YITH_WCWL_Wishlists' ) ) {
 				throw new YITH_WCWL_Exception( esc_html( apply_filters( 'yith_wcwl_user_cannot_add_to_wishlist_message', __( 'The item cannot be added to this wishlist', 'yith-woocommerce-wishlist' ) ) ), 0 );
 			}
 
-			if ( ! $args[ 'product_id' ] ) {
+			if ( ! $args['product_id'] ) {
 				throw new YITH_WCWL_Exception( esc_html__( 'An error occurred while adding the products to the wishlist.', 'yith-woocommerce-wishlist' ), 0 );
 			}
 
-			$wishlist = 'new' === $args[ 'wishlist_id' ] ? $this->create( $args ) : YITH_WCWL_Wishlist_Factory::get_wishlist( $args[ 'wishlist_id' ], 'edit' );
+			$wishlist = 'new' === $args['wishlist_id'] ? $this->create( $args ) : YITH_WCWL_Wishlist_Factory::get_wishlist( $args['wishlist_id'], 'edit' );
 
 			if ( ! $wishlist instanceof YITH_WCWL_Wishlist || ! $wishlist->current_user_can( 'add_to_wishlist' ) ) {
 				throw new YITH_WCWL_Exception( esc_html__( 'An error occurred while adding the products to the wishlist.', 'yith-woocommerce-wishlist' ), 0 );
@@ -289,7 +302,7 @@ if ( ! class_exists( 'YITH_WCWL_Wishlists' ) ) {
 
 			$this->last_operation_token = $wishlist->get_token();
 
-			if ( $wishlist->has_product( $args[ 'product_id' ] ) ) {
+			if ( $wishlist->has_product( $args['product_id'] ) ) {
 				/**
 				 * APPLY_FILTERS: yith_wcwl_product_already_in_wishlist_message
 				 *
@@ -304,13 +317,13 @@ if ( ! class_exists( 'YITH_WCWL_Wishlists' ) ) {
 
 			$item = new YITH_WCWL_Wishlist_Item();
 
-			$item->set_product_id( $args[ 'product_id' ] );
-			$item->set_quantity( $args[ 'quantity' ] );
+			$item->set_product_id( $args['product_id'] );
+			$item->set_quantity( $args['quantity'] );
 			$item->set_wishlist_id( $wishlist->get_id() );
 			$item->set_user_id( $wishlist->get_user_id() );
 
-			if ( $args[ 'dateadded' ] ) {
-				$item->set_date_added( $args[ 'dateadded' ] );
+			if ( $args['dateadded'] ) {
+				$item->set_date_added( $args['dateadded'] );
 			}
 
 			$wishlist->add_item( $item );
@@ -333,10 +346,10 @@ if ( ! class_exists( 'YITH_WCWL_Wishlists' ) ) {
 			 * @param int $wishlist_id Wishlist ID
 			 * @param int $user_id     User ID
 			 */
-			do_action( 'yith_wcwl_added_to_wishlist', $args[ 'product_id' ], $item->get_wishlist_id(), $item->get_user_id() );
+			do_action( 'yith_wcwl_added_to_wishlist', $args['product_id'], $item->get_wishlist_id(), $item->get_user_id() );
 
 			return array(
-				'product_id'  => $args[ 'product_id' ],
+				'product_id'  => $args['product_id'],
 				'wishlist_id' => $item->get_wishlist_id(),
 				'user_id'     => $item->get_user_id(),
 			);
@@ -359,9 +372,9 @@ if ( ! class_exists( 'YITH_WCWL_Wishlists' ) ) {
 
 			$args = wp_parse_args( $args, $defaults );
 
-			$product_id  = intval( $args[ 'product_id' ] );
-			$wishlist_id = intval( $args[ 'wishlist_id' ] );
-			$user_id     = intval( $args[ 'user_id' ] );
+			$product_id  = intval( $args['product_id'] );
+			$wishlist_id = intval( $args['wishlist_id'] );
+			$user_id     = intval( $args['user_id'] );
 
 			/**
 			 * DO_ACTION: yith_wcwl_removing_from_wishlist
@@ -467,14 +480,14 @@ if ( ! class_exists( 'YITH_WCWL_Wishlists' ) ) {
 		/**
 		 * Retrieve details of a product in the wishlist.
 		 *
-		 * @param WC_Product|int $product_id  Product id.
+		 * @param WC_Product|int $product  Product object or product id.
 		 * @param int|bool       $wishlist_id Wishlist id, or false when default should be applied.
 		 * @return YITH_WCWL_Wishlist_Item|bool
 		 */
 		public function get_product_item( $product, $wishlist_id = false ) {
 			$items = $this->get_items(
 				array(
-					'product_id'     => $product instanceof WC_Product ? $product->get_id() : $product,
+					'product_id'  => $product instanceof WC_Product ? $product->get_id() : $product,
 					'wishlist_id' => $wishlist_id,
 				)
 			);
@@ -522,11 +535,11 @@ if ( ! class_exists( 'YITH_WCWL_Wishlists' ) ) {
 			);
 
 			if ( is_user_logged_in() ) {
-				$id                = get_current_user_id();
-				$args[ 'user_id' ] = $id;
+				$id              = get_current_user_id();
+				$args['user_id'] = $id;
 			} elseif ( YITH_WCWL_Session::get_instance()->has_session() ) {
-				$id                   = YITH_WCWL_Session::get_instance()->get_session_id();
-				$args[ 'session_id' ] = $id;
+				$id                 = YITH_WCWL_Session::get_instance()->get_session_id();
+				$args['session_id'] = $id;
 			}
 
 			if ( ! isset( $id ) ) {
@@ -632,7 +645,7 @@ if ( ! class_exists( 'YITH_WCWL_Wishlists' ) ) {
 		 * @since 3.0.0
 		 */
 		public function can_user_add_to_wishlist( $user_id = false ) {
-			$user_id                                    = $user_id ?: get_current_user_id();
+			$user_id                                    = $user_id ?: get_current_user_id(); // phpcs:ignore Universal.Operators.DisallowShortTernary.Found
 			$disable_wishlist_for_unauthenticated_users = get_option( 'yith_wcwl_disable_wishlist_for_unauthenticated_users' );
 			$return                                     = true;
 

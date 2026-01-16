@@ -23,6 +23,8 @@ class Loader {
 	 * @since 4.1.0 Added SMTP2GO.
 	 * @since 4.2.0 Added Mailjet.
 	 * @since 4.3.0 Added Elastic Email.
+	 * @since 4.5.0 Added MailerSend.
+	 * @since 4.6.0 Added Mandrill.
 	 *
 	 * @var array
 	 */
@@ -36,9 +38,12 @@ class Loader {
 		'gmail'        => 'WPMailSMTP\Providers\Gmail\\',
 		'mailgun'      => 'WPMailSMTP\Providers\Mailgun\\',
 		'mailjet'      => 'WPMailSMTP\Providers\Mailjet\\',
+		'mailersend'   => 'WPMailSMTP\Providers\MailerSend\\',
+		'mandrill'     => 'WPMailSMTP\Providers\Mandrill\\',
 		'outlook'      => 'WPMailSMTP\Providers\Outlook\\',
 		'pepipostapi'  => 'WPMailSMTP\Providers\PepipostAPI\\',
 		'postmark'     => 'WPMailSMTP\Providers\Postmark\\',
+		'resend'       => 'WPMailSMTP\Providers\Resend\\',
 		'sendgrid'     => 'WPMailSMTP\Providers\Sendgrid\\',
 		'smtp2go'      => 'WPMailSMTP\Providers\SMTP2GO\\',
 		'sparkpost'    => 'WPMailSMTP\Providers\SparkPost\\',

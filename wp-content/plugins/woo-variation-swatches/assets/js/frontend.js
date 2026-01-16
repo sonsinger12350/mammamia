@@ -2,31 +2,32 @@
  * Variation Swatches for WooCommerce
  *
  * Author: Emran Ahmed ( emran.bd.08@gmail.com )
- * Date: 2/16/2025, 5:38:38 PM
+ * Date: 11/11/2025, 3:19:45 PM
  * Released under the GPLv3 license.
  */
 /******/ (function() { // webpackBootstrap
-var __webpack_exports__ = {};
-// This entry need to be wrapped in an IIFE because it need to be isolated against other entry modules.
+// This entry needs to be wrapped in an IIFE because it needs to be isolated against other entry modules.
 !function() {
-function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e2) { throw _e2; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e3) { didErr = true; err = _e3; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
-function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
+function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
+function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
+function _createForOfIteratorHelper(r, e) { var t = "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (!t) { if (Array.isArray(r) || (t = _unsupportedIterableToArray(r)) || e && r && "number" == typeof r.length) { t && (r = t); var _n = 0, F = function F() {}; return { s: F, n: function n() { return _n >= r.length ? { done: !0 } : { done: !1, value: r[_n++] }; }, e: function e(r) { throw r; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var o, a = !0, u = !1; return { s: function s() { t = t.call(r); }, n: function n() { var r = t.next(); return a = r.done, r; }, e: function e(r) { u = !0, o = r; }, f: function f() { try { a || null == t["return"] || t["return"](); } finally { if (u) throw o; } } }; }
+function _toConsumableArray(r) { return _arrayWithoutHoles(r) || _iterableToArray(r) || _unsupportedIterableToArray(r) || _nonIterableSpread(); }
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
-function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter); }
-function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
+function _iterableToArray(r) { if ("undefined" != typeof Symbol && null != r[Symbol.iterator] || null != r["@@iterator"]) return Array.from(r); }
+function _arrayWithoutHoles(r) { if (Array.isArray(r)) return _arrayLikeToArray(r); }
+function _classCallCheck(a, n) { if (!(a instanceof n)) throw new TypeError("Cannot call a class as a function"); }
+function _defineProperties(e, r) { for (var t = 0; t < r.length; t++) { var o = r[t]; o.enumerable = o.enumerable || !1, o.configurable = !0, "value" in o && (o.writable = !0), Object.defineProperty(e, _toPropertyKey(o.key), o); } }
+function _createClass(e, r, t) { return r && _defineProperties(e.prototype, r), t && _defineProperties(e, t), Object.defineProperty(e, "prototype", { writable: !1 }), e; }
+function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
+function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
+function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
-function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
-function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
-function _iterableToArrayLimit(arr, i) { var _i = arr == null ? null : typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"]; if (_i == null) return; var _arr = []; var _n = true; var _d = false; var _s, _e; try { for (_i = _i.call(arr); !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
-function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
+function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
+function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t["return"] && (u = t["return"](), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
+function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
 // ================================================================
 // WooCommerce Variation Swatches
 // ================================================================
@@ -112,8 +113,8 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
   var Plugin = function ($) {
     return /*#__PURE__*/function () {
-      function _class2(element, options, name) {
-        _classCallCheck(this, _class2);
+      function _class(element, options, name) {
+        _classCallCheck(this, _class);
         _defineProperty(this, "defaults", {});
         // Assign
         this.name = name;
@@ -136,7 +137,7 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
         // Trigger
         $(document).trigger('woo_variation_swatches_loaded', this);
       }
-      _createClass(_class2, [{
+      return _createClass(_class, [{
         key: "isAjaxVariation",
         value: function isAjaxVariation() {
           //this.product_variations = this.$element.data('product_variations') || []
@@ -159,7 +160,10 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
           // Append Selected Item Template
           if (filterBoolean(woo_variation_swatches_options.show_variation_label)) {
             this.$element.find('.variations .label').each(function (index, el) {
-              $(el).append(_this.selected_item_template);
+              // To fix Composite product re insert label issue.
+              if ($(el).find('.woo-selected-variation-item-name').length === 0) {
+                $(el).append(_this.selected_item_template);
+              }
             });
           }
         }
@@ -469,7 +473,7 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
           this.$element.on('wvs-selected-item.wvs', function (event, attribute_name, attribute_value) {
             var _this4$getChosenAttri = _this4.getChosenAttributes(),
               data = _this4$getChosenAttri.data;
-            var currentAttribute = _objectSpread(_objectSpread({}, data), {}, _defineProperty({}, attribute_name, attribute_value));
+            var currentAttribute = _objectSpread(_objectSpread({}, data), {}, _defineProperty({}, attribute_name, attribute_value.toString()));
             var unavailableAttributes = _this4.getUnavailableAttributes(currentAttribute, attribute_name);
             if (unavailableAttributes.length > 0) {
               var _iterator2 = _createForOfIteratorHelper(unavailableAttributes),
@@ -652,7 +656,6 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
           this.$element.removeData(this.name);
         }
       }]);
-      return _class2;
     }();
   }(jQuery);
   var jQueryPlugin = function ($) {
@@ -705,41 +708,48 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
   jQueryPlugin('WooVariationSwatches', Plugin);
 })(window);
 }();
-// This entry need to be wrapped in an IIFE because it need to be isolated against other entry modules.
+// This entry needs to be wrapped in an IIFE because it needs to be isolated against other entry modules.
 !function() {
 /*global wp, _, wc_add_to_cart_variation_params, woo_variation_swatches_options */
+
 jQuery(function ($) {
   try {
     $(document).on('woo_variation_swatches_init', function () {
-      $('.variations_form:not(.wvs-loaded)').WooVariationSwatches(); // Any custom product with .woo_variation_swatches_variations_form class to support
+      $('.variations_form:not(.wvs-loaded)').WooVariationSwatches();
 
-      $('.woo_variation_swatches_variations_form:not(.wvs-loaded)').WooVariationSwatches(); // Yith Composite Product
+      // Any custom product with .woo_variation_swatches_variations_form class to support
+      $('.woo_variation_swatches_variations_form:not(.wvs-loaded)').WooVariationSwatches();
 
+      // Yith Composite Product
       $('.ywcp_inner_selected_container:not(.wvs-loaded)').WooVariationSwatches();
-    }); //.trigger('woo_variation_swatches_init')
+    });
+    //.trigger('woo_variation_swatches_init')
   } catch (err) {
     // If failed (conflict?) log the error but don't stop other scripts breaking.
     window.console.log('Variation Swatches:', err);
-  } // Init WooVariationSwatches after wc_variation_form script loaded.
+  }
 
-
+  // Init WooVariationSwatches after wc_variation_form script loaded.
   $(document).on('wc_variation_form.wvs', function (event) {
     $(document).trigger('woo_variation_swatches_init');
-  }); // Try to cover global ajax data complete
+  });
 
+  // Try to cover global ajax data complete
   $(document).ajaxComplete(function (event, request, settings) {
     _.delay(function () {
       $('.variations_form:not(.wvs-loaded)').each(function () {
         $(this).wc_variation_form();
       });
     }, 1000);
-  }); // Composite Product Load
-  // JS API: https://docs.woocommerce.com/document/composite-products/composite-products-js-api-reference/
+  });
 
+  // Composite Product Load
+  // JS API: https://docs.woocommerce.com/document/composite-products/composite-products-js-api-reference/
   $(document.body).on('wc-composite-initializing', '.composite_data', function (event, composite) {
     composite.actions.add_action('component_options_state_changed', function (self) {
       $(self.$component_content).find('.variations_form').WooVariationSwatches('destroy');
     });
+
     /* composite.actions.add_action('active_scenarios_updated', (self) => {
        console.log('active_scenarios_updated')
        $(self.$component_content).find('.variations_form').removeClass('wvs-loaded wvs-pro-loaded')

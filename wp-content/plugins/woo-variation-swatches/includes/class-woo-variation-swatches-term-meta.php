@@ -173,7 +173,7 @@ if ( ! class_exists( 'Woo_Variation_Swatches_Term_Meta' ) ) :
 						$attributes['loading'] ='lazy';
 					}
 
-					printf( '<img %s  />', wc_implode_html_attributes($attributes) );
+					printf( '<img %s  />', wp_kses_data(wc_implode_html_attributes($attributes) ) );
 				}
 			}
 		}

@@ -6,6 +6,7 @@
  */
 
 use Automattic\WooCommerce\Enums\OrderStatus;
+use Automattic\WooCommerce\Enums\PaymentGatewayFeature;
 use Automattic\WooCommerce\Enums\ProductType;
 
 defined( 'ABSPATH' ) || exit;
@@ -551,7 +552,7 @@ class WC_Form_Handler {
 			if ( isset( $available_gateways[ $payment_method_id ] ) ) {
 				$gateway = $available_gateways[ $payment_method_id ];
 
-				if ( ! $gateway->supports( 'add_payment_method' ) && ! $gateway->supports( 'tokenization' ) ) {
+				if ( ! $gateway->supports( PaymentGatewayFeature::ADD_PAYMENT_METHOD ) && ! $gateway->supports( PaymentGatewayFeature::TOKENIZATION ) ) {
 					wc_add_notice( __( 'Invalid payment gateway.', 'woocommerce' ), 'error' );
 					return;
 				}
@@ -635,6 +636,8 @@ class WC_Form_Handler {
 		if ( ! ( isset( $_REQUEST['apply_coupon'] ) || isset( $_REQUEST['remove_coupon'] ) || isset( $_REQUEST['remove_item'] ) || isset( $_REQUEST['undo_item'] ) || isset( $_REQUEST['update_cart'] ) || isset( $_REQUEST['proceed'] ) ) ) {
 			return;
 		}
+
+		wc_maybe_define_constant( 'WOOCOMMERCE_CART', true );
 
 		wc_nocache_headers();
 
@@ -956,8 +959,19 @@ class WC_Form_Handler {
 
 		// Prevent parent variable product from being added to cart.
 		if ( empty( $variation_id ) && $product && $product->is_type( ProductType::VARIABLE ) ) {
-			/* translators: 1: product link, 2: product name */
-			wc_add_notice( sprintf( __( 'Please choose product options by visiting <a href="%1$s" title="%2$s">%2$s</a>.', 'woocommerce' ), esc_url( get_permalink( $product_id ) ), esc_html( $product->get_name() ) ), 'error' );
+			$current_url        = isset( $_SERVER['REQUEST_URI'] ) ? wp_parse_url( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ), PHP_URL_PATH ) : '';
+			$product_url        = wp_parse_url( get_permalink( $product_id ), PHP_URL_PATH );
+			$is_in_product_page = $current_url && $product_url && untrailingslashit( $current_url ) === untrailingslashit( $product_url );
+
+			if ( $is_in_product_page ) {
+				/* translators: 1: product name */
+				$error_message = sprintf( __( 'Please choose product options for %1$s.', 'woocommerce' ), esc_html( $product->get_name() ) );
+			} else {
+				/* translators: 1: product link, 2: product name */
+				$error_message = sprintf( __( 'Please choose product options by visiting <a href="%1$s" title="%2$s">%2$s</a>.', 'woocommerce' ), esc_url( get_permalink( $product_id ) ), esc_html( $product->get_name() ) );
+			}
+
+			wc_add_notice( $error_message, 'error' );
 
 			return false;
 		}
@@ -986,7 +1000,7 @@ class WC_Form_Handler {
 			$valid_nonce = wp_verify_nonce( $nonce_value, 'woocommerce-login' );
 		}
 
-		if ( isset( $_POST['login'], $_POST['username'], $_POST['password'] ) && $valid_nonce ) {
+		if ( isset( $_POST['login'], $_POST['username'], $_POST['password'] ) && is_string( $_POST['username'] ) && is_string( $_POST['password'] ) && $valid_nonce ) {
 
 			try {
 				$creds = array(

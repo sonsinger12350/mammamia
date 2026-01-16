@@ -215,11 +215,14 @@ if ( ! class_exists( 'Woo_Variation_Swatches_Product_Page' ) ) {
 
 			// $is_defer = is_wp_version_compatible( '6.3' ) ? array( 'strategy' => 'defer' ) : true;
 
+			$prefix_wc_handle = version_compare(WC()->version, '10.3', '>=') ? 'wc-':'';
+			$jquery_blockui_handle = sprintf( '%sjquery-blockui', $prefix_wc_handle);
+
 			wp_register_script( 'woo-variation-swatches', woo_variation_swatches()->assets_url( "/js/frontend{$suffix}.js" ), array(
 				'jquery',
 				'wp-util',
 				'underscore',
-				'jquery-blockui',
+				$jquery_blockui_handle,
 				'wp-api-request',
 				'wp-api-fetch',
 				'wp-polyfill',

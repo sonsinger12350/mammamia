@@ -109,11 +109,9 @@ class TaskLists {
 	 */
 	public static function init_default_lists() {
 		$tasks = array(
-			'CustomizeStore',
 			'StoreDetails',
 			'Products',
 			'Appearance',
-			'WooCommercePayments',
 			'Payments',
 			'Tax',
 			'Shipping',
@@ -122,21 +120,6 @@ class TaskLists {
 
 		if ( Features::is_enabled( 'core-profiler' ) ) {
 			$key = array_search( 'StoreDetails', $tasks, true );
-			if ( false !== $key ) {
-				unset( $tasks[ $key ] );
-			}
-		}
-
-		// Remove the old Personalize your store task if the new CustomizeStore is enabled.
-		$task_to_remove                 = Features::is_enabled( 'customize-store' ) ? 'Appearance' : 'CustomizeStore';
-		$store_customisation_task_index = array_search( $task_to_remove, $tasks, true );
-		if ( false !== $store_customisation_task_index ) {
-			unset( $tasks[ $store_customisation_task_index ] );
-		}
-
-		// If the React-based Payments settings page is enabled, we don't need the dedicated WooPayments task.
-		if ( FeaturesUtil::feature_is_enabled( 'reactify-classic-payments-settings' ) ) {
-			$key = array_search( 'WooCommercePayments', $tasks, true );
 			if ( false !== $key ) {
 				unset( $tasks[ $key ] );
 			}

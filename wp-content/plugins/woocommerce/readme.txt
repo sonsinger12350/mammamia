@@ -1,10 +1,10 @@
 === WooCommerce ===
 Contributors: automattic, woocommerce, mikejolley, jameskoster, claudiosanches, rodrigosprimo, peterfabian1000, vedjain, jamosova, obliviousharmony, konamiman, sadowski, wpmuguru, royho, barryhughes-1, claudiulodro, tiagonoronha, ryelle, levinmedia, aljullu, nerrad, joshuawold, assassinateur, haszari, mppfeiffer, nielslange, opr18, ralucastn, tjcafferkey, danielwrobert, patriciahillebrandt, albarin, dinhtungdu, imanish003, karolmanijak, sunyatasattva, alexandrelara, gigitux, danieldudzic, samueljseay, alexflorisca, opr18, tarunvijwani, pauloarromba, saadtarhi, bor0, kloon, coreymckrill, jorgeatorres, leifsinger, neosinner
 Tags: online store, ecommerce, shop, shopping cart, sell online
-Requires at least: 6.6
-Tested up to: 6.8
+Requires at least: 6.8
+Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 9.8.4
+Stable tag: 10.4.2
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -40,7 +40,7 @@ WooCommerce means business. Keep tabs on the performance metrics most important 
 
 Expand your audience across marketing and social channels with [Google Ads](https://woocommerce.com/products/google-ads/?utm_medium=referral&utm_source=wordpress.org&utm_campaign=wp_org_repo_listing), [HubSpot](https://woocommerce.com/products/hubspot-for-woocommerce/?utm_medium=referral&utm_source=wordpress.org&utm_campaign=wp_org_repo_listing), [Mailchimp](https://woocommerce.com/products/mailchimp-for-woocommerce/?utm_medium=referral&utm_source=wordpress.org&utm_campaign=wp_org_repo_listing), and [Facebook](https://woocommerce.com/products/facebook/?utm_medium=referral&utm_source=wordpress.org&utm_campaign=wp_org_repo_listing) integrations. You can always check out the in-dashboard [Marketing Hub](https://woocommerce.com/document/marketing-hub/?utm_medium=referral&utm_source=wordpress.org&utm_campaign=wp_org_repo_listing) for fresh ideas and tips to help you succeed.
 
-Enhance store functionality with hundreds of free and paid extensions from the [official WooCommerce Marketplace](https://woocommerce.com/products/?utm_medium=referral&utm_source=wordpress.org&utm_campaign=wp_org_repo_listing). Our developers [vet each new extension](https://woocommerce.com/document/marketplace-overview/#section-6?utm_medium=referral&utm_source=wordpress.org&utm_campaign=wp_org_repo_listing) and regularly review existing extensions to maintain Marketplace quality standards. We are actively [looking for products that help store builders create successful stores](https://woocommerce.com/document/marketplace-overview/#section-2?utm_medium=referral&utm_source=wordpress.org&utm_campaign=wp_org_repo_listing).
+Enhance store functionality with hundreds of free and paid extensions from the [WooCommerce Marketplace](https://woocommerce.com/products/?utm_medium=referral&utm_source=wordpress.org&utm_campaign=wp_org_repo_listing). Our developers [vet each new extension](https://woocommerce.com/document/marketplace-overview/#section-6?utm_medium=referral&utm_source=wordpress.org&utm_campaign=wp_org_repo_listing) and regularly review existing extensions to maintain Marketplace quality standards. We are actively [looking for products that help store builders create successful stores](https://woocommerce.com/document/marketplace-overview/#section-2?utm_medium=referral&utm_source=wordpress.org&utm_campaign=wp_org_repo_listing).
 
 Manage your store from anywhere with the free WooCommerce [mobile app](https://woocommerce.com/mobile/?utm_medium=referral&utm_source=wordpress.org&utm_campaign=wp_org_repo_listing) (Android and iOS). Spoiler alert: Keep an ear out for the slightly addictive "cha-ching" notification sound each time you make a new sale!
 
@@ -143,9 +143,10 @@ Check out [Frequently Asked Questions](https://woocommerce.com/document/frequent
 = Minimum Requirements =
 
 * PHP 7.4 or greater is required (PHP 8.0 or greater is recommended)
-* MySQL 5.6 or greater, OR MariaDB version 10.1 or greater, is required
-
-Visit the [WooCommerce server requirements documentation](https://woocommerce.com/document/server-requirements/?utm_source=wp%20org%20repo%20listing&utm_content=3.6) for a detailed list of server requirements.
+* MySQL 5.5.5 or greater, OR MariaDB version 10.1 or greater, is required
+* WordPress 6.8 or greater
+* (Recommended) WordPress [memory limit](https://woocommerce.com/document/increasing-the-wordpress-memory-limit/) of 256 MB or greater.
+* (Recommended) [HTTPS](https://woocommerce.com/document/ssl-and-https/) support.
 
 = Automatic installation =
 
@@ -169,26 +170,14 @@ WooCommerce comes with some sample data you can use to see how products look; im
 
 == Changelog ==
 
-= 9.8.5 2025-05-12 =
+= 10.4.3 2025-12-22 =
 
 **WooCommerce**
 
-* Fix - Address PHP 8.4 deprecation warnings. [#57864](https://github.com/woocommerce/woocommerce/pull/57864)
-* Fix - Allow other protocols such as S3 for file paths in CSV importer [#57465](https://github.com/woocommerce/woocommerce/pull/57465)
-* Fix - Apply reactify-payments-settings class to the page body when the feature is active. [#57618](https://github.com/woocommerce/woocommerce/pull/57618)
-* Fix - Fix backward compatibility for individual gateway settings pages/sections to display notices and sections with the new Reactified Payments Settings page. [#57618](https://github.com/woocommerce/woocommerce/pull/57618)
-* Fix - Prevent PHP notice in transient cleanup. [#57679](https://github.com/woocommerce/woocommerce/pull/57679)
-* Fix - Prevent shipping rates remaining hidden when checkout fields filtered to be optional are not filled on classic checkout. [#57674](https://github.com/woocommerce/woocommerce/pull/57674)
-* Fix - PTK Pattern: improve guard [#57847](https://github.com/woocommerce/woocommerce/pull/57847)
-* Fix - Remove the section navigation for the offline payment methods settings pages. [#57748](https://github.com/woocommerce/woocommerce/pull/57748)
-* Add - Use wc_back_header function for tertiary+ level pages in WooCommerce settings. [#57618](https://github.com/woocommerce/woocommerce/pull/57618)
-* Update - Allow WooPayments to take over Payments menu item only if WooPayments is fully onboarded. [#57618](https://github.com/woocommerce/woocommerce/pull/57618)
-* Update - Improve WooPayments incentive handling. [#57618](https://github.com/woocommerce/woocommerce/pull/57618)
-* Update - Update popover interaction from hover to click [#57618](https://github.com/woocommerce/woocommerce/pull/57618)
-* Update - Update the payments extensions official badge icon. [#57714](https://github.com/woocommerce/woocommerce/pull/57714)
-* Dev - E2E tests: enhance shipping zones test [#56786](https://github.com/woocommerce/woocommerce/pull/56786)
-* Tweak - The new Payments Settings page is now enabled by default for all stores, new and existing. [#57614](https://github.com/woocommerce/woocommerce/pull/57614)
-* Tweak - Update recurring payments icon on the new settings page. [#57618](https://github.com/woocommerce/woocommerce/pull/57618)
+* Fix - Ensure guest orders cannot be read by customers without providing the key and billing address. [#62557](https://github.com/woocommerce/woocommerce/pull/62557)
+* Fix - Fix undo button after cart item removal in the cart shortcode [#62529](https://github.com/woocommerce/woocommerce/pull/62529)
+* Fix - Improve handling of order modified date during HPOS sync on read to prevent infinite loops. [#62532](https://github.com/woocommerce/woocommerce/pull/62532)
+* Update - Add automatic currency transition from BGN to EUR for Bulgaria effective January 1, 2026 [#62478](https://github.com/woocommerce/woocommerce/pull/62478)
 
 
 [See changelog for all versions](https://raw.githubusercontent.com/woocommerce/woocommerce/trunk/changelog.txt).

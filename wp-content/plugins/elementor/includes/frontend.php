@@ -147,8 +147,6 @@ class Frontend extends App {
 		'elementor-default',
 	];
 
-	private $google_fonts_index = 0;
-
 	/**
 	 * Front End constructor.
 	 *
@@ -174,6 +172,10 @@ class Frontend extends App {
 		// Hack to avoid enqueue post CSS while it's a `the_excerpt` call.
 		add_filter( 'get_the_excerpt', [ $this, 'start_excerpt_flag' ], 1 );
 		add_filter( 'get_the_excerpt', [ $this, 'end_excerpt_flag' ], 20 );
+
+		if ( version_compare( get_bloginfo( 'version' ), '6.9', '>=' ) ) {
+			add_filter( 'wp_should_output_buffer_template_for_enhancement', '__return_false', 1 );
+		}
 	}
 
 	/**
@@ -237,33 +239,20 @@ class Frontend extends App {
 
 		// Priority 7 to allow google fonts in header template to load in <head> tag
 		add_action( 'wp_head', [ $this, 'print_fonts_links' ], 7 );
-		add_action( 'wp_head', [ $this, 'print_google_fonts_preconnect_tag' ], 8 );
 		add_action( 'wp_head', [ $this, 'add_theme_color_meta_tag' ] );
 		add_action( 'wp_footer', [ $this, 'wp_footer' ] );
-	}
-
-	public function print_google_fonts_preconnect_tag() {
-		if ( 0 >= $this->google_fonts_index ) {
-			return;
-		}
-
-		if ( Plugin::$instance->experiments->is_feature_active( 'e_local_google_fonts' ) ) {
-			return;
-		}
-
-		echo '<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>';
 	}
 
 	/**
 	 * @since 2.0.12
 	 * @access public
-	 * @param string|array $class
+	 * @param string|array $class_name
 	 */
-	public function add_body_class( $class ) {
-		if ( is_array( $class ) ) {
-			$this->body_classes = array_merge( $this->body_classes, $class );
+	public function add_body_class( $class_name ) {
+		if ( is_array( $class_name ) ) {
+			$this->body_classes = array_merge( $this->body_classes, $class_name );
 		} else {
-			$this->body_classes[] = $class;
+			$this->body_classes[] = $class_name;
 		}
 	}
 
@@ -466,6 +455,8 @@ class Frontend extends App {
 			true
 		);
 
+		$this->register_frontend_handlers();
+
 		/**
 		 * After frontend register scripts.
 		 *
@@ -565,7 +556,7 @@ class Frontend extends App {
 
 		wp_register_style(
 			'elementor-frontend',
-			$this->get_frontend_file_url( "frontend{$direction_suffix}{$min_suffix}.css", $has_custom_breakpoints ),
+			$this->get_frontend_file_url( "frontend{$min_suffix}.css", $has_custom_breakpoints ),
 			[],
 			$has_custom_breakpoints ? null : ELEMENTOR_VERSION
 		);
@@ -598,6 +589,21 @@ class Frontend extends App {
 		 * @since 1.2.0
 		 */
 		do_action( 'elementor/frontend/after_register_styles' );
+	}
+
+	/**
+	 * Register frontend handlers.
+	 *
+	 * Registers all the frontend handlers for widgets and elements.
+	 *
+	 * Fired by `wp_enqueue_scripts` action.
+	 *
+	 * @since 3.25.0
+	 * @access public
+	 */
+	public function register_frontend_handlers() {
+		Plugin::$instance->widgets_manager->register_frontend_handlers();
+		Plugin::$instance->elements_manager->register_frontend_handlers();
 	}
 
 	/**
@@ -681,12 +687,15 @@ class Frontend extends App {
 				$post_id = get_the_ID();
 				// Check $post_id for virtual pages. check is singular because the $post_id is set to the first post on archive pages.
 				if ( $post_id && is_singular() ) {
+					do_action( 'elementor/post/render', $post_id );
 					$this->handle_page_assets( $post_id );
 
 					$css_file = Post_CSS::create( get_the_ID() );
 					$css_file->enqueue();
 				}
 			}
+
+			do_action( 'elementor/frontend/after_enqueue_post_styles' );
 		}
 	}
 
@@ -1019,34 +1028,17 @@ class Frontend extends App {
 			return;
 		}
 
-		// Print used fonts
+		$force_enqueue_from_cdn = Plugin::$instance->preview->is_preview_mode();
+
 		if ( ! empty( $google_fonts['google'] ) ) {
-			++$this->google_fonts_index;
-
-			if ( Plugin::$instance->experiments->is_feature_active( 'e_local_google_fonts' ) ) {
-				foreach ( $google_fonts['google'] as $current_font ) {
-					Google_Font::enqueue( $current_font );
-				}
-			} else {
-				$fonts_url = $this->get_stable_google_fonts_url( $google_fonts['google'] );
-
-				wp_enqueue_style( 'google-fonts-' . $this->google_fonts_index, $fonts_url ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
+			foreach ( $google_fonts['google'] as $current_font ) {
+				Google_Font::enqueue( $current_font, Google_Font::TYPE_DEFAULT, $force_enqueue_from_cdn );
 			}
 		}
 
 		if ( ! empty( $google_fonts['early'] ) ) {
-			if ( Plugin::$instance->experiments->is_feature_active( 'e_local_google_fonts' ) ) {
-				foreach ( $google_fonts['early'] as $current_font ) {
-					Google_Font::enqueue( $current_font, Google_Font::TYPE_EARLYACCESS );
-				}
-			} else {
-				$early_access_font_urls = $this->get_early_access_google_font_urls( $google_fonts['early'] );
-
-				foreach ( $early_access_font_urls as $ea_font_url ) {
-					++$this->google_fonts_index;
-
-					wp_enqueue_style( 'google-earlyaccess-' . $this->google_fonts_index, $ea_font_url ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
-				}
+			foreach ( $google_fonts['early'] as $current_font ) {
+				Google_Font::enqueue( $current_font, Google_Font::TYPE_EARLYACCESS, $force_enqueue_from_cdn );
 			}
 		}
 	}
