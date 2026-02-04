@@ -435,6 +435,17 @@ add_filter( 'elementor/theme/get_location_templates/template_id', function( $tem
     return $template_id;
 });
 
+// Ngăn template Product Archive in lại ở location elementor_body_end (wp_footer)
+add_action( 'elementor/theme/before_do_elementor_body_end', function( $locations_manager ) {
+	if ( ! is_tax( 'product_cat' ) ) {
+		return;
+	}
+	$product_archive_template_ids = [ 624, 774, 1721 ];
+	foreach ( $product_archive_template_ids as $template_id ) {
+		$locations_manager->skip_doc_in_location( 'elementor_body_end', $template_id );
+	}
+}, 5 );
+
 // 1) Bắt mọi lần before_section_end rồi lọc theo widget = wc-categories
 add_action('elementor/element/before_section_end', function($element, $section_id, $args){
     if ( ! method_exists($element, 'get_name') ) return;
