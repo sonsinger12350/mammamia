@@ -416,7 +416,7 @@ class WebsiteConfig
 
 				<!-- Import Jobs History Section -->
 				<div class="card" style="max-width: 100%; margin-bottom: 20px;">
-					<h2><span class="dashicons dashicons-list-view"></span> Lịch Sử Import</h2>
+					<h2><span class="dashicons dashicons-list-view"></span>Lịch Sử Import</h2>
 					<?php $this->display_import_jobs_status(); ?>
 				</div>
 			</div>
@@ -937,9 +937,7 @@ class WebsiteConfig
 		// Check if product exists
 		$existing_product = null;
 		$existing_product_id = wc_get_product_id_by_sku($sku);
-		if ($existing_product_id) {
-			$existing_product = wc_get_product($existing_product_id);
-		}
+		if ($existing_product_id) $existing_product = wc_get_product($existing_product_id);
 
 		if ($existing_product && !$update_existing) {
 			return array('success' => false, 'message' => 'Sản phẩm với SKU ' . $sku . ' đã tồn tại');
@@ -1189,15 +1187,12 @@ class WebsiteConfig
 	 */
 	private function handle_product_images($product, $data)
 	{
-		$image_ids = [];
 		$gallery_ids = [];
 
 		// Process main image
 		if (!empty($data[mamma_mia_get_column_key('image_url')])) {
 			$image_id = $this->import_image_from_drive($data[mamma_mia_get_column_key('image_url')]);
-			if ($image_id) {
-				$product->set_image_id($image_id);
-			}
+			if ($image_id) $product->set_image_id($image_id);
 		}
 
 		// Process gallery images in batch
@@ -1209,17 +1204,14 @@ class WebsiteConfig
 			
 			foreach ($gallery_urls as $url) {
 				$url = trim($url);
+
 				if (!empty($url)) {
 					$image_id = $this->import_image_from_drive($url);
-					if ($image_id) {
-						$gallery_ids[] = $image_id;
-					}
+					if ($image_id) $gallery_ids[] = $image_id;
 				}
 			}
 
-			if (!empty($gallery_ids)) {
-				$product->set_gallery_image_ids($gallery_ids);
-			}
+			if (!empty($gallery_ids)) $product->set_gallery_image_ids($gallery_ids);
 		}
 
 		$product->save();
@@ -1708,7 +1700,7 @@ class WebsiteConfig
 		}
 
 		echo '<table class="wp-list-table widefat fixed striped">';
-		echo '<thead><tr><th>Job ID</th><th>Tổng sản phẩm</th><th>Đã xử lý</th><th>Tạo mới</th><th>Cập nhật</th><<th>SKU bị lỗi</th><th>Trạng thái</th><th>Thời gian</th></tr></thead>';
+		echo '<thead><tr><th>Job ID</th><th>Tổng sản phẩm</th><th>Đã xử lý</th><th>Tạo mới</th><th>Cập nhật</th><th>SKU bị lỗi</th><th>Trạng thái</th><th>Thời gian</th></tr></thead>';
 		echo '<tbody>';
 
 		foreach ($jobs as $job) {
