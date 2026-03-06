@@ -157,12 +157,12 @@ class WebsiteConfig
 	 */
 	public function schedule_cron_jobs()
 	{
-		if (!wp_next_scheduled('mamma_mia_process_import_queue')) {
-			wp_schedule_event(time(), 'every_minute', 'mamma_mia_process_import_queue');
-		}
-
-		// Add custom cron interval
+		// Register custom schedules before scheduling events.
 		add_filter('cron_schedules', array($this, 'add_cron_intervals'));
+
+		if (!wp_next_scheduled('mamma_mia_process_import_queue')) {
+			wp_schedule_event(time(), 'mamma_mia_every_60_seconds', 'mamma_mia_process_import_queue');
+		}
 	}
 
 	/**
