@@ -127,20 +127,31 @@ class Custom_Elementor_Widget_Product_Content extends \Elementor\Widget_Base {
 		$default_images = [];
 		$sku = $product->get_sku();
 
-		if (!empty($default_color)) {
-			// Nếu có size
-			if (!empty($attributes[$default_color]['size'])) {
-				$default_size = key($attributes[$default_color]['size']);
-				$default_images = $attributes[$default_color]['size'][$default_size]['images'] ?? [];
-		
-				// Lấy SKU của biến thể theo màu + size
-				$sku = $attributes[$default_color]['size'][$default_size]['sku'] ?? $sku;
+		if ( $product->is_type( 'simple' ) ) {
+			// Sản phẩm đơn giản: dùng ảnh đại diện + thư viện gallery của sản phẩm
+			$gallery_attachment_ids = array_unique(
+				array_filter(
+					array_merge(
+						$image_id ? [ $image_id ] : [],
+						$product->get_gallery_image_ids()
+					)
+				)
+			);
+			foreach ( $gallery_attachment_ids as $att_id ) {
+				$url = wp_get_attachment_url( $att_id );
+				if ( $url ) $default_images[] = $url;
 			}
-			else {
-				$default_images = $attributes[$default_color]['images'] ?? [];
-		
-				// Lấy SKU của biến thể theo màu (không có size)
-				$sku = $attributes[$default_color]['sku'] ?? $sku;
+		} elseif ( ! empty( $default_color ) ) {
+			// Biến thể / logic cũ: ảnh theo thuộc tính màu & size
+			if ( ! empty( $attributes[ $default_color ]['size'] ) ) {
+				$default_size = key( $attributes[ $default_color ]['size'] );
+				$default_images = $attributes[ $default_color ]['size'][ $default_size ]['images'] ?? [];
+
+				$sku = $attributes[ $default_color ]['size'][ $default_size ]['sku'] ?? $sku;
+			} else {
+				$default_images = $attributes[ $default_color ]['images'] ?? [];
+
+				$sku = $attributes[ $default_color ]['sku'] ?? $sku;
 			}
 		}
 
