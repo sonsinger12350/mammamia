@@ -34,6 +34,10 @@ a {
 	margin-top: 32px;
 }
 
+.elementor-element.custom-slide-header .swiper-slide img {
+	height: 100vh;
+}
+
 #masthead,
 #masthead .ast-primary-header-bar {
 	background-color: #132E2DBA;
@@ -715,6 +719,10 @@ a {
 }
 
 @media (max-width: 767px) {
+	.elementor-element.custom-slide-header .swiper-slide img {
+        height: 500px;
+    }
+
 	.elementor-element .custom-header-slide .swiper .swiper-slide .swiper-slide-inner img {
 		height: 500px;
 	}
@@ -738,6 +746,10 @@ a {
 }
 
 @media (max-width: 576px) {
+	.elementor-element.custom-slide-header .swiper-slide img {
+        height: 300px;
+    }
+
 	.elementor-element .custom-header-slide .swiper .swiper-slide .swiper-slide-inner img {
 		height: 400px;
 	}
@@ -803,3 +815,8 @@ a {
 	}
 }
 
+@media (max-width: 380px) {
+    .elementor-element.custom-slide-header .swiper-slide img {
+        height: 250px;
+    }
+}
