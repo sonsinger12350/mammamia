@@ -163,12 +163,28 @@ class Custom_Elementor_Widget_Product_Content_Tab extends \Elementor\Widget_Base
 						<div class="left">
 							<table>
 								<tbody>
-									<?php foreach ($custom_data['custom_field'] as $k => $v): ?>
+									<?php foreach ( (array) ( $custom_data['custom_field'] ?? [] ) as $k => $v ) : ?>
 										<tr>
 											<td><b><?php echo esc_html( $v['label'] ); ?>:</b></td>
-											<td class="attribute-<?= $k ?>"><?php echo esc_html( is_array($v['value']) ? implode(', ', $v['value']) : $v['value'] ); ?></td>
+											<td class="attribute-<?= esc_attr( $k ) ?>"><?php echo esc_html( is_array($v['value']) ? implode(', ', $v['value']) : $v['value'] ); ?></td>
 										</tr>
 									<?php endforeach; ?>
+									<?php
+									$detail_table_taxonomies = [ 'chat-lieu', 'bo-suu-tap' ];
+									foreach ( $detail_table_taxonomies as $tax_key ) {
+										if ( empty( $custom_data['custom_taxonomies'][ $tax_key ]['value'] ) ) {
+											continue;
+										}
+										$tax = $custom_data['custom_taxonomies'][ $tax_key ];
+										$labels = array_column( $tax['value'], 'label' );
+										?>
+										<tr>
+											<td><b><?php echo esc_html( $tax['label'] ); ?>:</b></td>
+											<td class="taxonomy-<?php echo esc_attr( $tax_key ); ?>"><?php echo esc_html( implode( ', ', $labels ) ); ?></td>
+										</tr>
+										<?php
+									}
+									?>
 								</tbody>
 							</table>
 							<?php if (!empty($custom_data['custom_taxonomies']['chinh-sach-bao-hanh']['value'])): ?>
