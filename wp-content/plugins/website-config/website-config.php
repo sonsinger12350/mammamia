@@ -324,6 +324,8 @@ class WebsiteConfig
 	 */
 	public function import_page()
 	{
+		$import_dev_mode = isset($_GET['dev_mode']) && (string) $_GET['dev_mode'] === '1';
+
 		// Hardcode import settings (no longer show in admin)
 		?>
 			<div class="wrap">
@@ -402,6 +404,14 @@ class WebsiteConfig
 								<span class="checkmark"></span>
 								<span class="option-text">Cập nhật sản phẩm đã tồn tại</span>
 							</label>
+							<?php if ($import_dev_mode) : ?>
+								<input type="hidden" name="mm_import_fast_dev" value="<?php echo esc_attr(wp_create_nonce('mm_import_fast_dev')); ?>" />
+								<label class="checkbox-wrapper">
+									<input type="checkbox" id="import_immediately" name="import_immediately" value="1" />
+									<span class="checkmark"></span>
+									<span class="option-text">Import ngay (xử lý xong trong lần tải lên này, không chờ cron)</span>
+								</label>
+							<?php endif; ?>
 						</div>
 
 						<div class="submit-wrapper">
@@ -422,8 +432,8 @@ class WebsiteConfig
 			</div>
 
 			<script>
-				// Pass nonce to JavaScript
 				window.websiteConfigNonce = '<?php echo wp_create_nonce('excel_import_nonce'); ?>';
+				window.mammaMiaImportDevMode = <?php echo $import_dev_mode ? 'true' : 'false'; ?>;
 			</script>
 		<?php
 	}
@@ -445,6 +455,9 @@ class WebsiteConfig
 
 		$file = $_FILES['excel_file'];
 		$update_existing = isset($_POST['update_existing']) && $_POST['update_existing'] === '1';
+		$import_immediately = isset($_POST['import_immediately']) && $_POST['import_immediately'] === '1'
+			&& isset($_POST['mm_import_fast_dev'])
+			&& wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['mm_import_fast_dev'])), 'mm_import_fast_dev');
 
 		// Check file type
 		$allowed_types = ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel'];
@@ -455,33 +468,79 @@ class WebsiteConfig
 		// Include PhpSpreadsheet library
 		require_once ABSPATH . 'wp-admin/includes/file.php';
 
-		// Try to parse Excel data
+		if ($import_immediately) {
+			if (function_exists('set_time_limit')) {
+				@set_time_limit(0);
+			}
+			ini_set('max_execution_time', '0');
+			ini_set('memory_limit', '512M');
+
+			if (class_exists('PhpOffice\PhpSpreadsheet\IOFactory')) {
+				$parse_result = $this->parse_excel_file_to_rows($file);
+			} else {
+				$parse_result = $this->parse_csv_file_to_rows($file);
+			}
+
+			if (!$parse_result['success']) {
+				wp_send_json_error($parse_result['message']);
+			}
+
+			$prepared = $this->rows_to_products_and_variants($parse_result['rows']);
+			if (!$prepared['success']) {
+				wp_send_json_error($prepared['message']);
+			}
+
+			$stats = $this->import_products_variants_directly(
+				$prepared['products'],
+				$prepared['variants'],
+				$update_existing
+			);
+
+			wp_send_json_success(array(
+				'job_id' => null,
+				'total_products' => $prepared['total_products'],
+				'message' => 'Import hoàn tất (trực tiếp, không tạo job trong CSDL).',
+				'imported_sync' => true,
+				'no_job' => true,
+				'status' => 'completed',
+				'processed_products' => $stats['processed_products'],
+				'created_products' => $stats['created_products'],
+				'updated_products' => $stats['updated_products'],
+				'failed_products' => $stats['failed_products'],
+				'failed_products_list' => $stats['failed_products_list'],
+				'error_message' => '',
+			));
+		}
+
 		if (class_exists('PhpOffice\PhpSpreadsheet\IOFactory')) {
 			$result = $this->parse_excel_to_queue($file, $update_existing);
 		} else {
 			$result = $this->parse_csv_to_queue($file, $update_existing);
 		}
 
-		if ($result['success']) {
-			wp_send_json_success(array(
-				'job_id' => $result['job_id'],
-				'total_products' => $result['total_products'],
-				'message' => 'Tạo nhiệm vụ import thành công. Quá trình xử lý sẽ bắt đầu sớm.'
-			));
-		} else {
+		if (!$result['success']) {
 			wp_send_json_error($result['message']);
 		}
+
+		wp_send_json_success(array(
+			'job_id' => $result['job_id'],
+			'total_products' => $result['total_products'],
+			'message' => 'Tạo nhiệm vụ import thành công. Quá trình xử lý sẽ bắt đầu sớm.',
+			'imported_sync' => false,
+		));
 	}
 
 	/**
-	 * Parse Excel data and add to queue
+	 * Đọc file Excel thành mảng hàng (cùng định dạng như trước khi đưa vào queue).
+	 *
+	 * @param array $file Phần tử $_FILES cho upload.
+	 * @return array{success:bool, rows?:array, message?:string}
 	 */
-	private function parse_excel_to_queue($file, $update_existing)
+	private function parse_excel_file_to_rows($file)
 	{
 		try {
-			// Set memory limit for parsing
 			ini_set('memory_limit', '512M');
-			ini_set('max_execution_time', 60); // Only 60 seconds for parsing
+			ini_set('max_execution_time', 60);
 
 			$spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($file['tmp_name']);
 			$worksheet = $spreadsheet->getActiveSheet();
@@ -490,65 +549,68 @@ class WebsiteConfig
 				return !empty(trim($row['C'] ?? ''));
 			});
 
-			// Clear memory
 			$spreadsheet->disconnectWorksheets();
 			unset($spreadsheet);
-			
-			return $this->add_data_to_queue($filtered_rows, $update_existing);
+
+			return array(
+				'success' => true,
+				'rows' => $filtered_rows,
+			);
 		} catch (Exception $e) {
 			return array(
 				'success' => false,
-				'message' => 'Lỗi phân tích file Excel: ' . $e->getMessage()
+				'message' => 'Lỗi phân tích file Excel: ' . $e->getMessage(),
 			);
 		}
 	}
 
 	/**
-	 * Parse CSV data and add to queue
+	 * Đọc file CSV thành mảng hàng.
+	 *
+	 * @param array $file Phần tử $_FILES cho upload.
+	 * @return array{success:bool, rows:array}
 	 */
-	private function parse_csv_to_queue($file, $update_existing)
+	private function parse_csv_file_to_rows($file)
 	{
-		// Set memory limit for parsing
 		ini_set('memory_limit', '512M');
 		ini_set('max_execution_time', 60);
 
 		$csv_data = array();
 
-		// Read file content and convert encoding
 		$content = file_get_contents($file['tmp_name']);
 		$encoding = mb_detect_encoding($content, ['UTF-8', 'UTF-16LE', 'UTF-16BE', 'ISO-8859-1', 'Windows-1252'], true);
 		if ($encoding !== 'UTF-8') {
 			$content = mb_convert_encoding($content, 'UTF-8', $encoding);
 		}
 
-		// Create temporary file
 		$tmpFile = tmpfile();
 		fwrite($tmpFile, $content);
 		rewind($tmpFile);
 
-		// Read CSV data
-		$row_count = 0;
-		while (($data = fgetcsv($tmpFile, 1000, ",")) !== FALSE) {
+		while (($data = fgetcsv($tmpFile, 1000, ',')) !== false) {
 			$csv_data[] = $data;
-			$row_count++;
 		}
 
 		fclose($tmpFile);
 
-		return $this->add_data_to_queue($csv_data, $update_existing);
+		return array(
+			'success' => true,
+			'rows' => $csv_data,
+		);
 	}
 
 	/**
-	 * Add parsed data to import queue
+	 * Tách hàng sheet thành sản phẩm chính và biến thể (dùng chung cho queue và import trực tiếp).
+	 *
+	 * @param array $rows Dữ liệu đã parse.
+	 * @return array{success:bool, message?:string, products?:array, variants?:array, total_products?:int}
 	 */
-	private function add_data_to_queue($rows, $update_existing)
+	private function rows_to_products_and_variants($rows)
 	{
-		global $wpdb;
-
 		if (empty($rows) || count($rows) < 2) {
 			return array(
 				'success' => false,
-				'message' => 'Không tìm thấy dữ liệu trong file Excel'
+				'message' => 'Không tìm thấy dữ liệu trong file Excel',
 			);
 		}
 
@@ -558,7 +620,6 @@ class WebsiteConfig
 		$products = array();
 		$variants = array();
 
-		// Separate main products and variants
 		foreach ($data_rows as $row) {
 			$row_data = array_combine($headers, $row);
 
@@ -576,9 +637,149 @@ class WebsiteConfig
 		if ($total_products === 0) {
 			return array(
 				'success' => false,
-				'message' => 'Không tìm thấy sản phẩm hợp lệ trong file'
+				'message' => 'Không tìm thấy sản phẩm hợp lệ trong file',
 			);
 		}
+
+		return array(
+			'success' => true,
+			'products' => $products,
+			'variants' => $variants,
+			'total_products' => $total_products,
+		);
+	}
+
+	/**
+	 * Import main + variant trong bộ nhớ (không ghi job/queue).
+	 *
+	 * @param array $products        Dòng sản phẩm chính.
+	 * @param array $variants        Dòng biến thể.
+	 * @param bool  $update_existing Cập nhật nếu SKU đã có.
+	 * @return array{processed_products:int, created_products:int, updated_products:int, failed_products:int, failed_products_list:array}
+	 */
+	private function import_products_variants_directly($products, $variants, $update_existing)
+	{
+		$processed = 0;
+		$created = 0;
+		$updated = 0;
+		$failed = 0;
+		$failed_list = array();
+
+		foreach ($products as $product_data) {
+			$result = false;
+			try {
+				$result = $this->create_or_update_product($product_data, $update_existing);
+			} catch (Exception $e) {
+				$result = array(
+					'success' => false,
+					'message' => $e->getMessage(),
+				);
+			}
+
+			if ($result && !empty($result['success'])) {
+				$processed++;
+				if (isset($result['action']) && $result['action'] === 'created') {
+					$created++;
+				} else {
+					$updated++;
+				}
+			} else {
+				$error_message = is_array($result) ? ($result['message'] ?? 'Lỗi không xác định') : 'Lỗi không xác định';
+				$processed++;
+				$failed++;
+				$failed_sku = '';
+				if (isset($product_data[mamma_mia_get_column_key('sku')])) {
+					$failed_sku = sanitize_text_field($product_data[mamma_mia_get_column_key('sku')]);
+				}
+				if ($failed_sku !== '') {
+					$failed_list[] = array(
+						'sku' => $failed_sku,
+						'error' => $error_message,
+					);
+				}
+			}
+		}
+
+		foreach ($variants as $variant_data) {
+			$result = false;
+			try {
+				$result = $this->create_or_update_variant($variant_data, $update_existing);
+			} catch (Exception $e) {
+				$result = array(
+					'success' => false,
+					'message' => $e->getMessage(),
+				);
+			}
+
+			if ($result && !empty($result['success'])) {
+				$processed++;
+				if (isset($result['action']) && $result['action'] === 'created') {
+					$created++;
+				} else {
+					$updated++;
+				}
+			} else {
+				$error_message = is_array($result) ? ($result['message'] ?? 'Lỗi không xác định') : 'Lỗi không xác định';
+				$processed++;
+				$failed++;
+				$failed_sku = '';
+				if (isset($variant_data[mamma_mia_get_column_key('sku')])) {
+					$failed_sku = sanitize_text_field($variant_data[mamma_mia_get_column_key('sku')]);
+				}
+				if ($failed_sku !== '') {
+					$failed_list[] = array(
+						'sku' => $failed_sku,
+						'error' => $error_message,
+					);
+				}
+			}
+		}
+
+		return array(
+			'processed_products' => $processed,
+			'created_products' => $created,
+			'updated_products' => $updated,
+			'failed_products' => $failed,
+			'failed_products_list' => $failed_list,
+		);
+	}
+
+	/**
+	 * Parse Excel data and add to queue
+	 */
+	private function parse_excel_to_queue($file, $update_existing)
+	{
+		$parsed = $this->parse_excel_file_to_rows($file);
+		if (!$parsed['success']) {
+			return $parsed;
+		}
+		return $this->add_data_to_queue($parsed['rows'], $update_existing);
+	}
+
+	/**
+	 * Parse CSV data and add to queue
+	 */
+	private function parse_csv_to_queue($file, $update_existing)
+	{
+		$parsed = $this->parse_csv_file_to_rows($file);
+		return $this->add_data_to_queue($parsed['rows'], $update_existing);
+	}
+
+	/**
+	 * Add parsed data to import queue
+	 */
+	private function add_data_to_queue($rows, $update_existing)
+	{
+		global $wpdb;
+
+		$prepared = $this->rows_to_products_and_variants($rows);
+		if (!$prepared['success']) {
+			return $prepared;
+		}
+
+		$products = $prepared['products'];
+		$variants = $prepared['variants'];
+		$total_products = $prepared['total_products'];
 
 		// Create import job
 		$job_id = wp_generate_uuid4();
@@ -745,41 +946,53 @@ class WebsiteConfig
 	}
 
 	/**
-	 * Process import queue (called by cron)
+	 * Process import queue (called by cron) — xử lý một job (theo thứ tự tạo) và một dòng hàng đợi mỗi lần gọi.
 	 */
 	public function process_import_queue()
 	{
 		global $wpdb;
 
 		$jobs_table = $wpdb->prefix . 'mamma_mia_import_jobs';
-		$queue_table = $wpdb->prefix . 'mamma_mia_import_queue';
 
-		// Get the next pending job
 		$job = $wpdb->get_row(
 			"SELECT * FROM $jobs_table WHERE status IN ('pending', 'processing') ORDER BY created_at ASC LIMIT 1"
 		);
 
 		if (!$job) {
-			return; // No jobs to process
+			return;
 		}
 
-		// Update job status to processing
-		$wpdb->update(
-			$jobs_table,
-			array('status' => 'processing'),
-			array('job_id' => $job->job_id),
-			array('%s'),
-			array('%s')
-		);
+		if ($job->status === 'pending') {
+			$wpdb->update(
+				$jobs_table,
+				array('status' => 'processing'),
+				array('job_id' => $job->job_id),
+				array('%s'),
+				array('%s')
+			);
+		}
 
-		// Get next pending item from queue
+		$this->process_next_queue_item_for_job($job);
+	}
+
+	/**
+	 * Xử lý đúng một phần tử tiếp theo trong hàng đợi của job đã cho (logic giữ nguyên với cron).
+	 *
+	 * @param object $job Hàng từ bảng mamma_mia_import_jobs.
+	 */
+	private function process_next_queue_item_for_job($job)
+	{
+		global $wpdb;
+
+		$jobs_table = $wpdb->prefix . 'mamma_mia_import_jobs';
+		$queue_table = $wpdb->prefix . 'mamma_mia_import_queue';
+
 		$queue_item = $wpdb->get_row($wpdb->prepare(
 			"SELECT * FROM $queue_table WHERE job_id = %s AND status = 'pending' ORDER BY product_type ASC, id ASC LIMIT 1",
 			$job->job_id
 		));
 
 		if (!$queue_item) {
-			// No more items to process, mark job as completed
 			$wpdb->update(
 				$jobs_table,
 				array('status' => 'completed'),
@@ -790,7 +1003,6 @@ class WebsiteConfig
 			return;
 		}
 
-		// Mark current item as processing
 		$wpdb->update(
 			$queue_table,
 			array('status' => 'processing'),
@@ -799,7 +1011,6 @@ class WebsiteConfig
 			array('%d')
 		);
 
-		// Process the item
 		$product_data = json_decode($queue_item->product_data, true);
 		$result = false;
 
@@ -816,7 +1027,6 @@ class WebsiteConfig
 			);
 		}
 
-		// Update queue item status
 		if ($result && $result['success']) {
 			$wpdb->update(
 				$queue_table,
@@ -826,33 +1036,31 @@ class WebsiteConfig
 				array('%d')
 			);
 
-		// Update job counters - count both main products and variants
-		if ($queue_item->product_type === 'main') {
-			if (isset($result['action']) && $result['action'] === 'created') {
-				$wpdb->query($wpdb->prepare(
-					"UPDATE $jobs_table SET processed_products = processed_products + 1, created_products = created_products + 1 WHERE job_id = %s",
-					$job->job_id
-				));
+			if ($queue_item->product_type === 'main') {
+				if (isset($result['action']) && $result['action'] === 'created') {
+					$wpdb->query($wpdb->prepare(
+						"UPDATE $jobs_table SET processed_products = processed_products + 1, created_products = created_products + 1 WHERE job_id = %s",
+						$job->job_id
+					));
+				} else {
+					$wpdb->query($wpdb->prepare(
+						"UPDATE $jobs_table SET processed_products = processed_products + 1, updated_products = updated_products + 1 WHERE job_id = %s",
+						$job->job_id
+					));
+				}
 			} else {
-				$wpdb->query($wpdb->prepare(
-					"UPDATE $jobs_table SET processed_products = processed_products + 1, updated_products = updated_products + 1 WHERE job_id = %s",
-					$job->job_id
-				));
+				if (isset($result['action']) && $result['action'] === 'created') {
+					$wpdb->query($wpdb->prepare(
+						"UPDATE $jobs_table SET processed_products = processed_products + 1, created_products = created_products + 1 WHERE job_id = %s",
+						$job->job_id
+					));
+				} else {
+					$wpdb->query($wpdb->prepare(
+						"UPDATE $jobs_table SET processed_products = processed_products + 1, updated_products = updated_products + 1 WHERE job_id = %s",
+						$job->job_id
+					));
+				}
 			}
-		} else {
-			// Count variants as well
-			if (isset($result['action']) && $result['action'] === 'created') {
-				$wpdb->query($wpdb->prepare(
-					"UPDATE $jobs_table SET processed_products = processed_products + 1, created_products = created_products + 1 WHERE job_id = %s",
-					$job->job_id
-				));
-			} else {
-				$wpdb->query($wpdb->prepare(
-					"UPDATE $jobs_table SET processed_products = processed_products + 1, updated_products = updated_products + 1 WHERE job_id = %s",
-					$job->job_id
-				));
-			}
-		}
 		} else {
 			$error_message = $result['message'] ?? 'Lỗi không xác định';
 			$wpdb->update(
@@ -866,32 +1074,26 @@ class WebsiteConfig
 				array('%d')
 			);
 
-			// Get SKU from product data for failed products list
 			$failed_sku = '';
 			if (isset($product_data[mamma_mia_get_column_key('sku')])) {
 				$failed_sku = sanitize_text_field($product_data[mamma_mia_get_column_key('sku')]);
 			}
 
-			// Get current failed products list
 			$current_failed_list = $wpdb->get_var($wpdb->prepare(
 				"SELECT failed_products_list FROM $jobs_table WHERE job_id = %s",
 				$job->job_id
 			));
 
-			// Parse existing list or create new one
 			$failed_list = !empty($current_failed_list) ? json_decode($current_failed_list, true) : array();
-			
-			// Add new failed SKU with error message if not already in list
+
 			if (!empty($failed_sku)) {
-				// Check if SKU already exists in the list
 				$sku_exists = false;
 				foreach ($failed_list as $failed_item) {
 					if (is_array($failed_item) && isset($failed_item['sku']) && $failed_item['sku'] === $failed_sku) {
 						$sku_exists = true;
 						break;
 					} elseif (is_string($failed_item) && $failed_item === $failed_sku) {
-						// Convert old format to new format
-						$failed_list = array_map(function($item) use ($failed_sku, $error_message) {
+						$failed_list = array_map(function ($item) use ($failed_sku, $error_message) {
 							if (is_string($item) && $item === $failed_sku) {
 								return array('sku' => $failed_sku, 'error' => $error_message);
 							}
@@ -901,15 +1103,14 @@ class WebsiteConfig
 						break;
 					}
 				}
-				
+
 				if (!$sku_exists) {
 					$failed_list[] = array(
 						'sku' => $failed_sku,
 						'error' => $error_message
 					);
 				}
-				
-				// Update failed products list
+
 				$wpdb->update(
 					$jobs_table,
 					array('failed_products_list' => json_encode($failed_list)),
@@ -919,7 +1120,6 @@ class WebsiteConfig
 				);
 			}
 
-			// Update job error counter
 			$wpdb->query($wpdb->prepare(
 				"UPDATE $jobs_table SET processed_products = processed_products + 1, failed_products = failed_products + 1 WHERE job_id = %s",
 				$job->job_id

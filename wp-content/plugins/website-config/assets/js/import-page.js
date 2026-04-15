@@ -176,7 +176,11 @@ jQuery(document).ready(function($) {
 		formData.append('action', 'import_products_excel');
 		formData.append('nonce', window.websiteConfigNonce);
 
-		$('#import-submit').prop('disabled', true).html('<span class="spinner is-active"></span> Đang chuẩn bị Import...');
+		var importImmediately = window.mammaMiaImportDevMode === true
+			&& $('#import_immediately').length > 0
+			&& $('#import_immediately').is(':checked');
+
+		$('#import-submit').prop('disabled', true).html('<span class="spinner is-active"></span> ' + (importImmediately ? 'Đang import...' : 'Đang chuẩn bị Import...'));
 		$('#import-results').html('');
 
 		$.ajax({
@@ -185,27 +189,85 @@ jQuery(document).ready(function($) {
 			data: formData,
 			processData: false,
 			contentType: false,
-			timeout: 120000, // 2 minutes timeout for file parsing
+			timeout: importImmediately ? 0 : 120000,
 			success: function(response) {
 				if (response.success) {
-					currentJobId = response.data.job_id;
-					
+					var d = response.data;
+
+					if (d.imported_sync) {
+						currentJobId = null;
+						if (progressInterval) {
+							clearInterval(progressInterval);
+						}
+
+						var jobIdLine = (d.job_id != null && d.job_id !== '')
+							? ('<li><strong>Job ID:</strong> ' + d.job_id + '</li>')
+							: ('<li><strong>Job ID:</strong> — (import trực tiếp, không lưu job)</li>');
+
+						var failedDetails = '';
+						if (d.failed_products > 0 && d.failed_products_list && d.failed_products_list.length) {
+							failedDetails = '<p><strong>Chi tiết lỗi (SKU):</strong></p><ul class="import-failed-skus">';
+							d.failed_products_list.forEach(function (item) {
+								var sku = (typeof item === 'object' && item.sku) ? item.sku : String(item);
+								var err = (typeof item === 'object' && item.error) ? item.error : '';
+								failedDetails += '<li>' + sku + (err ? (' — ' + err) : '') + '</li>';
+							});
+							failedDetails += '</ul>';
+						}
+
+						var summaryHtml =
+							'<div class="notice notice-success">' +
+							'<h3><span class="dashicons dashicons-yes"></span> Import Hoàn Tất!</h3>' +
+							'<p>' + (d.message || 'Đã xử lý xong trong cùng phiên làm việc.') + '</p>' +
+							'<ul>' +
+							jobIdLine +
+							'<li><strong>Trạng thái:</strong> ' + d.status + '</li>' +
+							'<li><strong>Đã xử lý:</strong> ' + d.processed_products + ' / ' + d.total_products + '</li>' +
+							'<li><strong>Đã tạo:</strong> ' + d.created_products + '</li>' +
+							'<li><strong>Đã cập nhật:</strong> ' + d.updated_products + '</li>' +
+							'<li><strong>Lỗi:</strong> ' + d.failed_products + '</li>' +
+							'</ul>' +
+							failedDetails +
+							(d.failed_products > 0 && !failedDetails ? '<p><strong>Lưu ý:</strong> Một số dòng import thất bại.</p>' : '') +
+							'</div>';
+
+						$('#import-results').html(summaryHtml);
+						$('#import-submit').prop('disabled', false).html('<span class="dashicons dashicons-database-import"></span> Bắt Đầu Import');
+
+						var progressPayload = {
+							status: d.status,
+							total_products: d.total_products,
+							processed_products: d.processed_products,
+							created_products: d.created_products,
+							updated_products: d.updated_products,
+							failed_products: d.failed_products
+						};
+						$('#global-import-progress').show();
+						updateGlobalProgress(progressPayload);
+
+						setTimeout(function() {
+							$('#check-running-imports').click();
+						}, 500);
+
+						return;
+					}
+
+					currentJobId = d.job_id;
+
 					$('#import-results').html(
 						'<div class="notice notice-success">' +
 						'<h3><span class="dashicons dashicons-yes"></span> Import Đã Bắt Đầu Thành Công!</h3>' +
 						'<p>File của bạn đã được xử lý và thêm vào hàng đợi import.</p>' +
 						'<ul>' +
-						'<li><strong>Job ID:</strong> ' + response.data.job_id + '</li>' +
-						'<li><strong>Tổng sản phẩm:</strong> ' + response.data.total_products + '</li>' +
+						'<li><strong>Job ID:</strong> ' + d.job_id + '</li>' +
+						'<li><strong>Tổng sản phẩm:</strong> ' + d.total_products + '</li>' +
 						'</ul>' +
 						'<p>Import sẽ bắt đầu xử lý sớm. Bạn có thể theo dõi tiến độ ở trên.</p>' +
 						'</div>'
 					);
 
-					// Start checking for progress
 					startProgressTracking(currentJobId);
-					
-					// Auto-refresh running imports
+
 					setTimeout(function() {
 						$('#check-running-imports').click();
 					}, 2000);
