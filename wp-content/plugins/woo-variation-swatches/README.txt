@@ -3,10 +3,10 @@ Contributors: EmranAhmed, getwooplugins, storepress
 Tags: woocommerce variation swatches, woocommerce variation, woocommerce, variation swatches, woocommerce attributes, product attributes, product color, product size, variable product attributes, variation product swatches, color variation swatch, image variation swatch, printful color swatches
 Requires PHP: 7.4
 Requires at least: 6.4
-Tested up to: 6.8
+Tested up to: 6.9
 WC requires at least: 8.0
-WC tested up to: 10.3
-Stable tag: 2.2.2
+WC tested up to: 10.5
+Stable tag: 2.2.3
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -614,6 +614,13 @@ And your are ready to go.
 12. Global Variation Color Swatches Attribute List Preview
 
 == Changelog ==
+
+= 2.2.3 - 08-02-2026 =
+
+* Added - WP 6.9+ compatibility.
+* Added - WC 10.5+ compatibility.
+* Fixed - Disable Add to cart button issue.
+* Updated - Archive Stock Info positioning.
 
 = 2.2.2 - 11-11-2025 =
 

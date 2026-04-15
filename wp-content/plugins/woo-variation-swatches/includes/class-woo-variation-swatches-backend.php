@@ -196,7 +196,7 @@ if ( ! class_exists( 'Woo_Variation_Swatches_Backend' ) ) {
 			$screen_id = $screen ? $screen->id : '';
 
 			wp_enqueue_style( 'wp-color-picker' );
-			wp_enqueue_style( 'woo-variation-swatches-admin', woo_variation_swatches()->assets_url( "/css/admin{$suffix}.css" ), array(), woo_variation_swatches()->assets_version( "/css/admin{$suffix}.css" ) );
+			wp_enqueue_style( 'woo-variation-swatches-admin', woo_variation_swatches()->assets_url( "/css/admin{$suffix}.css" ), array(), woo_variation_swatches()->version() );
 
 			$prefix_wc_handle = version_compare(WC()->version, '10.3', '>=') ? 'wc-':'';
 			$serializejson_handle = sprintf( '%sserializejson', $prefix_wc_handle);
@@ -210,7 +210,7 @@ if ( ! class_exists( 'Woo_Variation_Swatches_Backend' ) ) {
 			wp_enqueue_script( 'wp-color-picker-alpha', woo_variation_swatches()->assets_url( "/js/wp-color-picker-alpha{$suffix}.js" ), array(
 				'jquery',
 				'wp-color-picker',
-			), woo_variation_swatches()->assets_version( "/js/wp-color-picker-alpha{$suffix}.js" ), true );
+			), woo_variation_swatches()->version(), true );
 
 			wp_enqueue_script( 'gwp-form-field-dependency', untrailingslashit( plugin_dir_url( __FILE__ ) ) . '/getwooplugins/js/getwooplugins-form-field-dependency.js', array( 'jquery' ), filemtime( untrailingslashit( plugin_dir_path( __FILE__ ) ) . '/getwooplugins/js/getwooplugins-form-field-dependency.js' ), true );
 
@@ -219,7 +219,7 @@ if ( ! class_exists( 'Woo_Variation_Swatches_Backend' ) ) {
 				'wp-color-picker-alpha',
 				'wc-enhanced-select',
 				$serializejson_handle,
-			), woo_variation_swatches()->assets_version( "/js/admin{$suffix}.js" ), true );
+			), woo_variation_swatches()->version(), true );
 
 
 			wp_localize_script( 'woo-variation-swatches-admin', 'woo_variation_swatches_admin', array(

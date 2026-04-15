@@ -208,7 +208,7 @@ if ( ! class_exists( 'Woo_Variation_Swatches_Product_Page' ) ) {
 			$suffix = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
 
 			if ( wc_string_to_bool( woo_variation_swatches()->get_option( 'enable_stylesheet', 'yes' ) ) ) {
-				wp_enqueue_style( 'woo-variation-swatches', woo_variation_swatches()->assets_url( "/css/frontend{$suffix}.css" ), array(), woo_variation_swatches()->assets_version( "/css/frontend{$suffix}.css" ) );
+				wp_enqueue_style( 'woo-variation-swatches', woo_variation_swatches()->assets_url( "/css/frontend{$suffix}.css" ), array(), woo_variation_swatches()->version() );
 			}
 
 			$this->add_inline_style();
@@ -227,7 +227,7 @@ if ( ! class_exists( 'Woo_Variation_Swatches_Product_Page' ) ) {
 				'wp-api-fetch',
 				'wp-polyfill',
 				'wp-url'
-			), woo_variation_swatches()->assets_version( "/js/frontend{$suffix}.js" ), true );
+			), woo_variation_swatches()->version(), true );
 
 			$extra_params_for_rest_uri = apply_filters( 'woo_variation_swatches_rest_add_extra_params', array() );
 
@@ -505,7 +505,7 @@ if ( ! class_exists( 'Woo_Variation_Swatches_Product_Page' ) ) {
 						continue;
 					}
 
-					if ( ! $variation->get_image_id( 'edit' ) > 0 && ! $default_to_image_from_parent ) {
+					if ( ! ($variation->get_image_id( 'edit' ) > 0) && ! $default_to_image_from_parent ) {
 						continue;
 					}
 

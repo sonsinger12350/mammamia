@@ -3,10 +3,10 @@
 Plugin Name: Redirection
 Plugin URI: https://redirection.me/
 Description: Manage all your 301 redirects and monitor 404 errors
-Version: 5.6.0
+Version: 5.7.5
 Author: John Godley
 Text Domain: redirection
-Requires PHP: 7.2
+Requires PHP: 7.4
 Requires at least: 6.5
 ============================================================================================================
 For full license details see license.txt
@@ -20,8 +20,8 @@ if ( ! defined( 'REDIRECTION_FLYING_SOLO' ) ) {
 	define( 'REDIRECTION_FLYING_SOLO', apply_filters( 'redirection_flying_solo', true ) );
 }
 
-// This file must support PHP < 7.2 so as not to crash
-if ( version_compare( phpversion(), '7.2' ) < 0 ) {
+// This file must support PHP < 7.4 so as not to crash
+if ( version_compare( PHP_VERSION, '7.4' ) < 0 ) {
 	add_filter( 'plugin_action_links_' . basename( dirname( REDIRECTION_FILE ) ) . '/' . basename( REDIRECTION_FILE ), 'red_deprecated_php' );
 
 	/**
@@ -30,14 +30,22 @@ if ( version_compare( phpversion(), '7.2' ) < 0 ) {
 	 */
 	function red_deprecated_php( array $links ): array {
 		/* translators: 1: server PHP version. 2: required PHP version. */
-		array_unshift( $links, '<a href="https://redirection.me/support/problems/php-version/" style="color: red; text-decoration: underline">' . sprintf( __( 'Disabled! Detected PHP %1$s, need PHP %2$s+', 'redirection' ), phpversion(), '7.2' ) . '</a>' );
+		array_unshift( $links, '<a href="https://redirection.me/support/problems/php-version/" style="color: red; text-decoration: underline">' . sprintf( __( 'Disabled! Detected PHP %1$s, need PHP %2$s+', 'redirection' ), phpversion(), '7.4' ) . '</a>' );
 		return $links;
 	}
 
 	return;
 }
 
-require_once __DIR__ . '/build/redirection-version.php';
+// TODO: remove this once version is stable
+if ( file_exists( __DIR__ . '/build/redirection-version.php' ) ) {
+	require_once __DIR__ . '/build/redirection-version.php';
+} else {
+	define( 'REDIRECTION_VERSION', '5.7.5' );
+	define( 'REDIRECTION_BUILD', 'e5bead9293c415a3ea00b2af86bd2010' );
+	define( 'REDIRECTION_MIN_WP', '6.5' );
+}
+
 require_once __DIR__ . '/redirection-settings.php';
 require_once __DIR__ . '/models/options.php';
 require_once __DIR__ . '/models/redirect/redirect.php';
@@ -51,6 +59,33 @@ require_once __DIR__ . '/models/action.php';
 require_once __DIR__ . '/models/request.php';
 require_once __DIR__ . '/models/header.php';
 require_once __DIR__ . '/models/group.php';
+
+/**
+ * Clear PHP opcache when plugin is updated. This is to help with mid-update errors.
+ *
+ * @param object $upgrader The upgrader object.
+ * @param array{action: string, type: string, plugins?: string[]} $options The upgrade options.
+ * @return void
+ */
+function redirection_clear_opcache_on_upgrade( $upgrader, $options ) {
+	if ( $options['action'] !== 'update' || $options['type'] !== 'plugin' ) {
+		return;
+	}
+
+	$plugin_basename = plugin_basename( REDIRECTION_FILE );
+	$plugins = $options['plugins'] ?? [];
+
+	if ( ! in_array( $plugin_basename, $plugins, true ) ) {
+		return;
+	}
+
+	if ( function_exists( 'opcache_reset' ) ) {
+		// Suppress warnings if opcache_reset is restricted by server configuration
+		@opcache_reset(); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+	}
+}
+
+add_action( 'upgrader_process_complete', 'redirection_clear_opcache_on_upgrade', 10, 2 );
 
 /**
  * @return bool

@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: YITH WooCommerce Wishlist\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/yith-woocommerce-"
 "wishlist\n"
-"POT-Creation-Date: 2025-11-18T14:57:58+00:00\n"
+"POT-Creation-Date: 2026-03-05T10:46:03+00:00\n"
 "PO-Revision-Date: 2020-10-16 14:07+0200\n"
 "Last-Translator: 李明軒 <eggeggxuan@gmail.com>\n"
 "Language-Team: Your Inspiration Themes <plugins@yithemes.com>\n"
@@ -635,6 +635,11 @@ msgstr ""
 msgid "Anybody can view it"
 msgstr ""
 
+#: includes/rest-api/controllers/v1/class-yith-wcwl-rest-v1-controller.php:22
+#: includes/rest-api/controllers/v1/class-yith-wcwl-rest-v1-controller.php:39
+msgid "Sorry, you are not allowed to access this resource."
+msgstr ""
+
 #: includes/rest-api/controllers/v1/class-yith-wcwl-rest-v1-items-controller.php:46
 #: includes/rest-api/controllers/v1/class-yith-wcwl-rest-v1-items-controller.php:90
 #: includes/rest-api/controllers/v1/class-yith-wcwl-rest-v1-items-controller.php:118
@@ -692,6 +697,24 @@ msgctxt "[REST-API] The schema field description"
 msgid "The origin wishlist ID"
 msgstr "愿望清单"
 
+#: includes/rest-api/controllers/v1/class-yith-wcwl-rest-v1-items-controller.php:275
+#, fuzzy
+msgid "Sorry, you are not allowed to remove items from the origin wishlist."
+msgstr "错误。无法从「愿望清单」移除这个商品。"
+
+#: includes/rest-api/controllers/v1/class-yith-wcwl-rest-v1-items-controller.php:282
+#, fuzzy
+msgid "The origin wishlist does not exist."
+msgstr "愿望清单"
+
+#: includes/rest-api/controllers/v1/class-yith-wcwl-rest-v1-items-controller.php:296
+msgid "Sorry, you are not allowed to add items to the destination wishlist."
+msgstr ""
+
+#: includes/rest-api/controllers/v1/class-yith-wcwl-rest-v1-items-controller.php:303
+msgid "The destination wishlist does not exist."
+msgstr ""
+
 #: includes/rest-api/controllers/v1/class-yith-wcwl-rest-v1-lists-controller.php:69
 msgctxt "[REST-API] The schema field description"
 msgid "The unique identifier for the user."
@@ -702,14 +725,38 @@ msgctxt "[REST-API] The schema field description"
 msgid "The unique identifier for the session."
 msgstr ""
 
-#: includes/rest-api/controllers/v1/class-yith-wcwl-rest-v1-products-controller.php:43
+#: includes/rest-api/controllers/v1/class-yith-wcwl-rest-v1-lists-controller.php:109
+msgid ""
+"Sorry, you must be logged in or have an active session to view wishlists."
+msgstr ""
+
+#: includes/rest-api/controllers/v1/class-yith-wcwl-rest-v1-lists-controller.php:157
+msgid "Sorry, you must be logged in to create a wishlist for a user."
+msgstr ""
+
+#: includes/rest-api/controllers/v1/class-yith-wcwl-rest-v1-lists-controller.php:165
+msgid "Sorry, you are not allowed to create wishlists for other users."
+msgstr ""
+
+#: includes/rest-api/controllers/v1/class-yith-wcwl-rest-v1-products-controller.php:46
 msgctxt "[REST-API] The schema field description"
 msgid "The list of product ids for which data is being requested."
 msgstr ""
 
-#: includes/rest-api/controllers/v1/class-yith-wcwl-rest-v1-products-controller.php:58
+#: includes/rest-api/controllers/v1/class-yith-wcwl-rest-v1-products-controller.php:62
 msgctxt "[REST-API] The schema field description"
 msgid "The unique identifier for the product."
+msgstr ""
+
+#. translators: %d: product ID
+#: includes/rest-api/controllers/v1/class-yith-wcwl-rest-v1-products-controller.php:129
+#: includes/rest-api/controllers/v1/class-yith-wcwl-rest-v1-products-controller.php:164
+#, php-format
+msgid "Sorry, the product #%d is not accessible."
+msgstr ""
+
+#: includes/rest-api/controllers/v1/class-yith-wcwl-rest-v1-products-controller.php:151
+msgid "Please provide a valid list of product IDs."
 msgstr ""
 
 #: includes/widgets/elementor/class-yith-wcwl-elementor-add-to-wishlist.php:45

@@ -1,5 +1,12 @@
 *** Variation Swatches for WooCommerce ***
 
+2026-02-08 - version 2.2.3
+
+* Added - WP 6.9+ compatibility.
+* Added - WC 10.5+ compatibility.
+* Fixed - Disable Add to cart button issue.
+* Updated - Archive Stock Info positioning.
+
 2025-11-11 - version 2.2.2
 
 * Added - WC 10.3+ compatibility.

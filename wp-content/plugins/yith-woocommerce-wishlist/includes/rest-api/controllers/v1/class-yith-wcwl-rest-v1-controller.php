@@ -8,27 +8,37 @@ defined( 'ABSPATH' ) || exit; // Exit if accessed directly.
 if ( ! class_exists( 'YITH_WCWL_Rest_V1_Controller' ) ) {
 	abstract class YITH_WCWL_Rest_V1_Controller extends WP_REST_Controller {
 		/**
-		 * Get item permission
+		 * Default permission check for reading a single item.
 		 *
-		 * TODO: implement this method
+		 * Deny by default. Child controllers should override this method
+		 * with their own permission logic.
 		 *
-		 * @param WP_REST_Request $request
+		 * @param \WP_REST_Request $request The rest request.
 		 * @return true|WP_Error
 		 */
 		public function get_item_permissions_check( $request ) {
-			return true;
+			return new \WP_Error(
+				'wishlist_rest_forbidden',
+				__( 'Sorry, you are not allowed to access this resource.', 'yith-woocommerce-wishlist' ),
+				array( 'status' => 403 )
+			);
 		}
 
 		/**
-		 * Get item permission
+		 * Default permission check for reading multiple items.
 		 *
-		 * TODO: implement this method
+		 * Deny by default. Child controllers should override this method
+		 * with their own permission logic.
 		 *
-		 * @param $request
-		 * @return true|WP_Error
+		 * @param \WP_REST_Request $request The rest request.
+		 * @return true|\WP_Error
 		 */
 		public function get_items_permissions_check( $request ) {
-			return true;
+			return new \WP_Error(
+				'wishlist_rest_forbidden',
+				__( 'Sorry, you are not allowed to access this resource.', 'yith-woocommerce-wishlist' ),
+				array( 'status' => 403 )
+			);
 		}
 
 		/**

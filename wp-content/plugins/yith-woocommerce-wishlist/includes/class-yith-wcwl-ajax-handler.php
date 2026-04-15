@@ -302,6 +302,14 @@ if ( ! class_exists( 'YITH_WCWL_Ajax_Handler' ) ) {
 				);
 			}
 
+			if ( $wishlist && ! $wishlist->is_current_user_owner() ) {
+				wp_send_json(
+					array(
+						'result' => false,
+					)
+				);
+			}
+
 			$wishlist->set_name( $wishlist_name );
 			$wishlist->save();
 

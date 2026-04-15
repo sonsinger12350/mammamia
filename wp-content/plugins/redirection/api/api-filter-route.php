@@ -29,7 +29,12 @@ class Redirection_Api_Filter_Route extends Redirection_Api_Route {
 			}
 		}
 
-		// Value should be an array at this point based on REST validation
+		// An empty string means no filter was set (client sent filterBy= with nothing) — normalize to an empty array
+		if ( $value === '' ) {
+			$request->set_param( $param, [] );
+			return true;
+		}
+
 		if ( ! is_array( $value ) ) {
 			return new WP_Error( 'rest_invalid_param', 'Filter is not an array', array( 'status' => 400 ) );
 		}
@@ -55,6 +60,13 @@ class Redirection_Api_Filter_Route extends Redirection_Api_Route {
 	 * @return array<string, mixed>
 	 */
 	protected function get_filter_args( $order_fields, $filters = [] ) {
+		// Safety check: ensure Red_Item class is loaded (prevents fatal errors during incomplete plugin updates)
+		// Use a fallback value if the class doesn't exist
+		$max_per_page = 200; // Default fallback value
+		if ( class_exists( 'Red_Item' ) ) {
+			$max_per_page = Red_Item::MAX_PER_PAGE;
+		}
+
 		return [
 			'filterBy' => [
 				'description' => 'Field to filter by',
@@ -77,7 +89,7 @@ class Redirection_Api_Filter_Route extends Redirection_Api_Route {
 				'type' => 'integer',
 				'default' => 25,
 				'minimum' => 5,
-				'maximum' => Red_Item::MAX_PER_PAGE,
+				'maximum' => $max_per_page,
 			],
 			'page' => [
 				'description' => 'Page offset',

@@ -2,7 +2,7 @@
  * Variation Swatches for WooCommerce
  *
  * Author: Emran Ahmed ( emran.bd.08@gmail.com )
- * Date: 11/11/2025, 3:19:45 PM
+ * Date: 2/8/2026, 6:03:56 PM
  * Released under the GPLv3 license.
  */
 .woo-variation-swatches.wvs-tooltip {
@@ -441,6 +441,14 @@
 .woo-variation-swatches .wp-block-getwooplugins-variation-swatches.swatches-align-right {
   --wvs-position: flex-end;
 }
+.woo-variation-swatches .wp-block-getwooplugins-variation-swatches .wvs-archive-information {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: var(--wvs-position);
+      -ms-flex-pack: var(--wvs-position);
+          justify-content: var(--wvs-position);
+}
 .woo-variation-swatches .woo-variation-raw-select + .select2 {
   display: none !important;
 }
@@ -540,6 +548,14 @@
 }
 .woo-variation-swatches .wvs-archive-variations-wrapper .variable-items-wrapper.wvs-style-squared.archive-variable-items .variable-item:not(.radio-variable-item).button-variable-item {
   min-width: var(--wvs-archive-product-item-width, 30px);
+}
+.woo-variation-swatches .wvs-archive-variations-wrapper .wvs-archive-information {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: var(--wvs-position);
+      -ms-flex-pack: var(--wvs-position);
+          justify-content: var(--wvs-position);
 }
 .woo-variation-swatches ul.variations {
   list-style: none;
