@@ -571,7 +571,7 @@ function getAllCollectionOptionsForAllBrands() {
 		AND p.post_type = 'product'
 		AND p.post_status = 'publish'
 		GROUP BY tt2.term_id, t.term_id, t.name
-		HAVING COUNT(DISTINCT p.ID) > 0
+		HAVING product_count > 0
 		ORDER BY tt2.term_id, t.name ASC
 	";
 
@@ -583,7 +583,10 @@ function getAllCollectionOptionsForAllBrands() {
 	foreach ($results as $result) {
 		if (!isset($brand_collections[$result->brand_id])) $brand_collections[$result->brand_id] = [];
 
-		$brand_collections[$result->brand_id][$result->collection_id] = $result->collection_name;
+		$brand_collections[$result->brand_id][$result->collection_id] = [
+			'name' => $result->collection_name,
+			'count' => (int) $result->product_count,
+		];
 	}
 	
 	// Cache the result for 2 hours (7200 seconds)

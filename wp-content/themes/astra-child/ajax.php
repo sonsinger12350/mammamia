@@ -159,8 +159,15 @@ function ajax_get_collection_options() {
 	$html = '<option value="">Tất cả</option>';
 
 	if (!empty($collection_options)) {
-		foreach ($collection_options as $key => $value) {
-			$html .= '<option value="' . esc_attr($value) . '">' . esc_html($value) . '</option>';
+		foreach ($collection_options as $option) {
+			// Backward compatibility: support old cached format (string value only)
+			$collection_name = is_array($option) ? ($option['name'] ?? '') : $option;
+			$collection_count = is_array($option) ? (int) ($option['count'] ?? 0) : 0;
+
+			if (empty($collection_name)) continue;
+
+			$label = $collection_count > 0 ? sprintf('%s (%d)', $collection_name, $collection_count) : $collection_name;
+			$html .= '<option value="' . esc_attr($collection_name) . '">' . esc_html($label) . '</option>';
 		}
 	}
 
