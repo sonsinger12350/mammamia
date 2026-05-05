@@ -90,8 +90,12 @@ class Custom_Elementor_Widget_Filter_Product extends \Elementor\Widget_Base {
 					';
 					if (!empty($data['options'])) {
 						foreach ($data['options'] as $key => $value) {
-							if ($field == 'brand') $content .= '<option value="' . esc_attr($key) . '">' . esc_html($value) . '</option>';
-							else $content .= '<option value="' . esc_attr($value) . '">' . esc_html($value) . '</option>';
+							if (in_array($field, ['brand', 'bo-suu-tap', 'set_up'])) {
+								$content .= '<option value="' . esc_attr($key) . '">' . esc_html($value) . '</option>';
+							}
+							else {
+								$content .= '<option value="' . esc_attr($value) . '">' . esc_html($value) . '</option>';
+							}
 						}
 					}
 

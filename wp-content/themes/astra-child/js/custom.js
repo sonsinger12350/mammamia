@@ -579,6 +579,7 @@ jQuery(function($) {
 	$('#brand').on('change', function() {
 		var brandId = $(this).val();
 		var collectionSelect = $('#bo-suu-tap');
+		var categoryId = $('.custom-filter-product input[name="category"]').val() || '';
 		var defaultCollectionOptions = collectionSelect.data('default-options');
 
 		if (!defaultCollectionOptions) {
@@ -604,6 +605,7 @@ jQuery(function($) {
 				data: {
 					action: 'get_collection_options',
 					brand_id: brandId,
+					category_id: categoryId,
 					nonce: filter_product_ajax.nonce
 				},
 				success: function(response) {

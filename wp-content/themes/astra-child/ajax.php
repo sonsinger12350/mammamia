@@ -151,9 +151,10 @@ function ajax_get_collection_options() {
 
 	$brand_id = intval($_POST['brand_id']);
 	if (empty($brand_id)) wp_send_json_error('Invalid parameters');
+	$category_id = isset($_POST['category_id']) ? intval($_POST['category_id']) : 0;
 
 	// Get collection options using optimized function
-	$collection_options = getCollectionOptionsByBrandOptimized($brand_id);
+	$collection_options = getCollectionOptionsByBrandOptimized($brand_id, $category_id);
 
 	// Build HTML options
 	$html = '<option value="">Tất cả</option>';
@@ -162,12 +163,14 @@ function ajax_get_collection_options() {
 		foreach ($collection_options as $option) {
 			// Backward compatibility: support old cached format (string value only)
 			$collection_name = is_array($option) ? ($option['name'] ?? '') : $option;
+			$collection_slug = is_array($option) ? ($option['slug'] ?? '') : '';
 			$collection_count = is_array($option) ? (int) ($option['count'] ?? 0) : 0;
 
 			if (empty($collection_name)) continue;
+			$option_value = !empty($collection_slug) ? $collection_slug : $collection_name;
 
 			$label = $collection_count > 0 ? sprintf('%s (%d)', $collection_name, $collection_count) : $collection_name;
-			$html .= '<option value="' . esc_attr($collection_name) . '">' . esc_html($label) . '</option>';
+			$html .= '<option value="' . esc_attr($option_value) . '">' . esc_html($label) . '</option>';
 		}
 	}
 
@@ -196,8 +199,9 @@ function clear_collection_options_cache() {
 		delete_transient('collection_options_brand_' . $brand_id);
 	}
 	
-	// Also clear the optimized cache
-	delete_transient('all_collection_options_all_brands');
+	// Clear all scoped optimized caches (all_collection_options_all_brands_{category_id})
+	$wpdb->query("DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_all_collection_options_all_brands_%'");
+	$wpdb->query("DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_timeout_all_collection_options_all_brands_%'");
 }
 
 // Hook to clear cache when products are updated

@@ -250,7 +250,7 @@ function getTaxonomyTermsByCat($catObj, $taxonomy) {
 		$product_terms = get_the_terms($product_id, $taxonomy);
 		if ($product_terms && !is_wp_error($product_terms)) {
 			foreach ($product_terms as $term) {
-				$terms[$term->term_id] = $term->name;
+				$terms[$term->slug] = $term->name;
 			}
 		}
 	}
@@ -544,14 +544,28 @@ add_action('wp', 'init_collection_options_cache');
 /**
  * Get all collection options for all brands in a single query - Most efficient approach
  */
-function getAllCollectionOptionsForAllBrands() {
+function getAllCollectionOptionsForAllBrands($category_id = 0) {
 	global $wpdb;
 	
 	// Check cache first
-	$cache_key = 'all_collection_options_all_brands';
+	$category_id = absint($category_id);
+	$cache_key = 'all_collection_options_all_brands_' . $category_id;
 	$cached_result = get_transient($cache_key);
 	
 	if ($cached_result !== false) return $cached_result;
+
+	$category_ids = [];
+	if (!empty($category_id)) {
+		$category_ids = get_term_children($category_id, 'product_cat');
+		$category_ids[] = $category_id;
+		$category_ids = array_map('absint', $category_ids);
+		$category_ids = array_filter($category_ids);
+	}
+
+	$category_condition = '';
+	if (!empty($category_ids)) {
+		$category_condition = ' AND tt3.term_id IN (' . implode(',', $category_ids) . ')';
+	}
 	
 	// Single query to get all collection options grouped by brand
 	$sql = "
@@ -559,6 +573,7 @@ function getAllCollectionOptionsForAllBrands() {
 			tt2.term_id as brand_id,
 			t.term_id as collection_id,
 			t.name as collection_name,
+			t.slug as collection_slug,
 			COUNT(DISTINCT p.ID) as product_count
 		FROM {$wpdb->terms} t
 		INNER JOIN {$wpdb->term_taxonomy} tt ON t.term_id = tt.term_id
@@ -566,11 +581,15 @@ function getAllCollectionOptionsForAllBrands() {
 		INNER JOIN {$wpdb->posts} p ON tr.object_id = p.ID
 		INNER JOIN {$wpdb->term_relationships} tr2 ON p.ID = tr2.object_id
 		INNER JOIN {$wpdb->term_taxonomy} tt2 ON tr2.term_taxonomy_id = tt2.term_taxonomy_id
+		INNER JOIN {$wpdb->term_relationships} tr3 ON p.ID = tr3.object_id
+		INNER JOIN {$wpdb->term_taxonomy} tt3 ON tr3.term_taxonomy_id = tt3.term_taxonomy_id
 		WHERE tt.taxonomy = 'bo-suu-tap'
 		AND tt2.taxonomy = 'product_brand'
+		AND tt3.taxonomy = 'product_cat'
 		AND p.post_type = 'product'
 		AND p.post_status = 'publish'
-		GROUP BY tt2.term_id, t.term_id, t.name
+		{$category_condition}
+		GROUP BY tt2.term_id, t.term_id, t.name, t.slug
 		HAVING product_count > 0
 		ORDER BY tt2.term_id, t.name ASC
 	";
@@ -585,6 +604,7 @@ function getAllCollectionOptionsForAllBrands() {
 
 		$brand_collections[$result->brand_id][$result->collection_id] = [
 			'name' => $result->collection_name,
+			'slug' => $result->collection_slug,
 			'count' => (int) $result->product_count,
 		];
 	}
@@ -598,11 +618,11 @@ function getAllCollectionOptionsForAllBrands() {
 /**
  * Optimized version of getCollectionOptionsByBrand using preloaded data
  */
-function getCollectionOptionsByBrandOptimized($brand_id) {
+function getCollectionOptionsByBrandOptimized($brand_id, $category_id = 0) {
 	if (empty($brand_id)) return [];
 	
-	// Get all collections for all brands
-	$all_collections = getAllCollectionOptionsForAllBrands();
+	// Get all collections for all brands in current category scope
+	$all_collections = getAllCollectionOptionsForAllBrands($category_id);
 	
 	// Return collections for specific brand
 	return isset($all_collections[$brand_id]) ? $all_collections[$brand_id] : [];
