@@ -142,8 +142,12 @@ add_action('wp_ajax_get_collection_options', 'ajax_get_collection_options');
 add_action('wp_ajax_nopriv_get_collection_options', 'ajax_get_collection_options');
 
 function ajax_get_collection_options() {
-	// Verify nonce for security
-	if (!wp_verify_nonce($_POST['nonce'], 'filter_product_nonce')) wp_die('Security check failed');
+	// This endpoint is public (nopriv). Cached pages can serve stale nonce values
+	// to guests, so enforce nonce strictly only for logged-in users.
+	$nonce = isset($_POST['nonce']) ? sanitize_text_field(wp_unslash($_POST['nonce'])) : '';
+	if (is_user_logged_in() && !wp_verify_nonce($nonce, 'filter_product_nonce')) {
+		wp_send_json_error('Security check failed', 403);
+	}
 
 	$brand_id = intval($_POST['brand_id']);
 	if (empty($brand_id)) wp_send_json_error('Invalid parameters');

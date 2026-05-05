@@ -579,6 +579,12 @@ jQuery(function($) {
 	$('#brand').on('change', function() {
 		var brandId = $(this).val();
 		var collectionSelect = $('#bo-suu-tap');
+		var defaultCollectionOptions = collectionSelect.data('default-options');
+
+		if (!defaultCollectionOptions) {
+			defaultCollectionOptions = collectionSelect.html();
+			collectionSelect.data('default-options', defaultCollectionOptions);
+		}
 
 		// Reset collection field
 		collectionSelect.html('<option value="">Tất cả</option>');
@@ -613,6 +619,11 @@ jQuery(function($) {
 					collectionSelect.removeClass('loading');
 				}
 			});
+		} else {
+			// Restore default collection list when no brand is selected
+			collectionSelect.html(defaultCollectionOptions);
+			collectionSelect.prop('disabled', false);
+			collectionSelect.removeClass('loading');
 		}
 	});
 });
