@@ -558,7 +558,8 @@ function getAllCollectionOptionsForAllBrands() {
 		SELECT 
 			tt2.term_id as brand_id,
 			t.term_id as collection_id,
-			t.name as collection_name
+			t.name as collection_name,
+			COUNT(DISTINCT p.ID) as product_count
 		FROM {$wpdb->terms} t
 		INNER JOIN {$wpdb->term_taxonomy} tt ON t.term_id = tt.term_id
 		INNER JOIN {$wpdb->term_relationships} tr ON tt.term_taxonomy_id = tr.term_taxonomy_id
@@ -569,7 +570,8 @@ function getAllCollectionOptionsForAllBrands() {
 		AND tt2.taxonomy = 'product_brand'
 		AND p.post_type = 'product'
 		AND p.post_status = 'publish'
-		GROUP BY collection_name
+		GROUP BY tt2.term_id, t.term_id, t.name
+		HAVING COUNT(DISTINCT p.ID) > 0
 		ORDER BY tt2.term_id, t.name ASC
 	";
 
