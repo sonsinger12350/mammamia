@@ -702,6 +702,61 @@ add_filter('wpseo_canonical', function ($canonical) {
     return mm_strip_wc_cat_base($canonical);
 }, 999);
 
+// Yoast SEO: ép noindex,follow cho archive/page đặc thù đang cần deindex khỏi Google.
+add_filter('wpseo_robots', function ($robots) {
+    if (is_author()) {
+        return 'noindex,follow';
+    }
+
+    if (is_category()) {
+        return 'noindex,follow';
+    }
+
+    if (is_tax(['bo-suu-tap', 'thuong-hieu', 'chat-lieu', 'product_tag'])) {
+        return 'noindex,follow';
+    }
+
+    if (is_paged()) {
+        return 'noindex,follow';
+    }
+
+    if (is_page(['chinh-sach-bao-hanh', 'cua-hang__trashed', 'cua-hang', 'san-pham-yeu-thich', 'wishlist'])) {
+        return 'noindex,follow';
+    }
+
+    if (isset($_GET['print']) && $_GET['print'] === 'pdf' && is_page('tuyen-dung')) {
+        return 'noindex,follow';
+    }
+
+    return $robots;
+});
+
+// Yoast SEO: loại author archive khỏi sitemap.
+add_filter('wpseo_sitemap_exclude_author', '__return_true');
+
+// Yoast SEO: loại category archive khỏi sitemap.
+add_filter('wpseo_sitemap_exclude_taxonomy', function ($excluded, $taxonomy) {
+    if ($taxonomy === 'category') {
+        return true;
+    }
+
+    return $excluded;
+}, 10, 2);
+
+// Yoast SEO: loại các page cụ thể đang cần deindex khỏi page-sitemap.xml.
+add_filter('wpseo_exclude_from_sitemap_by_post_ids', function ($excluded_post_ids) {
+    $slugs = ['chinh-sach-bao-hanh', 'cua-hang', 'wishlist'];
+
+    foreach ($slugs as $slug) {
+        $page = get_page_by_path($slug, OBJECT, 'page');
+        if ($page instanceof WP_Post) {
+            $excluded_post_ids[] = (int) $page->ID;
+        }
+    }
+
+    return array_values(array_unique($excluded_post_ids));
+});
+
 add_filter('woocommerce_get_breadcrumb', function ($crumbs) {
     foreach ($crumbs as &$crumb) {
         if (!empty($crumb[1])) {
