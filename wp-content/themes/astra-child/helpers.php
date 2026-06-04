@@ -176,6 +176,46 @@ function getProductListByConditions($conditions, $limit = 12) {
 	return ob_get_clean();
 }
 
+/**
+ * Sort filter options A–Z by display label. Optionally pin "Other" to the end.
+ *
+ * @param array $options  Key => label string, or key => ['name' => ..., 'slug' => ...]
+ * @param bool  $other_last  Move "Other" (by name or slug "other") after all other items
+ * @return array
+ */
+function sort_filter_options_alphabetically(array $options, $other_last = false) {
+	if (empty($options)) {
+		return $options;
+	}
+
+	$get_label = static function ($value) {
+		return is_array($value) ? (string) ($value['name'] ?? '') : (string) $value;
+	};
+
+	$pinned_other = null;
+	if ($other_last) {
+		foreach ($options as $key => $value) {
+			$label = $get_label($value);
+			$slug = is_array($value) ? (string) ($value['slug'] ?? '') : (string) $key;
+			if (strcasecmp($label, 'Other') === 0 || strcasecmp($slug, 'other') === 0) {
+				$pinned_other = [$key => $value];
+				unset($options[$key]);
+				break;
+			}
+		}
+	}
+
+	uasort($options, static function ($a, $b) use ($get_label) {
+		return strcasecmp($get_label($a), $get_label($b));
+	});
+
+	if ($pinned_other !== null) {
+		$options = array_merge($options, $pinned_other);
+	}
+
+	return $options;
+}
+
 function getAllBrandByCat($cat) {
 	if (empty($cat->taxonomy) || $cat->taxonomy != 'product_cat') return null;
 	global $wpdb;
@@ -211,7 +251,7 @@ function getAllBrandByCat($cat) {
 		$data[$item->term_id] = $item->name;
 	}
 
-	return $data;
+	return sort_filter_options_alphabetically($data);
 }
 
 function getTaxonomyTermsByCat($catObj, $taxonomy) {
@@ -255,10 +295,7 @@ function getTaxonomyTermsByCat($catObj, $taxonomy) {
 		}
 	}
 
-	// Sắp xếp theo tên
-	asort($terms);
-
-	return $terms;
+	return sort_filter_options_alphabetically($terms, $taxonomy === 'bo-suu-tap');
 }
 
 // Modifi this function to get all attribute of product
@@ -625,5 +662,7 @@ function getCollectionOptionsByBrandOptimized($brand_id, $category_id = 0) {
 	$all_collections = getAllCollectionOptionsForAllBrands($category_id);
 	
 	// Return collections for specific brand
-	return isset($all_collections[$brand_id]) ? $all_collections[$brand_id] : [];
+	$collections = isset($all_collections[$brand_id]) ? $all_collections[$brand_id] : [];
+
+	return sort_filter_options_alphabetically($collections, true);
 }
