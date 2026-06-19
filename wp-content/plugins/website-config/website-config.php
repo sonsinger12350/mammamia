@@ -16,12 +16,13 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('WEBSITE_CONFIG_VERSION', '1.0.2');
+define('WEBSITE_CONFIG_VERSION', '1.0.3');
 define('WEBSITE_CONFIG_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('WEBSITE_CONFIG_PLUGIN_PATH', plugin_dir_path(__FILE__));
 
 // Include column mappings
 require_once WEBSITE_CONFIG_PLUGIN_PATH . 'column-mappings.php';
+require_once WEBSITE_CONFIG_PLUGIN_PATH . 'includes/mamma-mia-drive-image-handler.php';
 require_once WEBSITE_CONFIG_PLUGIN_PATH . '/vendor/autoload.php';
 
 
@@ -91,6 +92,9 @@ class WebsiteConfig
 		// Add AJAX handlers for cancel import
 		add_action('wp_ajax_cancel_import', array($this, 'cancel_import'));
 		add_action('wp_ajax_nopriv_cancel_import', array($this, 'cancel_import'));
+
+		// Migrate USP feature image paths
+		add_action('wp_ajax_mamma_mia_migrate_feature_images', array($this, 'handle_migrate_feature_images'));
 
 		// Hook for plugin activation
 		register_activation_hook(__FILE__, array($this, 'create_import_tables'));
@@ -416,6 +420,20 @@ class WebsiteConfig
 
 				<!-- Import Jobs History Section -->
 				<div class="card" style="max-width: 100%; margin-bottom: 20px;">
+					<h2><span class="dashicons dashicons-images-alt2"></span> Migrate đường dẫn ảnh USP</h2>
+					<p>Cập nhật lại đường dẫn ảnh tính năng (USP) trên các sản phẩm theo attachment hiện có trong Media Library. Dùng khi ảnh bị lỗi do path cũ không còn tồn tại.</p>
+					<div class="migrate-actions" style="display:flex; gap:10px; margin-bottom:12px;">
+						<button type="button" class="button button-secondary" id="migrate-feature-images-preview">
+							<span class="dashicons dashicons-visibility"></span> Xem trước
+						</button>
+						<button type="button" class="button button-primary" id="migrate-feature-images-run">
+							<span class="dashicons dashicons-update"></span> Chạy migrate
+						</button>
+					</div>
+					<div id="migrate-feature-images-results" class="import-results"></div>
+				</div>
+
+				<div class="card" style="max-width: 100%; margin-bottom: 20px;">
 					<h2><span class="dashicons dashicons-list-view"></span>Lịch Sử Import</h2>
 					<?php $this->display_import_jobs_status(); ?>
 				</div>
@@ -424,8 +442,43 @@ class WebsiteConfig
 			<script>
 				// Pass nonce to JavaScript
 				window.websiteConfigNonce = '<?php echo wp_create_nonce('excel_import_nonce'); ?>';
+				window.mammaMiaMigrateNonce = '<?php echo wp_create_nonce('mamma_mia_migrate_nonce'); ?>';
 			</script>
 		<?php
+	}
+
+	/**
+	 * Handle USP feature image path migration via AJAX.
+	 */
+	public function handle_migrate_feature_images()
+	{
+		if (!current_user_can('manage_options')) {
+			wp_send_json_error('Bạn không có quyền thực hiện thao tác này');
+		}
+
+		if (!wp_verify_nonce($_POST['nonce'] ?? '', 'mamma_mia_migrate_nonce')) {
+			wp_send_json_error('Kiểm tra bảo mật thất bại');
+		}
+
+		$dry_run = !empty($_POST['dry_run']);
+		$results = mamma_mia_migrate_product_feature_image_paths($dry_run);
+
+		wp_send_json_success([
+			'message' => $dry_run
+				? sprintf(
+					'Xem trước: %d sản phẩm, %d ảnh sẽ được cập nhật, %d ảnh không resolve được.',
+					$results['updated_products'],
+					$results['updated_images'],
+					$results['unresolved_images']
+				)
+				: sprintf(
+					'Hoàn tất: đã cập nhật %d sản phẩm, %d ảnh. %d ảnh không resolve được.',
+					$results['updated_products'],
+					$results['updated_images'],
+					$results['unresolved_images']
+				),
+			'results' => $results,
+		]);
 	}
 
 	/**
@@ -1218,114 +1271,11 @@ class WebsiteConfig
 	}
 
 	/**
-	 * Check if URL is accessible (not 404)
-	 */
-	private function is_url_accessible($url) {
-		$response = wp_remote_head($url, array(
-			'timeout' => 10,
-			'redirection' => 3
-		));
-
-		if (is_wp_error($response)) return false;
-
-		$response_code = wp_remote_retrieve_response_code($response);
-		return $response_code === 200;
-	}
-
-	/**
-	 * Import image from Google Drive link with caching and optimization
+	 * Import image from Google Drive link with attachment reuse.
 	 */
 	private function import_image_from_drive($drive_url, $returnType = 'id')
 	{
-		// Cache key for this URL
-		$cache_key = 'drive_image_' . md5($drive_url);
-		$cached_result = wp_cache_get($cache_key);
-		if ($cached_result !== false) {
-			return $cached_result;
-		}
-
-		$file_id = null;
-
-		// Extract file ID from URL
-		if (strpos($drive_url, 'drive.google.com/file/d/') !== false) {
-			preg_match('/\/file\/d\/([a-zA-Z0-9_-]+)/', $drive_url, $matches);
-			if (isset($matches[1])) $file_id = $matches[1];
-		}
-		elseif (strpos($drive_url, 'drive.google.com/open?id=') !== false) {
-			preg_match('/id=([a-zA-Z0-9_-]+)/', $drive_url, $matches);
-			if (isset($matches[1])) $file_id = $matches[1];
-		}
-
-		if (!$file_id) {
-			wp_cache_set($cache_key, false, '', 3600);
-			return false;
-		}
-
-		// Check if we already have this file in media library by file ID
-		$existing_attachment = $this->get_attachment_by_drive_id($file_id);
-
-		if ($existing_attachment) {
-			$result = $returnType === 'url' ? wp_get_attachment_url($existing_attachment) : $existing_attachment;
-			$urlAttachment = $returnType === 'url' ? $result : wp_get_attachment_url($existing_attachment);
-			
-			// Check if the URL is still valid (not 404)
-			if (!$this->is_url_accessible($urlAttachment)) {
-				// URL is 404, remove from cache and continue to re-download
-				wp_cache_delete($cache_key);
-				// Also delete the attachment from media library
-				wp_delete_attachment($existing_attachment, true);
-			}
-			else {
-				wp_cache_set($cache_key, $result, '', 3600);
-				return $result;
-			}
-		}
-
-		// Use direct download URL (faster than confirm token method)
-		$direct_url = "https://drive.google.com/uc?export=download&id=$file_id";
-
-		require_once(ABSPATH . 'wp-admin/includes/file.php');
-		require_once(ABSPATH . 'wp-admin/includes/media.php');
-		require_once(ABSPATH . 'wp-admin/includes/image.php');
-
-		// Download with shorter timeout
-		$tmp = download_url($direct_url, 30);
-		if (is_wp_error($tmp)) {
-			wp_cache_set($cache_key, false, '', 3600);
-			return false;
-		}
-
-		// Get filename from content disposition or use file ID
-		$filename = $this->get_filename_from_drive_url($drive_url, $file_id);
-		
-		if (empty($filename) || !$this->is_valid_image($filename)) {
-			@unlink($tmp);
-			wp_cache_set($cache_key, false, '', 3600);
-			return false;
-		}
-
-		// Create file array
-		$file_array = [
-			'name'     => $filename,
-			'tmp_name' => $tmp,
-		];
-
-		// Upload to media library
-		$attachment_id = media_handle_sideload($file_array, 0);
-
-		if (is_wp_error($attachment_id)) {
-			@unlink($tmp);
-			wp_cache_set($cache_key, false, '', 3600);
-			return false;
-		}
-
-		// Store drive file ID for future reference
-		update_post_meta($attachment_id, '_drive_file_id', $file_id);
-
-		$result = $returnType === 'url' ? wp_get_attachment_url($attachment_id) : $attachment_id;
-		wp_cache_set($cache_key, $result, '', 3600);
-		
-		return $result;
+		return Mamma_Mia_Drive_Image_Handler::instance()->import_image_from_drive($drive_url, $returnType);
 	}
 
 	/**
@@ -1333,34 +1283,7 @@ class WebsiteConfig
 	 */
 	private function get_attachment_by_drive_id($file_id)
 	{
-		$existing = get_posts([
-			'post_type'   => 'attachment',
-			'post_status' => 'inherit',
-			'meta_query'  => [
-				[
-					'key'     => '_drive_file_id',
-					'value'   => $file_id,
-					'compare' => '=',
-				]
-			],
-			'posts_per_page' => 1,
-		]);
-
-		return !empty($existing) ? $existing[0]->ID : false;
-	}
-
-	/**
-	 * Get filename from drive URL or generate one
-	 */
-	private function get_filename_from_drive_url($drive_url, $file_id)
-	{
-		// Try to extract filename from URL
-		if (preg_match('/[^\/\?]+\.(jpg|jpeg|png|gif|webp|bmp)$/i', $drive_url, $matches)) {
-			return sanitize_file_name($matches[0]);
-		}
-
-		// Generate filename from file ID
-		return 'drive_' . $file_id . '.jpg';
+		return Mamma_Mia_Drive_Image_Handler::instance()->get_attachment_by_drive_id($file_id);
 	}
 
 	/**
@@ -1454,16 +1377,6 @@ class WebsiteConfig
 		wp_cache_set($cache_key, $result, '', 3600);
 		
 		return $result;
-	}
-
-	function is_valid_image($filename) {
-		// Lấy phần mở rộng file (không phân biệt hoa thường)
-		$ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
-	
-		// Danh sách đuôi ảnh hợp lệ
-		$valid_exts = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'];
-	
-		return in_array($ext, $valid_exts);
 	}
 
 	/**

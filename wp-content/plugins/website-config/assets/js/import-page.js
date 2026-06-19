@@ -349,4 +349,85 @@ jQuery(document).ready(function($) {
 	setInterval(function() {
 		$('#check-running-imports').click();
 	}, 30000);
+
+	function renderMigrateResults(response, dryRun) {
+		const $container = $('#migrate-feature-images-results');
+		const results = response.results || {};
+		const details = results.details || [];
+		let html = '<div class="notice notice-' + (dryRun ? 'info' : 'success') + '"><p>' + response.message + '</p></div>';
+
+		html += '<ul style="margin:12px 0;">';
+		html += '<li>Đã quét: <strong>' + (results.scanned_products || 0) + '</strong> sản phẩm</li>';
+		html += '<li>Sản phẩm cập nhật: <strong>' + (results.updated_products || 0) + '</strong></li>';
+		html += '<li>Ảnh cập nhật: <strong>' + (results.updated_images || 0) + '</strong></li>';
+		html += '<li>Ảnh không đổi: <strong>' + (results.unchanged_images || 0) + '</strong></li>';
+		html += '<li>Ảnh không resolve: <strong>' + (results.unresolved_images || 0) + '</strong></li>';
+		html += '</ul>';
+
+		if (details.length > 0) {
+			html += '<table class="widefat striped"><thead><tr>';
+			html += '<th>ID</th><th>Sản phẩm</th><th>Trạng thái</th><th>URL cũ</th><th>URL mới</th>';
+			html += '</tr></thead><tbody>';
+
+			details.forEach(function(item) {
+				html += '<tr>';
+				html += '<td>' + item.product_id + '</td>';
+				html += '<td>' + item.product_title + '</td>';
+				html += '<td>' + item.status + '</td>';
+				html += '<td><code style="word-break:break-all;">' + (item.old_url || '-') + '</code></td>';
+				html += '<td><code style="word-break:break-all;">' + (item.new_url || '-') + '</code></td>';
+				html += '</tr>';
+			});
+
+			html += '</tbody></table>';
+		}
+
+		$container.html(html);
+	}
+
+	function runFeatureImageMigration(dryRun) {
+		const $previewBtn = $('#migrate-feature-images-preview');
+		const $runBtn = $('#migrate-feature-images-run');
+		const $container = $('#migrate-feature-images-results');
+
+		if (!dryRun && !confirm('Bạn có chắc muốn cập nhật đường dẫn ảnh USP trên các sản phẩm?')) {
+			return;
+		}
+
+		$previewBtn.prop('disabled', true);
+		$runBtn.prop('disabled', true);
+		$container.html('<p>Đang xử lý...</p>');
+
+		$.ajax({
+			url: ajaxurl,
+			type: 'POST',
+			data: {
+				action: 'mamma_mia_migrate_feature_images',
+				nonce: window.mammaMiaMigrateNonce,
+				dry_run: dryRun ? 1 : 0
+			},
+			success: function(response) {
+				if (response.success) {
+					renderMigrateResults(response.data, dryRun);
+				} else {
+					$container.html('<div class="notice notice-error"><p>' + response.data + '</p></div>');
+				}
+			},
+			error: function() {
+				$container.html('<div class="notice notice-error"><p>Lỗi khi migrate. Vui lòng thử lại.</p></div>');
+			},
+			complete: function() {
+				$previewBtn.prop('disabled', false);
+				$runBtn.prop('disabled', false);
+			}
+		});
+	}
+
+	$('#migrate-feature-images-preview').on('click', function() {
+		runFeatureImageMigration(true);
+	});
+
+	$('#migrate-feature-images-run').on('click', function() {
+		runFeatureImageMigration(false);
+	});
 }); 
