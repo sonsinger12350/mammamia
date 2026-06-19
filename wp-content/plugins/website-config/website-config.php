@@ -16,7 +16,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('WEBSITE_CONFIG_VERSION', '1.0.3');
+define('WEBSITE_CONFIG_VERSION', '1.0.4');
 define('WEBSITE_CONFIG_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('WEBSITE_CONFIG_PLUGIN_PATH', plugin_dir_path(__FILE__));
 
@@ -420,20 +420,6 @@ class WebsiteConfig
 
 				<!-- Import Jobs History Section -->
 				<div class="card" style="max-width: 100%; margin-bottom: 20px;">
-					<h2><span class="dashicons dashicons-images-alt2"></span> Migrate đường dẫn ảnh USP</h2>
-					<p>Cập nhật lại đường dẫn ảnh tính năng (USP) trên các sản phẩm theo attachment hiện có trong Media Library. Dùng khi ảnh bị lỗi do path cũ không còn tồn tại.</p>
-					<div class="migrate-actions" style="display:flex; gap:10px; margin-bottom:12px;">
-						<button type="button" class="button button-secondary" id="migrate-feature-images-preview">
-							<span class="dashicons dashicons-visibility"></span> Xem trước
-						</button>
-						<button type="button" class="button button-primary" id="migrate-feature-images-run">
-							<span class="dashicons dashicons-update"></span> Chạy migrate
-						</button>
-					</div>
-					<div id="migrate-feature-images-results" class="import-results"></div>
-				</div>
-
-				<div class="card" style="max-width: 100%; margin-bottom: 20px;">
 					<h2><span class="dashicons dashicons-list-view"></span>Lịch Sử Import</h2>
 					<?php $this->display_import_jobs_status(); ?>
 				</div>
@@ -442,7 +428,6 @@ class WebsiteConfig
 			<script>
 				// Pass nonce to JavaScript
 				window.websiteConfigNonce = '<?php echo wp_create_nonce('excel_import_nonce'); ?>';
-				window.mammaMiaMigrateNonce = '<?php echo wp_create_nonce('mamma_mia_migrate_nonce'); ?>';
 			</script>
 		<?php
 	}
