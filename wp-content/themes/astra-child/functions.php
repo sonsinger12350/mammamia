@@ -702,6 +702,96 @@ add_filter('wpseo_canonical', function ($canonical) {
     return mm_strip_wc_cat_base($canonical);
 }, 999);
 
+/*===========================================================
+= URL 301 + LOẠI KHỎI SITEMAP (cấu hình tại 1 chỗ)         =
+===========================================================*/
+/**
+ * Danh sách URL cần 301 và loại khỏi sitemap.
+ *
+ * Key: path nguồn (vd. '/cua-hang/')
+ * Value: URL đích — path tương đối ('/') hoặc URL đầy đủ
+ *
+ * @return array<string, string>
+ */
+function mm_get_permanent_redirects() {
+    return [
+        '/cua-hang/' => '/',
+    ];
+}
+
+function mm_normalize_request_path($path) {
+    $path = wp_parse_url($path, PHP_URL_PATH) ?: $path;
+    $path = '/' . trim((string) $path, '/') . '/';
+
+    return $path === '//' ? '/' : $path;
+}
+
+function mm_resolve_redirect_target($to) {
+    if (preg_match('#^https?://#i', $to)) {
+        return $to;
+    }
+
+    return home_url(mm_normalize_request_path($to));
+}
+
+/** Slug page đơn (1 segment) từ danh sách redirect — dùng cho sitemap/noindex. */
+function mm_get_redirect_page_slugs() {
+    $slugs = [];
+
+    foreach (array_keys(mm_get_permanent_redirects()) as $path) {
+        $slug = trim($path, '/');
+        if ($slug !== '' && strpos($slug, '/') === false) {
+            $slugs[] = $slug;
+        }
+    }
+
+    return array_values(array_unique($slugs));
+}
+
+/** Kiểm tra URL có nằm trong danh sách redirect nguồn không. */
+function mm_url_matches_redirect_source($url) {
+    if (empty($url)) {
+        return false;
+    }
+
+    $current = mm_normalize_request_path($url);
+
+    foreach (array_keys(mm_get_permanent_redirects()) as $from) {
+        if ($current === mm_normalize_request_path($from)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+add_action('template_redirect', function () {
+    if (is_admin()) {
+        return;
+    }
+
+    $redirects = mm_get_permanent_redirects();
+    if (empty($redirects)) {
+        return;
+    }
+
+    $current = mm_normalize_request_path($_SERVER['REQUEST_URI'] ?? '/');
+
+    foreach ($redirects as $from => $to) {
+        if ($current !== mm_normalize_request_path($from)) {
+            continue;
+        }
+
+        $target = mm_resolve_redirect_target($to);
+        if (!empty($_GET)) {
+            $target = add_query_arg(wp_unslash($_GET), $target);
+        }
+
+        wp_safe_redirect($target, 301);
+        exit;
+    }
+}, 1);
+
 // Yoast SEO: ép noindex,follow cho archive/page đặc thù đang cần deindex khỏi Google.
 add_filter('wpseo_robots', function ($robots) {
     if (is_author()) {
@@ -720,7 +810,12 @@ add_filter('wpseo_robots', function ($robots) {
         return 'noindex,follow';
     }
 
-    if (is_page(['chinh-sach-bao-hanh', 'cua-hang__trashed', 'cua-hang', 'san-pham-yeu-thich', 'wishlist'])) {
+    $noindex_pages = array_merge(
+        ['chinh-sach-bao-hanh', 'cua-hang__trashed', 'san-pham-yeu-thich', 'wishlist'],
+        mm_get_redirect_page_slugs()
+    );
+
+    if (is_page(array_values(array_unique($noindex_pages)))) {
         return 'noindex,follow';
     }
 
@@ -745,7 +840,10 @@ add_filter('wpseo_sitemap_exclude_taxonomy', function ($excluded, $taxonomy) {
 
 // Yoast SEO: loại các page cụ thể đang cần deindex khỏi page-sitemap.xml.
 add_filter('wpseo_exclude_from_sitemap_by_post_ids', function ($excluded_post_ids) {
-    $slugs = ['chinh-sach-bao-hanh', 'cua-hang', 'wishlist'];
+    $slugs = array_values(array_unique(array_merge(
+        ['chinh-sach-bao-hanh', 'wishlist'],
+        mm_get_redirect_page_slugs()
+    )));
 
     foreach ($slugs as $slug) {
         $page = get_page_by_path($slug, OBJECT, 'page');
@@ -756,6 +854,29 @@ add_filter('wpseo_exclude_from_sitemap_by_post_ids', function ($excluded_post_id
 
     return array_values(array_unique($excluded_post_ids));
 });
+
+// Yoast SEO: loại URL redirect khỏi mọi sitemap (kể cả product archive /cua-hang/ trong product-sitemap.xml).
+add_filter('wpseo_sitemap_post_type_archive_link', function ($archive_url, $post_type) {
+    if ($archive_url && mm_url_matches_redirect_source($archive_url)) {
+        return false;
+    }
+
+    return $archive_url;
+}, 10, 2);
+
+add_filter('wpseo_sitemap_post_type_first_links', function ($links, $post_type) {
+    return array_values(array_filter($links, function ($link) {
+        return empty($link['loc']) || !mm_url_matches_redirect_source($link['loc']);
+    }));
+}, 10, 2);
+
+add_filter('wpseo_sitemap_entry', function ($url, $type, $object) {
+    if (!empty($url['loc']) && mm_url_matches_redirect_source($url['loc'])) {
+        return false;
+    }
+
+    return $url;
+}, 10, 3);
 
 add_filter('woocommerce_get_breadcrumb', function ($crumbs) {
     foreach ($crumbs as &$crumb) {
