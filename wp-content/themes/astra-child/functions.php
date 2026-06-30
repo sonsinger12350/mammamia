@@ -765,6 +765,58 @@ function mm_url_matches_redirect_source($url) {
     return false;
 }
 
+/** Prefix ngôn ngữ loại khỏi sitemap (vd. 'en' → /en/...). */
+function mm_get_excluded_sitemap_language_prefixes() {
+    return ['en'];
+}
+
+function mm_url_has_excluded_language_prefix($url) {
+    if (empty($url)) {
+        return false;
+    }
+
+    $path = mm_normalize_request_path($url);
+
+    foreach (mm_get_excluded_sitemap_language_prefixes() as $lang) {
+        $prefix = mm_normalize_request_path('/' . $lang . '/');
+        if ($path === $prefix || str_starts_with($path, $prefix)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+function mm_should_exclude_from_sitemap($url) {
+    return mm_url_matches_redirect_source($url) || mm_url_has_excluded_language_prefix($url);
+}
+
+/** Gỡ các block <url> có /en/ khỏi XML sitemap (Polylang chèn trực tiếp qua wpseo_sitemap_*_content). */
+function mm_filter_excluded_language_sitemap_xml($xml) {
+    if (!is_string($xml) || $xml === '') {
+        return $xml;
+    }
+
+    $home = preg_quote(untrailingslashit(home_url()), '#');
+
+    foreach (mm_get_excluded_sitemap_language_prefixes() as $lang) {
+        $lang = preg_quote($lang, '#');
+        $xml = preg_replace(
+            '#\s*<url>\s*<loc>' . $home . '/' . $lang . '(?:/[^<]*)?</loc>.*?</url>#s',
+            '',
+            $xml
+        );
+    }
+
+    return $xml;
+}
+
+add_action('init', function () {
+    foreach (['post', 'page', 'product'] as $post_type) {
+        add_filter("wpseo_sitemap_{$post_type}_content", 'mm_filter_excluded_language_sitemap_xml', 999);
+    }
+}, 20);
+
 add_action('template_redirect', function () {
     if (is_admin()) {
         return;
@@ -855,9 +907,9 @@ add_filter('wpseo_exclude_from_sitemap_by_post_ids', function ($excluded_post_id
     return array_values(array_unique($excluded_post_ids));
 });
 
-// Yoast SEO: loại URL redirect khỏi mọi sitemap (kể cả product archive /cua-hang/ trong product-sitemap.xml).
+// Yoast SEO: loại URL redirect + ngôn ngữ /en/ khỏi mọi sitemap.
 add_filter('wpseo_sitemap_post_type_archive_link', function ($archive_url, $post_type) {
-    if ($archive_url && mm_url_matches_redirect_source($archive_url)) {
+    if ($archive_url && mm_should_exclude_from_sitemap($archive_url)) {
         return false;
     }
 
@@ -866,17 +918,77 @@ add_filter('wpseo_sitemap_post_type_archive_link', function ($archive_url, $post
 
 add_filter('wpseo_sitemap_post_type_first_links', function ($links, $post_type) {
     return array_values(array_filter($links, function ($link) {
-        return empty($link['loc']) || !mm_url_matches_redirect_source($link['loc']);
+        return empty($link['loc']) || !mm_should_exclude_from_sitemap($link['loc']);
     }));
 }, 10, 2);
 
 add_filter('wpseo_sitemap_entry', function ($url, $type, $object) {
-    if (!empty($url['loc']) && mm_url_matches_redirect_source($url['loc'])) {
+    if (!empty($url['loc']) && mm_should_exclude_from_sitemap($url['loc'])) {
         return false;
     }
 
     return $url;
 }, 10, 3);
+
+// Loại post tiếng Anh khỏi query sitemap (Polylang gán ngôn ngữ qua taxonomy 'language').
+add_filter('wpseo_posts_where', function ($sql, $post_type) {
+    if (!function_exists('pll_is_translated_post_type') || !pll_is_translated_post_type($post_type)) {
+        return $sql;
+    }
+
+    $excluded_langs = mm_get_excluded_sitemap_language_prefixes();
+    if (empty($excluded_langs)) {
+        return $sql;
+    }
+
+    global $wpdb;
+    $tt_ids = [];
+
+    foreach ($excluded_langs as $lang_slug) {
+        $term = get_term_by('slug', $lang_slug, 'language');
+        if ($term && !is_wp_error($term)) {
+            $tt_ids[] = (int) $term->term_taxonomy_id;
+        }
+    }
+
+    if (empty($tt_ids)) {
+        return $sql;
+    }
+
+    return $sql . " AND {$wpdb->posts}.ID NOT IN (
+        SELECT tr.object_id FROM {$wpdb->term_relationships} AS tr
+        WHERE tr.term_taxonomy_id IN (" . implode(',', $tt_ids) . ")
+    )";
+}, 15, 2);
+
+// Loại term tiếng Anh khỏi taxonomy sitemap.
+add_filter('get_terms_args', function ($args) {
+    if (empty($GLOBALS['wp_query']->query['sitemap'])) {
+        return $args;
+    }
+
+    $excluded = mm_get_excluded_sitemap_language_prefixes();
+    if (empty($excluded)) {
+        return $args;
+    }
+
+    if (!empty($args['lang'])) {
+        $langs = array_diff(array_map('trim', explode(',', $args['lang'])), $excluded);
+    } elseif (function_exists('pll_languages_list')) {
+        $langs = array_diff(pll_languages_list(), $excluded);
+    } else {
+        return $args;
+    }
+
+    if (empty($langs)) {
+        $args['include'] = [0];
+        unset($args['lang']);
+    } else {
+        $args['lang'] = implode(',', $langs);
+    }
+
+    return $args;
+}, 25);
 
 add_filter('woocommerce_get_breadcrumb', function ($crumbs) {
     foreach ($crumbs as &$crumb) {
